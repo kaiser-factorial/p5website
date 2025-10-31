@@ -143,8 +143,12 @@ function setup() {
 
   osc1.amp(0)    // Start silent
   osc1.start()   // Start the oscillator
+  reverb = new p5.Reverb();
+
+
+  reverb.process(osc1, 2.5, 2); 
   console.log("Oscillator initialized")
-  note = cMaj[6]
+
 
   // Create enable sound button
   enableSoundButton = createButton('')
@@ -172,8 +176,11 @@ function setup() {
 }
 
 function enableSound() {
+  if (audioEnabled) return; // Prevent multiple calls
+  
   // Start audio context and enable sound
   userStartAudio();
+  audioEnabled = true;
   
   enableSoundButton.html('Welcome!');
   enableSoundButton.style('background-color', 'red');
@@ -238,13 +245,15 @@ function draw() {
        // color: color(random(255), random(255), random(255), 255) // Added alpha value
       })
       
-      // Play sound when hello appears
-      mapNote = map(hellos[hellos.length-1].y, 0, windowHeight, 7.99, 0)
-      note = cMaj[floor(mapNote)]
-      let freq1 = note
-      osc1.freq(freq1)
-      startStop(osc1)
-      print("sound - y:", hellos[hellos.length-1].y, "mapNote:", mapNote, "index:", floor(mapNote), "freq:", freq1)
+      // Play sound when hello appears - but only if audio is enabled
+      if (audioEnabled) {
+        mapNote = map(hellos[hellos.length-1].y, 0, windowHeight, 7.99, 0)
+        note = cMaj[floor(mapNote)]
+        let freq1 = note
+        osc1.freq(freq1)
+        startStop(osc1)
+        print("sound - y:", hellos[hellos.length-1].y, "mapNote:", mapNote, "index:", floor(mapNote), "freq:", freq1)
+      }
     }
     
     // Draw and update existing hellos
@@ -349,13 +358,15 @@ function draw() {
 }
 function startStop(osc){
  // Make sure oscillator is connected and audible
- osc.amp(1, 0.1);   
- osc.amp(0, 0.3, 1); // fade to 0 amplitude after 0.4s delay, over 0.3s
+ osc.amp(0.75, 0.1);   // Lower volume (0.3 instead of 1) and quicker attack
+ osc.amp(0, 0.3, 0.05); // fade to 0 amplitude after 0.05s delay, over 0.2s
 }
 
 function mousePressed(){
-    userStartAudio();
-    enableSound()
+    if (!audioEnabled) {
+        userStartAudio();
+        enableSound();
+    }
 }   
 
 
