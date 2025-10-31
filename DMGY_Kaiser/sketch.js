@@ -88,11 +88,11 @@ let p;
 // Canvas variable for z-index control
 let cnv;
 
-// Trail arrays for each flyer
-let trails = []
-let trailLength = 15  // Back to longer trails
 
-// Bold colors with yellows and pure blues
+let trails = []
+let trailLength = 15  
+
+
 let trailColors = [
   [255, 0, 0],      // Pure red
   [0, 100, 200],    // Dark blue
@@ -142,12 +142,12 @@ function setup() {
   osc1 = new p5.Oscillator('triangle')
 
   osc1.amp(0)    // Start silent
-  osc1.start()   // Start the oscillator
+
   reverb = new p5.Reverb();
 
 
   reverb.process(osc1, 2.5, 2); 
-  console.log("Oscillator initialized")
+
 
 
   // Create enable sound button
@@ -180,6 +180,8 @@ function enableSound() {
   
   // Start audio context and enable sound
   userStartAudio();
+   osc1.start()
+  reverb.process(osc1, 2.5, 2)
   audioEnabled = true;
   
   enableSoundButton.html('Welcome!');
