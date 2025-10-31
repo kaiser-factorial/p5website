@@ -143,6 +143,7 @@ function setup() {
 
   osc1.amp(0)    // Start silent
   osc1.start()   // Start the oscillator
+  process(source, seconds = 3, decayRate = 2, reverse = false)
   reverb = new p5.Reverb();
 
 
