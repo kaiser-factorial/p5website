@@ -360,8 +360,8 @@ function draw() {
 }
 function startStop(osc){
  // Make sure oscillator is connected and audible
- osc.amp(0.75, 0.1);   // Lower volume (0.3 instead of 1) and quicker attack
- osc.amp(0, 0.3, 0.05); // fade to 0 amplitude after 0.05s delay, over 0.2s
+ osc.amp(0.75, 0.2);   // Lower volume (0.3 instead of 1) and quicker attack
+ osc.amp(0, 0.5, 0.3); // fade to 0 amplitude after 0.05s delay, over 0.2s
 }
 
 function mousePressed(){
