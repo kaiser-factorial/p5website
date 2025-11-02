@@ -1,0 +1,505 @@
+
+
+
+:root {
+    --color-1: #A288E3;
+    --color-2: ;
+    --color-4: #c7a900;
+    --color-3: #ff1818;
+}
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Times New Roman', serif;
+      color: black;
+    }
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.nav-left, .nav-right {
+    flex: 1.5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-center {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100px;
+}
+
+.nav-links-column {
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+    gap: 12rem;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-links-column a {
+    font-family: 'Times New Roman', serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+    letter-spacing: 10px;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    text-shadow: yellow;
+    white-space: nowrap;
+}
+
+.nav-links-column a:hover {
+    background-color: rgba(0,0,0, .1);
+    transform: scale(1.05);
+
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: row;
+    list-style: none;
+    gap: 2rem;
+}
+
+
+
+header {
+ 
+    color: var(--color-4); 
+    margin-top: 0;
+    top: 0;
+    width: 100%;
+   /* height:4rem; */
+
+}
+
+header h1 {
+    text-align: center;
+    font-size: 2rem;
+}
+
+nav {
+    padding: 1rem 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+/* Center navigation only on home page */
+body.home nav {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Keep navigation at top for all other pages - not floating */
+body:not(.home) nav {
+    position: static;
+    transform: none;
+    width: 100%;
+}
+
+/* Homepage-specific link colors */
+body.home a:visited {
+    color: rgb(255,255,255);
+}
+
+body.home a:active {
+    color: white;
+}
+
+/* Homepage-specific text shadow for navigation links */
+body.home .nav-links-column a {
+    text-shadow: 2px 2px 4px rgba(255,255,0,1);
+    font-size: 3.5rem;
+    background:rgba(0, 0, 0,1)
+
+}
+
+/* Catch-Fall game page specific styling */
+body.catchfall-game {
+    background-color: black;
+    color: white;
+}
+
+body.catchfall-game nav {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Comments page specific styling */
+body.comments-page {
+    background-color: black;
+    color: white;
+}
+
+body.comments-page nav {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+body.comments-page h1 {
+    color: white;
+}
+
+/* Spikes page specific styling */
+body.spikes-page nav {
+    position: static;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 1rem 2rem;
+}
+
+body.spikes-page .nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+body.spikes-page .nav-links {
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+}
+
+/* Spikes page specific styling */
+body.spikes-page nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 1rem 2rem;
+    z-index: 1000;
+}
+
+body.spikes-page .nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+body.spikes-page .nav-links {
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+}
+
+body.spikes-page {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+#instructions-overlay {
+    position: fixed;
+    top: 100px;
+    left: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 15px 20px;
+    border-radius: 8px;
+    font-family: 'Times New Roman', serif;
+    font-size: 14px;
+    z-index: 5;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#audioButton {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-family: 'Times New Roman', serif;
+    background-color: maroon;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 20px;
+    transition: background-color 0.3s ease;
+}
+
+#audioButton:hover {
+    background-color: white;
+}
+
+
+
+
+.footer {
+  position: sticky;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  color: white;
+  text-align: center;
+}
+
+a:link {
+  color: var(--color-3);
+}
+
+/* visited link */
+a:visited {
+  color: var(--color-4);
+}
+
+/* mouse over link */
+a:hover {
+  color: white;
+}
+
+/* selected link */
+a:active {
+  color: white;
+}
+
+
+#vanta-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      inset:0;
+        z-index: 0;
+}
+
+
+
+
+section p {
+    font-size: 1.1rem;
+    font-family: 'Times New Roman', serif;
+    line-height: 1.7;
+    color: #555;
+}
+
+.content, header, main, .footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Sketch container */
+#sketch-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 2rem 0;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
+    min-height: 400px;
+    font-family: 'Times New Roman', serif;
+}
+
+/* Make p5.js canvas responsive */
+#sketch-container canvas {
+    border-radius: 4px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
+}
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .nav-left, .nav-right, .nav-center {
+        flex: none;
+        width: 100%;
+    }
+    
+    .nav-links-column {
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .nav-links-column a {
+        font-size: 1.2rem;
+    }
+    
+    nav ul {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    main {
+        padding: 1rem;
+    }
+    
+    header h1 {
+        font-size: 1.5rem;
+    }
+    
+    section {
+        padding: 1rem;
+    }
+    
+    #sketch-container {
+        min-height: 300px;
+    }
+}
+
+/* About Page Styles */
+.about-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.about-text {
+    flex: 1;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.about-image {
+    flex: 0 0 300px; /* Fixed width for image container */
+}
+
+.headshot {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.headshot:hover {
+    transform: scale(1.05);
+}
+
+/* Responsive design for about page */
+@media (max-width: 768px) {
+    .about-container {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .about-image {
+        flex: none;
+        align-self: center;
+    }
+    
+    .headshot {
+        max-width: 250px;
+    }
+}
+
+/* General link styling */
+a {
+    font-weight: bold;
+}
+
+/* Sketchpad instructions styling */
+.instructions {
+    font-family: 'Times New Roman', serif;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    text-align: left;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    color: black;
+    display: flex;
+    gap: 6rem;
+    justify-content: space-between;
+}
+
+.instructions-column {
+    flex: 1;
+    margin-right: 4rem;
+}
+
+.color-keys-column {
+    flex: 1;
+    margin-left: 4rem;
+}
+
+/* Sketchpad page specific header styling */
+body.sketchpad-page header {
+    position: static;
+    background-color: white;
+    padding: 1rem;
+}
+
+body.sketchpad-page h1 {
+    color: black;
+    font-style: italic;
+}
+
+.instructions p {
+    margin: 0.3rem 0;
+}
+
+.color-keys {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin: 0.5rem 0;
+    font-size: 0.85rem;
+}
+
+.color-keys span {
+    white-space: nowrap;
+}
+
+/* Color key styling - each color displays in its actual color */
+.color-r, .color-red { 
+    color: red; 
+    font-size: 1.1rem;
+}
+.color-o, .color-orange { 
+    color: orange; 
+    font-size: 1.1rem;
+}
+.color-y, .color-yellow { 
+    color: gold; 
+    font-size: 1.1rem;
+}
+.color-g, .color-green { 
+    color: green; 
+    font-size: 1.1rem;
+}
+.color-b, .color-blue { 
+    color: blue; 
+    font-size: 1.1rem;
+}
+.color-p, .color-purple { 
+    color: purple; 
+    font-size: 1.1rem;
+}
+.color-0, .color-black { 
+    color: black; 
+    font-size: 1.1rem;
+}
