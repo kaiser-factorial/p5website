@@ -72,8 +72,9 @@ html, body {
 }
 
 .nav-links-column a:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0,0,0, .1);
     transform: scale(1.05);
+
 }
 
 .nav-links {
@@ -124,7 +125,7 @@ body:not(.home) nav {
 
 /* Homepage-specific link colors */
 body.home a:visited {
-    color: rgb(229, 12, 12);
+    color: rgb(255,255,255);
 }
 
 body.home a:active {
@@ -133,8 +134,9 @@ body.home a:active {
 
 /* Homepage-specific text shadow for navigation links */
 body.home .nav-links-column a {
-    text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.5);
+    text-shadow: 2px 2px 4px rgba(255,255,0,1);
     font-size: 3.5rem;
+    background:rgba(0, 0, 0,1)
 
 }
 
@@ -237,7 +239,7 @@ body.spikes-page {
 }
 
 #audioButton:hover {
-    background-color: red;
+    background-color: white;
 }
 
 
