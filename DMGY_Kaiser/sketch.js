@@ -19,6 +19,11 @@ let y=50
 let xV=10
 let yV=10
 
+let rows=5
+let cols=10
+let counter=0
+let n
+
 
 let rad=50
 let fractalX = 0
@@ -88,11 +93,11 @@ let p;
 // Canvas variable for z-index control
 let cnv;
 
-
+// Trail arrays for each flyer
 let trails = []
-let trailLength = 15  
+let trailLength = 15  // Back to longer trails
 
-
+// Bold colors with yellows and pure blues
 let trailColors = [
   [255, 0, 0],      // Pure red
   [0, 100, 200],    // Dark blue
@@ -142,12 +147,12 @@ function setup() {
   osc1 = new p5.Oscillator('triangle')
 
   osc1.amp(0)    // Start silent
-
+  osc1.start()   // Start the oscillator
   reverb = new p5.Reverb();
 
 
   reverb.process(osc1, 2.5, 2); 
-
+  console.log("Oscillator initialized")
 
 
   // Create enable sound button
@@ -176,12 +181,11 @@ function setup() {
 }
 
 function enableSound() {
+  
   if (audioEnabled) return; // Prevent multiple calls
   
   // Start audio context and enable sound
   userStartAudio();
-   osc1.start()
-  reverb.process(osc1, 2.5, 2)
   audioEnabled = true;
   
   enableSoundButton.html('Welcome!');
@@ -201,7 +205,7 @@ function draw() {
   if (clickF) {
     background(0, 0, 0, 200) // Semi-transparent dark background during fractal
   } else {
-    clear() // Makes the canvas transparent when no fractal
+    background(255,255,255,.7) // Makes the canvas transparent when no fractal
   }
   
   try {
@@ -228,7 +232,7 @@ function draw() {
       
       // Draw all trail points with fade
       for (let j = 0; j < trails[i].length; j++) {
-        let alpha = map(j, 0, trails[i].length - 1, 30, 180)
+        let alpha = map(j, 0, trails[i].length - 1, 10, 60)
         fill(baseColor[0], baseColor[1], baseColor[2], alpha)
         let circleSize = map(j, 0, trails[i].length - 1, 3, 10)
         ellipse(trails[i][j].x, trails[i][j].y, circleSize)
@@ -283,22 +287,12 @@ function draw() {
   }
 
   phit=hit
-  
+ 
   // No longer trigger fractal on any mouse press
   // Fractal will only trigger when links are clicked (handled in setup)
   
   // Draw fractal if it's been triggered by a link click
-  if (clickF){
-    // Boost canvas z-index to appear over navigation and text when fractal is active
-    cnv.style('z-index', '2000');
-    cnv.style('pointer-events', 'auto');
-    console.log('Fractal active - z-index set to 2000, rad:', rad); // Debug
-    growFractal(fractalX, fractalY)
-  } else {
-    // Reset z-index when fractal is not active
-    cnv.style('z-index', '0');
-    cnv.style('pointer-events', 'none');
-  }
+  
 
   // Position flyers - this should always continue
   if (flyer1) flyer1.position(x1, y1)
@@ -357,11 +351,24 @@ function draw() {
     x0+=xV0
     y0+=yV0
 
+     grid()
+    if (clickF){
+    // Boost canvas z-index to appear over navigation and text when fractal is active
+    cnv.style('z-index', '2000');
+    cnv.style('pointer-events', 'auto');
+    console.log('Fractal active - z-index set to 2000, rad:', rad); // Debug
+    growFractal(fractalX, fractalY)
+  } else {
+    // Reset z-index when fractal is not active
+    cnv.style('z-index', '0');
+    cnv.style('pointer-events', 'none');
+  }
+
 }
 function startStop(osc){
  // Make sure oscillator is connected and audible
- osc.amp(0.75, 0.2);   // Lower volume (0.3 instead of 1) and quicker attack
- osc.amp(0, 0.5, 0.3); // fade to 0 amplitude after 0.05s delay, over 0.2s
+ osc.amp(0.75, 0.1);   // Lower volume (0.3 instead of 1) and quicker attack
+ osc.amp(0, 0.3, 0.05); // fade to 0 amplitude after 0.05s delay, over 0.2s
 }
 
 function mousePressed(){
@@ -531,8 +538,30 @@ function growFractal(x,y){
 }
 
 
+function grid(){
+  rectMode(CENTER)
+  translate(width/(2*cols), height/(2*rows))
+  n=1.2*noise(0.02*frameCount)
+  for (let x=0; x<cols ; x++){
+    for (let y=0; y< rows; y++){
+      for (let i=0; i<8; i++){
+        
+        if (i%3==0){
+          r=255*cos(map(i,0,6, 0, 2*PI))
+          b=255-r
 
+          fill(r, 0, 0)
+        } if(i%3==1){
 
+          fill(0,0,b)
+        } if(i%3==2){
+          fill('yellow')
+        }
+
+        rect(x*width/cols, y*height/rows, n*width/cols-i*9, n*height/rows-i*7)
+        }}
+      
+    }}
 
 
 
