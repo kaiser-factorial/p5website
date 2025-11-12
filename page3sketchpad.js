@@ -37,7 +37,7 @@ let clickF=false
 var cnv;
 
 let sw=10
-let c='black'
+let c=color('black')
 let ts=1
 let cont=0
 
@@ -208,7 +208,7 @@ function keyPressed(){
     c='yellow'
   }
   if (key == 'r'){
-    c='red'
+    c=color('red')
   }
   if (key=='g'){
     c='green'
