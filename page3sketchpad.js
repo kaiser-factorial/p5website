@@ -68,7 +68,7 @@ drawingLayer = createGraphics(windowWidth, windowHeight - totalOffset);
   // Create the webcam video and hide it
   video = createCapture(VIDEO);
   video.size(640 , 400);
- // video.hide();
+  video.hide();
  
   // start detecting hands from the webcam video
   handPose.detectStart(video, gotHands);
