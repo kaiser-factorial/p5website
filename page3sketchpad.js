@@ -167,15 +167,21 @@ function draw() {
           drawing=false
                    
         }}
-  if (!playing){
-    let thumbX = width - (thumb.x * width / video.width);
-  let thumbY = thumb.y * height / video.height;
-  let pointerX = width - (pointer.x * width / video.width);
-  let pointerY = pointer.y * height / video.height;
+  if (!playing && thumb && pointer){
+      let thumbX = width - (thumb.x * width / video.width);
+      let thumbY = thumb.y * height / video.height;
+      let pointerX = width - (pointer.x * width / video.width);
+      let pointerY = pointer.y * height / video.height;
+      
+      circle(thumbX, thumbY, 10)
+      circle(pointerX, pointerY, 10)
+      
+      if (cont%2==1){
+        strokeWeight(sw)   
+        line(pointerX, pointerY, thumbX, thumbY)
+      } 
+    }
   
-  circle(thumbX, thumbY, 10)
-  circle(pointerX, pointerY, 10)
- }
   
   if (clickF){
     // Boost canvas z-index to appear over navigation and text when fractal is active
@@ -189,8 +195,9 @@ function draw() {
   if (cont%2==1){
     strokeWeight(sw)   
     line(pointerX, pointerY, thumbX, thumbY)
-  } 
+  }
 }
+
 
 function doubleClicked(){
   cont++
