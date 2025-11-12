@@ -189,11 +189,11 @@ function draw() {
   const el = document.querySelector('#defaultCanvas0') || document.querySelector('canvas');
   if (el) el.style.setProperty('z-index','10000','important');
   // debug: draw a small dot at the seed so you know it's on-canvas
-  push();
 
-  fill(0);
-  circle(fractalX, fractalY, 6);
-  pop();
+
+
+  circle(windowWidth/2, windowHeight/2, 116);
+
 
   growFractal(fractalX, fractalY);
 } else {
