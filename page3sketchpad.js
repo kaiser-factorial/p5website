@@ -37,7 +37,7 @@ let clickF=false
 var cnv;
 
 let sw=10
-let c=color('black')
+let c='black'
 let ts=1
 let cont=0
 
@@ -201,32 +201,31 @@ function keyPressed(){
   
  // STROKE:  
   if (key == 'b'){
-    c='blue'
-    
+    c = 'blue'
   }
   if (key == 'y'){
-    c=color('yellow')
+    c = 'yellow'
   }
   if (key == 'r'){
-    c=color('red')
+    c = 'red'
   }
-  if (key=='g'){
-    c=color('green')
+  if (key == 'g'){
+    c = 'green'
   }
-  if (key=='p'){
-    c=color('purple')
+  if (key == 'p'){
+    c = 'purple'
   }
-  if (key=='o'){
-    c=color('orange')
+  if (key == 'o'){
+    c = 'orange'
   }
-  if (key =='t'){
-    c=color('turquoise')
+  if (key == 't'){
+    c = 'turquoise'
   }
-  if (key=='0'){
-    c=color('black')
+  if (key == '0'){
+    c = 'black'
   }
-  if (key== 'e'){
-    c=color('white')
+  if (key == 'e'){
+    c = 'white'
   }
   
   // WEIGHT:
