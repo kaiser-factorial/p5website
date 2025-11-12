@@ -205,28 +205,28 @@ function keyPressed(){
     
   }
   if (key == 'y'){
-    c='yellow'
+    c=color('yellow')
   }
   if (key == 'r'){
     c=color('red')
   }
   if (key=='g'){
-    c='green'
+    c=color('green')
   }
   if (key=='p'){
-    c='purple'
+    c=color('purple')
   }
   if (key=='o'){
-    c='orange'
+    c=color('orange')
   }
   if (key =='t'){
-    c='turquoise'
+    c=color('turquoise')
   }
   if (key=='0'){
-    c='black'
+    c=color('black')
   }
   if (key== 'e'){
-    c='white'
+    c=color('white')
   }
   
   // WEIGHT:
@@ -235,7 +235,7 @@ function keyPressed(){
   }
   if (keyCode==DOWN_ARROW){
     if (sw>1){
-      sw--2
+      sw-=2
     }else{
       sw=sw
     }
