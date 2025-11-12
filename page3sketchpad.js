@@ -188,7 +188,7 @@ function draw() {
 
   if (cont%2==1){
     strokeWeight(sw)   
-    line(pointerX, pointer Y, thumbX, thumbY)
+    line(pointerX, pointerY, thumbX, thumbY)
   } 
 }
 
@@ -246,7 +246,7 @@ function keyPressed(){
     //resets background when spacebar is pressed
 
  cont=0 
- 
+   }
   
  
   }
