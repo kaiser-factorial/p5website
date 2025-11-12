@@ -13,7 +13,20 @@
      
 </head>
     <script>
-(function(){
+document.addEventListener('DOMContentLoaded', () => {
+  function setInfoTop() {
+    const nav = document.querySelector('nav');
+    const h = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
+    // Add a little breathing room under the nav
+    const offset = (h || 0) + 12;
+    document.documentElement.style.setProperty('--infoTop', offset + 'px');
+  }
+  setInfoTop();
+  window.addEventListener('resize', setInfoTop);
+});
+</script>
+   <script>
+document.addEventListener('DOMContentLoaded', () => {
   function toggle(panelId, btn){
     const panel = document.querySelector(panelId);
     const isOpen = panel.getAttribute('aria-hidden') === 'false';
@@ -38,23 +51,24 @@
     });
   });
 
-  // Click outside closes open panels
+  // Click outside closes
   document.addEventListener('click', (e)=>{
     const anyOpen = [...document.querySelectorAll('.info-panel[aria-hidden="false"]')];
     if(!anyOpen.length) return;
     if(e.target.closest('.info-panel') || e.target.closest('.info-toggle')) return;
     anyOpen.forEach(p=>{
       p.setAttribute('aria-hidden','true');
-      const id = p.id;
-      const btn = document.querySelector(`.info-toggle[aria-controls="${id}"]`);
+      const btn = document.querySelector(`.info-toggle[aria-controls="${p.id}"]`);
       if(btn) btn.setAttribute('aria-expanded','false');
     });
   });
 
-  // Optional: open one by default on first load
-  // toggle('#controlsPanel', document.querySelector('.info-toggle.left'));
-})();
+  // OPTIONAL: start open
+  // document.querySelectorAll('.info-panel').forEach(p=>p.setAttribute('aria-hidden','false'));
+  // document.querySelectorAll('.info-toggle').forEach(b=>b.setAttribute('aria-expanded','true'));
+});
 </script>
+
 
 
 <body class="sketchpad-page">
