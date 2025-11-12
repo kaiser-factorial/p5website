@@ -99,7 +99,7 @@ function draw() {
   // Display the persistent drawing layer on top of white background
   image(drawingLayer, 0, 0);
   
- for (let i = 0; i < hands.length; i++) {
+ for (let i = 0; i < hands.length; i++) {}
     let hand = hands[i];
   
   
