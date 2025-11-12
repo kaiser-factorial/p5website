@@ -234,7 +234,7 @@ function keyPressed(){
   }
   if (keyCode==DOWN_ARROW){
     if (sw>1){
-      sw-=2
+      sw--
     }else{
       sw=sw
     }
