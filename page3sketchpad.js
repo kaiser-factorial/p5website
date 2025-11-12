@@ -40,7 +40,7 @@ let sw=10
 let c='black'
 let ts=1
 let cont=0
- let note1= ePhr[7]
+ let note1
 function preload() {
   // Load the handPose model
   handPose = ml5.handPose();
@@ -52,6 +52,7 @@ function setup() {
   let navHeight = nav ? nav.offsetHeight : 80;
   let headerHeight = header ? header.offsetHeight : 200;
   let totalOffset = navHeight + headerHeight;
+ note1= ePhr[7]
   
   // Canvas positioned below nav and header
   cnv = createCanvas(windowWidth, windowHeight - totalOffset);
