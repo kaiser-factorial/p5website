@@ -40,7 +40,7 @@ let sw=10
 let c='black'
 let ts=1
 let cont=0
-
+ let note1= ePhr[7]
 function preload() {
   // Load the handPose model
   handPose = ml5.handPose();
@@ -118,7 +118,7 @@ function draw() {
       if (pinch<40){
         drawing=true
         if(!playing){
-        let note1= cMaj[0]
+       
       osc1.freq(note1)
         osc1.amp(1,.5)
       playing=true
@@ -209,30 +209,39 @@ function keyPressed(){
  // STROKE:  
   if (key == 'b'){
     c = 'blue'
+    note1= ePhr[5]
   }
   if (key == 'y'){
     c = 'yellow'
+    note1= ePhr[3]
   }
   if (key == 'r'){
     c = 'red'
+    note1= ePhr[1]
   }
   if (key == 'g'){
     c = 'green'
+    note1= ePhr[4]
   }
   if (key == 'p'){
     c = 'purple'
+    note1= ePhr[6]
   }
   if (key == 'o'){
     c = 'orange'
+    note1= ePhr[2]
   }
   if (key == 't'){
     c = 'turquoise'
+    note1= aMin[3]
   }
   if (key == '0'){
     c = 'black'
+    note1= ePhr[7]
   }
   if (key == 'e'){
     c = 'white'
+    note1= ePhr[0]
   }
   
   // WEIGHT:
