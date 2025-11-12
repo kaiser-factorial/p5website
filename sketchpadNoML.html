@@ -123,6 +123,28 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </nav>
 <header>
+      <div id="ml-toggle-container" style="
+  position: fixed;
+  top: 60px;
+  right: 50px;
+  z-index: 1000;
+">
+  <a href="page3sketchpad.html" id="ml-button" style="
+    display: inline-block;
+    padding: 24px 48px;
+    background-color: rgb(255,0,0);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 20px;
+    font-weight: bold;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+    transition: all 0.3s ease;
+  " onmouseover="this.style.backgroundColor='#45a049'; this.style.transform='scale(1.05)';" 
+     onmouseout="this.style.backgroundColor='#4CAF50'; this.style.transform='scale(1)';">
+    Use Sketchpad with ML
+  </a>
+</div>
        <h1>Sketchpad</h1> </header>
     <!-- Collapsible instruction UI -->
 <div class="info-ui">
