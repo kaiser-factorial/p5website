@@ -185,16 +185,21 @@ function draw() {
   
   
  
-  if (clickF){
-  // lift the canvas above everything
-  const el = document.querySelector('canvas'); // or #defaultCanvas0
-  if (el) el.style.setProperty('z-index','10000','important');  // <-- beats CSS !important
+ if (clickF) {
+  const el = document.querySelector('#defaultCanvas0') || document.querySelector('canvas');
+  if (el) el.style.setProperty('z-index','10000','important');
+  // debug: draw a small dot at the seed so you know it's on-canvas
+  push();
+
+  fill(0);
+  circle(fractalX, fractalY, 6);
+  pop();
+
   growFractal(fractalX, fractalY);
 } else {
-  const el = document.querySelector('canvas');
+  const el = document.querySelector('#defaultCanvas0') || document.querySelector('canvas');
   if (el) el.style.setProperty('z-index','0','important');
 }
-
 
   if (cont%2==1){
     strokeWeight(sw)   
@@ -280,51 +285,56 @@ function windowResized() {
 }
 
 function setupLinkFractals() {
-  // Get all navigation links - works for both column and horizontal layouts
-  let navLinks = document.querySelectorAll('.nav-links a, .nav-links-column a')
-  
-  console.log('Found', navLinks.length, 'navigation links') // Debug info
-  
+  const navLinks = document.querySelectorAll('.nav-links a, .nav-links-column a');
+  console.log('Found', navLinks.length, 'navigation links');
+
   navLinks.forEach(link => {
-    link.addEventListener('click', function(event) {
-      console.log('Click detected on link:', this.textContent) // Debug info
-      
-      // Prevent the default link behavior temporarily
-      event.preventDefault()
-      
-      // Store the link's destination
-      let destination = this.getAttribute('href')
-      
-      // Get the click position relative to the canvas
-      let canvas = document.querySelector('canvas') || document.querySelector('main canvas')
-      if (canvas) {
-        let rect = canvas.getBoundingClientRect()
-        fractalX = event.clientX - rect.left
-        fractalY = event.clientY - rect.top
-      } else {
-        // Fallback to click position
-        fractalX = event.clientX
-        fractalY = event.clientY
+    link.addEventListener('click', function (event) {
+      // Don’t navigate yet
+      event.preventDefault();
+
+      const destination = this.getAttribute('href');
+
+      // Measure the p5 canvas
+      const canvas = document.querySelector('#defaultCanvas0') || document.querySelector('canvas');
+      const rect = canvas ? canvas.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+
+      // Compute click relative to the canvas, then CLAMP into the canvas
+      let x = event.clientX - rect.left;
+      let y = event.clientY - rect.top;
+      x = Math.max(0, Math.min(x, rect.width  - 1));
+      y = Math.max(0, Math.min(y, rect.height - 1));
+
+      // If we somehow don’t have a canvas yet, fall back to center
+      if (!canvas) {
+        x = window.innerWidth  / 2;
+        y = window.innerHeight / 2;
       }
-      
-      // Trigger fractal
-      clickF = true
-      rad = 50 // Reset radius
-      
-      // Hide HTML elements during fractal
-      hideHTMLElements()
-      
-      console.log('Link clicked:', destination, 'at position:', fractalX, fractalY)
-      
-      // Navigate to the destination after fractal completes
+
+      fractalX = x;
+      fractalY = y;
+
+      // Trigger fractal + lift canvas above everything
+      clickF = true;
+      rad = 50;
+
+      // Hide overlays so canvas is visible
+      hideHTMLElements();
+
+      // Force canvas to the very top even if CSS has !important elsewhere
+      const el = canvas;
+      if (el) el.style.setProperty('z-index', '10000', 'important');
+
+      console.log('Fractal at', { x: fractalX, y: fractalY, rect });
+
+      // Navigate after animation
       setTimeout(() => {
-
-        window.location.href = destination
-      }, 2000)
-    })
-  })
+        // (optional) showHTMLElements(); // only if you cancel navigation
+        window.location.href = destination;
+      }, 2000);
+    });
+  });
 }
-
 
 function gotHands(results) {
   // save the output to the hands variable
