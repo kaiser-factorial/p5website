@@ -63,6 +63,7 @@ function setup() {
   // **********************************************************************
 drawingLayer = createGraphics(windowWidth, windowHeight);
   drawingLayer.clear();
+   drawingLayer.style('z-index', '2');
   // Create the webcam video and hide it
   video = createCapture(VIDEO);
   video.size(640 , 400);
@@ -84,7 +85,7 @@ drawingLayer = createGraphics(windowWidth, windowHeight);
   reverb = new p5.Reverb();
   reverb.process(osc1, 2.5, 2);
   //*************************************************************************
-  background(255);
+  //background(255);
   
   setupLinkFractals()
 }
@@ -105,7 +106,7 @@ function draw() {
 
     if (i==0){
      
-  fill('black')
+  fill(c)
       thumb=hand.keypoints[4]
       pointer= hand.keypoints[8]
       
