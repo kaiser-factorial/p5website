@@ -1,3 +1,13 @@
+// ===== Voice model (Teachable Machine via TFJS SpeechCommands) =====
+const TM_BASE = "https://teachablemachine.withgoogle.com/models/m_6QDgLEz/";
+let recognizer, tmLabels = [];
+let voiceLabel = "loading...", voiceConf = 0;
+
+// small debounce so colors don't flicker on borderline detections
+let lastVoiceLabel = "", lastSetMs = 0;
+const VOICE_SET_COOLDOWN = 250; // ms
+
+
 let drawingLayer;
 let fractalLayer;
 let prevPointerX = null;
@@ -93,6 +103,7 @@ fractalLayer.clear();
   //background(255);
   
   setupLinkFractals()
+ initVoice(); 
 }
 
 function draw() {
@@ -272,7 +283,18 @@ function keyPressed(){
    }
   
  
-  
+  // === Voice HUD ===
+push();
+const hud = `🎤 ${voiceLabel ? voiceLabel.toUpperCase() : ""}  ${(voiceConf*100|0)}%`;
+textSize(16);
+noStroke();
+fill(0, 160);
+rect(10, height - 38, textWidth(hud) + 16, 28, 8);
+fill(255);
+textAlign(LEFT, CENTER);
+text(hud, 18, height - 24);
+pop();
+
 }
 
 function windowResized() {
@@ -384,6 +406,88 @@ function growFractal(g, x, y){
     rad = 50;
   }
 }
+
+// Initialize the Teachable Machine audio model
+async function initVoice() {
+  try {
+    recognizer = speechCommands.create(
+      "BROWSER_FFT",
+      undefined,
+      TM_BASE + "model.json",
+      TM_BASE + "metadata.json"
+    );
+    await recognizer.ensureModelLoaded();
+    tmLabels = recognizer.wordLabels(); // class names from your model
+    voiceLabel = "listening...";
+
+    recognizer.listen(onVoiceResult, {
+      probabilityThreshold: 0.6, // tweak if it misses you; 0.5–0.65 is typical
+      overlapFactor: 0.5,
+      includeSpectrogram: false
+    });
+  } catch (e) {
+    console.error("Voice init failed:", e);
+    voiceLabel = "mic/model error";
+  }
+}
+
+// Handle audio inference results
+function onVoiceResult(result) {
+  const { scores } = result; // Float32Array aligned with tmLabels
+  if (!scores || !tmLabels || tmLabels.length !== scores.length) return;
+
+  // argmax
+  let bestI = 0, bestV = -1;
+  for (let i = 0; i < scores.length; i++) {
+    if (scores[i] > bestV) { bestV = scores[i]; bestI = i; }
+  }
+  voiceLabel = tmLabels[bestI] || "";
+  voiceConf  = bestV || 0;
+
+  // only apply when fairly confident and not spamming changes
+  const now = performance.now();
+  if (voiceConf >= 0.7 && (voiceLabel !== lastVoiceLabel || (now - lastSetMs) > VOICE_SET_COOLDOWN)) {
+    applyVoiceCommand(voiceLabel);
+    lastVoiceLabel = voiceLabel;
+    lastSetMs = now;
+  }
+}
+
+// Map labels to your sketchpad controls
+function applyVoiceCommand(lbl) {
+  const s = (lbl || "").toLowerCase().trim();
+
+  // synonyms + single-letter shortcuts you trained
+  if (s.includes("red") || s === "r") {
+    c = "red";         note1 = ePhr[1];   return;
+  }
+  if (s.includes("orange") || s === "o") {
+    c = "orange";      note1 = ePhr[2];   return;
+  }
+  if (s.includes("yellow") || s === "y") {
+    c = "yellow";      note1 = ePhr[3];   return;
+  }
+  if (s.includes("green") || s === "g") {
+    c = "green";       note1 = ePhr[4];   return;
+  }
+  if (s.includes("blue") || s === "b") {
+    c = "blue";        note1 = ePhr[5];   return;
+  }
+  if (s.includes("purple") || s === "p") {
+    c = "purple";      note1 = ePhr[6];   return;
+  }
+  if (s.includes("black") || s === "0" || s === "zero") {
+    c = "black";       note1 = ePhr[7];   return;
+  }
+  if (s.includes("turquoise") || s.includes("teal") || s === "t") {
+    c = "turquoise";   note1 = ePhr[4];   return;
+  }
+  if (s.includes("erase") || s.includes("eraser") || s.includes("white")) {
+    c = "white";       note1 = ePhr[0];   return;
+  }
+  // add more phrases if your model has them (e.g., “thicker”, “thinner”, etc.)
+}
+
 
 function hideHTMLElements() {
   // Hide navigation
