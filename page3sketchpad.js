@@ -523,7 +523,7 @@ function hideHTMLElements() {
   let footer = document.querySelector('.footer')
   if (footer) footer.style.display = 'none'
 
- const infoUI = document.querySelector('.info-ui');
+ let infoUI = document.querySelector('.info-ui');
   if (infoUI) infoUI.style.display = 'none';
 
  let mlToggle = document.querySelector('#ml-toggle-container')
