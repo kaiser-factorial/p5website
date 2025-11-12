@@ -61,13 +61,13 @@ function setup() {
   cnv.style('z-index', '0');
   cnv.style('pointer-events', 'auto'); // Full interaction enabled
   // **********************************************************************
-drawingLayer = createGraphics(windowWidth, windowHeight);
+drawingLayer = createGraphics(windowWidth, windowHeight - totalOffset);
   drawingLayer.clear();
    drawingLayer.style('z-index', '2');
   // Create the webcam video and hide it
   video = createCapture(VIDEO);
   video.size(640 , 400);
-  video.hide();
+ // video.hide();
  
   // start detecting hands from the webcam video
   handPose.detectStart(video, gotHands);
@@ -242,14 +242,14 @@ function keyPressed(){
   }
    if (keyCode==32){
     strokeWeight(.5)
-     background(255)
+     drawingLayer.clear();
     //resets background when spacebar is pressed
 
  cont=0 
    }
   
  
-  }
+  
 }
 
 function windowResized() {
