@@ -184,14 +184,17 @@ function draw() {
     }
   
   
+ 
   if (clickF){
-    // Boost canvas z-index to appear over navigation and text when fractal is active
-    cnv.style('z-index', '9999');
-    growFractal(fractalX, fractalY)
-  } else {
-    // Reset z-index when fractal is not active
-    cnv.style('z-index', '0');
-  }
+  // lift the canvas above everything
+  const el = document.querySelector('canvas'); // or #defaultCanvas0
+  if (el) el.style.setProperty('z-index','10000','important');  // <-- beats CSS !important
+  growFractal(fractalX, fractalY);
+} else {
+  const el = document.querySelector('canvas');
+  if (el) el.style.setProperty('z-index','0','important');
+}
+
 
   if (cont%2==1){
     strokeWeight(sw)   
@@ -409,6 +412,9 @@ function hideHTMLElements() {
   
   let footer = document.querySelector('.footer')
   if (footer) footer.style.display = 'none'
+
+ const infoUI = document.querySelector('.info-ui');
+  if (infoUI) infoUI.style.display = 'none';
 }
 
 function showHTMLElements() {
