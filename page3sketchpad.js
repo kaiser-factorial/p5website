@@ -186,7 +186,7 @@ function draw() {
   
   if (clickF){
     // Boost canvas z-index to appear over navigation and text when fractal is active
-    cnv.style('z-index', '2000');
+    cnv.style('z-index', '9999');
     growFractal(fractalX, fractalY)
   } else {
     // Reset z-index when fractal is not active
