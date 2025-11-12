@@ -527,6 +527,16 @@ a {
     margin-left: 4rem;
 }
 
+#fractalCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 12000;       /* above everything */
+  pointer-events: none; /* clicks pass through */
+  display: none;        /* shown only during animation */
+}
+
 /* Sketchpad page specific header styling */
 body.sketchpad-page header {
     position: static;
