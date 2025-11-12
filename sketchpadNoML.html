@@ -3,17 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sketchpad</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+  :root { --infoTop: 72px; } /* fallback, will be updated by JS */
+
+  /* Keep UI above canvas & clickable */
+  .info-ui { position: fixed; inset: 0; pointer-events: none; z-index: 3000; }
+
+  /* Children must be FIXED (not absolute) and clickable */
+  .info-toggle, .info-panel { position: fixed; pointer-events: auto; }
+
+  /* Buttons sit under nav+header */
+  .info-toggle { top: var(--infoTop); padding: 16px 24px; font: 800 20px/1 system-ui,-apple-system,Segoe UI,Roboto,Arial; border:0; border-radius: 999px; background: rgba(0,0,0,.75); color:#fff; cursor:pointer; }
+  .info-toggle.left  { left: 15px; }
+  .info-toggle.right { right: 15px; }
+
+  /* Panels open just below their buttons */
+  .info-panel {
+    top: calc(var(--infoTop) + 40px);
+    width: min(360px, 86vw);
+    max-height: 60vh; overflow: auto;
+    background: rgba(255,255,255,.96);
+    border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,.22);
+    padding: 12px 14px 14px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: transform .2s ease, opacity .2s ease, visibility 0s linear .2s;
+  }
+  .info-panel.left  { left: 12px; }
+  .info-panel.right { right: 12px; }
+  .info-panel[aria-hidden="false"] { opacity:1; visibility:visible; transform:translateY(0); }
+
+  /* Belt-and-suspenders: keep canvas below the UI */
+  #defaultCanvas0, canvas.p5Canvas { z-index: 0 !important; position: fixed; }
+</style>
+
+ <title>p5.js Sketchpad</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/addons/p5.sound.min.js"></script>
+  <script defer src="https://unpkg.com/p5.collide2d"></script>
+
+
+    <script src="sketchpadNoML.js"></script>
+     
 </head>
- <script src="sketchpadNoML.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+  function setInfoTop() {
+    const nav    = document.querySelector('nav');
+    const header = document.querySelector('header');
+    const navH   = nav    ? Math.ceil(nav.getBoundingClientRect().height)    : 0;
+    const headH  = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+    const offset = navH + headH + 12; // padding under header
+    document.documentElement.style.setProperty('--infoTop', offset + 'px');
+  }
+  setInfoTop();
+  window.addEventListener('resize', setInfoTop);
+});
+</script>
+   <script>
+document.addEventListener('DOMContentLoaded', () => {
+  function toggle(panelId, btn){
+    const panel = document.querySelector(panelId);
+    const isOpen = panel.getAttribute('aria-hidden') === 'false';
+    panel.setAttribute('aria-hidden', String(isOpen ? true : false));
+    if(btn){ btn.setAttribute('aria-expanded', String(!isOpen)); }
+  }
+
+  // Button -> panel
+  document.querySelectorAll('.info-toggle').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const target = '#' + btn.getAttribute('aria-controls');
+      toggle(target, btn);
+    });
+  });
+
+  // Close buttons
+  document.querySelectorAll('.info-panel .close').forEach(x=>{
+    x.addEventListener('click', ()=>{
+      const tgt = x.getAttribute('data-close');
+      const btn = document.querySelector(`.info-toggle[aria-controls="${tgt.slice(1)}"]`);
+      toggle(tgt, btn);
+    });
+  });
+
+  // Click outside closes
+  document.addEventListener('click', (e)=>{
+    const anyOpen = [...document.querySelectorAll('.info-panel[aria-hidden="false"]')];
+    if(!anyOpen.length) return;
+    if(e.target.closest('.info-panel') || e.target.closest('.info-toggle')) return;
+    anyOpen.forEach(p=>{
+      p.setAttribute('aria-hidden','true');
+      const btn = document.querySelector(`.info-toggle[aria-controls="${p.id}"]`);
+      if(btn) btn.setAttribute('aria-expanded','false');
+    });
+  });
+
+  // OPTIONAL: start open
+  // document.querySelectorAll('.info-panel').forEach(p=>p.setAttribute('aria-hidden','false'));
+  // document.querySelectorAll('.info-toggle').forEach(b=>b.setAttribute('aria-expanded','true'));
+});
+</script>
+
+
+
 <body class="sketchpad-page">
 <nav>
         <div class="nav-container">
             <!--<a href="#" class="logo">Corina Kaiser</a>-->
             <ul class="nav-links">
-                <li><p><a href="index.html">Home</a></li>
+                <li><a href="index.html">Home</a></li>
                     <li><a href="about.html">About</a></li>
                 <li><a href="page3sketchpad.html">Sketchpad</a></li>
                 <li><a href="p4catchfall.html">Catch Fall Game</a></li>
@@ -25,27 +123,84 @@
         </div>
     </nav>
 <header>
-       <h1>Sketchpad</h1>
-       <div class="instructions">
-           <div class="instructions-column">
-               <p><strong>HOLD MOUSE to draw.</strong></p>
-               <p><strong>Or, DOUBLE CLICK to toggle Continuous Draw mode on/off.</strong></p>
-               <p><strong>Press UP/DOWN arrow keys to increase/decrease stroke width.</strong></p>
-               <p><strong>Press "E" to toggle Eraser.</strong></p>
-               <p><strong>Press SPACEBAR to clear canvas.</strong></p>
-           </div>
-           <div class="color-keys-column">
-               <p><strong>Press keys to change stroke color:</strong></p>
-               <div class="color-keys">
-                   <span><strong class="color-r">R</strong> = <span class="color-red">RED</span> &nbsp;&nbsp;   <strong class="color-o">O</strong> = <span class="color-orange">ORANGE</span> &nbsp;&nbsp; <strong class="color-y">Y</strong> = <span class="color-yellow">YELLOW</span></span>
-                   
-                   <span><strong class="color-g">G</strong> = <span class="color-green">GREEN</span>&nbsp;&nbsp;  <strong class="color-b">B</strong> = <span class="color-blue">BLUE</span>&nbsp;&nbsp;   <strong class="color-p">P</strong> = <span class="color-purple">PURPLE</span></span>
-                   <span><strong class="color-0">0</strong> = <span class="color-black">BLACK</span></span>
+       <h1>Sketchpad</h1> </header>
+    <!-- Collapsible instruction UI -->
+<div class="info-ui">
+  <!-- LEFT: Controls / How to draw -->
+  <button class="info-toggle left" aria-expanded="true" aria-controls="controlsPanel" title="How to draw">CONTROLS</button>
+  <aside id="controlsPanel" class="info-panel left" aria-hidden="false">
+  <div class="info-panel__header">
+    <h3 style="margin:0; text-transform:uppercase; letter-spacing:.06em;">DRAWING CONTROLS</h3>
+    <button class="close" data-close="#controlsPanel" aria-label="Close">×</button>
+  </div>
 
-               </div>
-           </div>
-       </div>
-    </header>
+  <div class="info-panel__content">
+   
+
+    <p>This sketchpad is controlled by your mouse and keyboard.</p>
+    <ul style="margin:.25rem 0 .75rem 1.1rem;">
+      <li> <strong>PRESS MOUSE</strong> to draw.</li>
+      <li>Press <strong>UP/DOWN</strong> to change stroke width.</li>
+      <li>Press <strong>SPACEBAR</strong> to clear canvas.</li>
+    </ul>
+
+   <a href="#"
+   class="close"
+   data-close="#controlsPanel"
+   aria-label="Close"
+   style="display:inline-block; margin-top:.25rem; text-decoration:underline; font-weight:700;">
+  CLICK TO CLOSE
+</a>
+
+  </div>
+</aside>
+
+
+  <!-- RIGHT: Color keys -->
+  <button class="info-toggle right" aria-expanded="true" aria-controls="colorsPanel" title="Color keys">COLOR KEYS</button>
+  <aside id="colorsPanel" class="info-panel right" aria-hidden="false">
+    <div class="info-panel__header">
+      <h3>COLOR KEYS</h3>
+      <button class="close" data-close="#colorsPanel" aria-label="Close">×</button>
+    </div>
+    <div class="info-panel__content">
+      <p><strong>Press key(s) to change stroke color:</strong></p>
+      <div class="color-keys">
+        <p>
+          <strong class="color-r">R</strong> =
+          <span class="color-red">RED</span>&nbsp;&nbsp;
+          <strong class="color-o">O</strong> =
+          <span class="color-orange">ORANGE</span>&nbsp;&nbsp;
+          <strong class="color-y">Y</strong> =
+          <span class="color-yellow">YELLOW</span>
+        </p>
+        <p>
+          <strong class="color-g">G</strong> =
+          <span class="color-green">GREEN</span>&nbsp;&nbsp;
+          <strong class="color-b">B</strong> =
+          <span class="color-blue">BLUE</span>&nbsp;&nbsp;
+          <strong class="color-p">P</strong> =
+          <span class="color-purple">PURPLE</span>
+        </p>
+        <p>
+          <strong class="color-0">0</strong> =
+          <span class="color-black">BLACK</span>
+        </p>
+        <p><strong>Press "E" to toggle Eraser.</strong></p>
+          <a href="#"
+   class="close"
+   data-close="#colorsPanel"
+   aria-label="Close"
+   style="display:inline-block; margin-top:.25rem; text-decoration:underline; font-weight:700;">
+  CLICK TO CLOSE
+</a>
+
+      </div>
+    </div>
+  </aside>
+</div>
+       
+
 
    
 
