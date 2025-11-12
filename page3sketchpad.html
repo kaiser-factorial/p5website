@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <div class="info-ui">
   <!-- LEFT: Controls / How to draw -->
   <button class="info-toggle left" aria-expanded="true" aria-controls="controlsPanel" title="How to draw">Controls</button>
-  <aside id="controlsPanel" class="info-panel left" aria-hidden="true">
+  <aside id="controlsPanel" class="info-panel left" aria-hidden="false">
   <div class="info-panel__header">
     <h3 style="margin:0; text-transform:uppercase; letter-spacing:.06em;">Drawing Controls</h3>
     <button class="close" data-close="#controlsPanel" aria-label="Close">×</button>
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <p><strong>Press "E" to toggle Eraser.</strong></p>
           <a href="#"
    class="close"
-   data-close="#controlsPanel"
+   data-close="#colorsPanel"
    aria-label="Close"
    style="display:inline-block; margin-top:.25rem; text-decoration:underline; font-weight:700;">
   CLICK TO CLOSE
