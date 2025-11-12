@@ -12,6 +12,50 @@
     <script src="page3sketchpad.js"></script>
      
 </head>
+    <script>
+(function(){
+  function toggle(panelId, btn){
+    const panel = document.querySelector(panelId);
+    const isOpen = panel.getAttribute('aria-hidden') === 'false';
+    panel.setAttribute('aria-hidden', String(isOpen ? true : false));
+    if(btn){ btn.setAttribute('aria-expanded', String(!isOpen)); }
+  }
+
+  // Button -> panel
+  document.querySelectorAll('.info-toggle').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const target = '#' + btn.getAttribute('aria-controls');
+      toggle(target, btn);
+    });
+  });
+
+  // Close buttons
+  document.querySelectorAll('.info-panel .close').forEach(x=>{
+    x.addEventListener('click', ()=>{
+      const tgt = x.getAttribute('data-close');
+      const btn = document.querySelector(`.info-toggle[aria-controls="${tgt.slice(1)}"]`);
+      toggle(tgt, btn);
+    });
+  });
+
+  // Click outside closes open panels
+  document.addEventListener('click', (e)=>{
+    const anyOpen = [...document.querySelectorAll('.info-panel[aria-hidden="false"]')];
+    if(!anyOpen.length) return;
+    if(e.target.closest('.info-panel') || e.target.closest('.info-toggle')) return;
+    anyOpen.forEach(p=>{
+      p.setAttribute('aria-hidden','true');
+      const id = p.id;
+      const btn = document.querySelector(`.info-toggle[aria-controls="${id}"]`);
+      if(btn) btn.setAttribute('aria-expanded','false');
+    });
+  });
+
+  // Optional: open one by default on first load
+  // toggle('#controlsPanel', document.querySelector('.info-toggle.left'));
+})();
+</script>
+
 
 <body class="sketchpad-page">
 <nav>
