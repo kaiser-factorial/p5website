@@ -128,18 +128,30 @@ document.addEventListener('DOMContentLoaded', () => {
   <!-- LEFT: Controls / How to draw -->
   <button class="info-toggle left" aria-expanded="false" aria-controls="controlsPanel" title="How to draw">Controls</button>
   <aside id="controlsPanel" class="info-panel left" aria-hidden="true">
-    <div class="info-panel__header">
-      <h3>Drawing Controls</h3>
-      <button class="close" data-close="#controlsPanel" aria-label="Close">×</button>
-    </div>
-    <div class="info-panel__content">
-      <p><strong>PINCH thumb and pointer finger to draw. Release to stop.</strong></p>
-      <p><strong>Or, DOUBLE CLICK to toggle Continuous Draw mode on/off.</strong></p>
-      <p><strong>Press UP/DOWN arrow keys to increase/decrease stroke width.</strong></p>
-      <p><strong>Press "E" to toggle Eraser.</strong></p>
-      <p><strong>Press SPACEBAR to clear canvas.</strong></p>
-    </div>
-  </aside>
+  <div class="info-panel__header">
+    <h3 style="margin:0; text-transform:uppercase; letter-spacing:.06em;">Drawing Controls</h3>
+    <button class="close" data-close="#controlsPanel" aria-label="Close">×</button>
+  </div>
+
+  <div class="info-panel__content">
+    <p style="margin:0 0 .5rem 0; font-weight:800; text-transform:uppercase;">Drawing Controls</p>
+
+    <p>This sketchpad is controlled by your web-cam.</p>
+    <ul style="margin:.25rem 0 .75rem 1.1rem;">
+      <li>Pinch <strong>THUMB</strong> and <strong>POINTER</strong> finger to draw.</li>
+      <li>Press <strong>UP/DOWN</strong> to change stroke width.</li>
+      <li>Press <strong>SPACEBAR</strong> to clear canvas.</li>
+    </ul>
+
+    <button class="close"
+            data-close="#controlsPanel"
+            aria-label="Close"
+            style="margin-top:.25rem; padding:8px 12px; border-radius:10px; border:none; cursor:pointer;">
+      CLICK TO CLOSE
+    </button>
+  </div>
+</aside>
+
 
   <!-- RIGHT: Color keys -->
   <button class="info-toggle right" aria-expanded="false" aria-controls="colorsPanel" title="Color keys">Colors</button>
