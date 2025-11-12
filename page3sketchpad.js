@@ -234,7 +234,7 @@ function keyPressed(){
   }
   if (key == 't'){
     c = 'turquoise'
-    note1= 1000
+    note1= thumbX
   }
   if (key == '0'){
     c = 'black'
