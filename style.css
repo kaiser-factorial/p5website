@@ -441,7 +441,7 @@ a {
   position: fixed;
   inset: 0;           /* lets children position from edges */
   pointer-events: none; /* buttons/panels re-enable their own */
-  z-index: 9999;      /* above canvas (yours is 0 or 2000 during fractal) */
+  z-index: 3000;      /* above canvas (yours is 0 or 2000 during fractal) */
 }
 
 /* Toggle buttons */
