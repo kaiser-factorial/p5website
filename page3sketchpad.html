@@ -4,6 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <style>
+  :root { --infoTop: 72px; } /* fallback, will be updated by JS */
+
+  /* Keep UI above canvas & clickable */
+  .info-ui { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+  /* Children must be FIXED (not absolute) and clickable */
+  .info-toggle, .info-panel { position: fixed; pointer-events: auto; }
+
+  /* Buttons sit under nav+header */
+  .info-toggle { top: var(--infoTop); padding: 10px 14px; font: 600 14px/1 system-ui,-apple-system,Segoe UI,Roboto,Arial; border:0; border-radius: 999px; background: rgba(0,0,0,.75); color:#fff; cursor:pointer; }
+  .info-toggle.left  { left: 12px; }
+  .info-toggle.right { right: 12px; }
+
+  /* Panels open just below their buttons */
+  .info-panel {
+    top: calc(var(--infoTop) + 40px);
+    width: min(360px, 86vw);
+    max-height: 60vh; overflow: auto;
+    background: rgba(255,255,255,.96);
+    border-radius: 14px; box-shadow: 0 12px 30px rgba(0,0,0,.22);
+    padding: 12px 14px 14px;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: transform .2s ease, opacity .2s ease, visibility 0s linear .2s;
+  }
+  .info-panel.left  { left: 12px; }
+  .info-panel.right { right: 12px; }
+  .info-panel[aria-hidden="false"] { opacity:1; visibility:visible; transform:translateY(0); }
+
+  /* Belt-and-suspenders: keep canvas below the UI */
+  #defaultCanvas0, canvas.p5Canvas { z-index: 0 !important; position: fixed; }
+</style>
+
  <title>ml5.js handPose Webcam Sketchpad</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.10/addons/p5.sound.min.js"></script>
@@ -15,10 +48,11 @@
     <script>
 document.addEventListener('DOMContentLoaded', () => {
   function setInfoTop() {
-    const nav = document.querySelector('nav');
-    const h = nav ? Math.ceil(nav.getBoundingClientRect().height) : 0;
-    // Add a little breathing room under the nav
-    const offset = (h || 0) + 12;
+    const nav    = document.querySelector('nav');
+    const header = document.querySelector('header');
+    const navH   = nav    ? Math.ceil(nav.getBoundingClientRect().height)    : 0;
+    const headH  = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+    const offset = navH + headH + 12; // padding under header
     document.documentElement.style.setProperty('--infoTop', offset + 'px');
   }
   setInfoTop();
