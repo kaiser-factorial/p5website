@@ -6,6 +6,7 @@
 
     --color-4: #c7a900;
     --color-3: #ff1818;
+     --infoTop: 64px;
 }
 
 
@@ -458,6 +459,7 @@ a {
   user-select: none;
   box-shadow: 0 4px 16px rgba(0,0,0,.2);
   transition: transform .15s ease, background .15s ease;
+    top: var(--infoTop);
 }
 .info-toggle:hover { transform: translateY(-1px); background: rgba(0,0,0,.85); }
 .info-toggle.left  { left: 12px; }
@@ -480,6 +482,7 @@ a {
   transition: transform .22s ease, opacity .22s ease;
   opacity: 0;
   visibility: hidden;
+    top: calc(var(--infoTop)+40px);
 }
 .info-panel.left  { left: 12px; transform: translateX(-10px); }
 .info-panel.right { right: 12px; transform: translateX(10px); }
