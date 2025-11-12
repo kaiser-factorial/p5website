@@ -30,27 +30,62 @@
         </div>
     </nav>
 <header>
-       <h1>Sketchpad</h1>
-       <div class="instructions">
-           <div class="instructions-column">
-               <p><strong>HOLD MOUSE to draw.</strong></p>
-               <p><strong>Or, DOUBLE CLICK to toggle Continuous Draw mode on/off.</strong></p>
-               <p><strong>Press UP/DOWN arrow keys to increase/decrease stroke width.</strong></p>
-               <p><strong>Press "E" to toggle Eraser.</strong></p>
-               <p><strong>Press SPACEBAR to clear canvas.</strong></p>
-           </div>
-           <div class="color-keys-column">
-               <p><strong>Press keys to change stroke color:</strong></p>
-               <div class="color-keys">
-                   <span><strong class="color-r">R</strong> = <span class="color-red">RED</span> &nbsp;&nbsp;   <strong class="color-o">O</strong> = <span class="color-orange">ORANGE</span> &nbsp;&nbsp; <strong class="color-y">Y</strong> = <span class="color-yellow">YELLOW</span></span>
-                   
-                   <span><strong class="color-g">G</strong> = <span class="color-green">GREEN</span>&nbsp;&nbsp;  <strong class="color-b">B</strong> = <span class="color-blue">BLUE</span>&nbsp;&nbsp;   <strong class="color-p">P</strong> = <span class="color-purple">PURPLE</span></span>
-                   <span><strong class="color-0">0</strong> = <span class="color-black">BLACK</span></span>
+       <h1>Sketchpad</h1> </header>
+    <!-- Collapsible instruction UI -->
+<div class="info-ui">
+  <!-- LEFT: Controls / How to draw -->
+  <button class="info-toggle left" aria-expanded="false" aria-controls="controlsPanel" title="How to draw">Controls</button>
+  <aside id="controlsPanel" class="info-panel left" aria-hidden="true">
+    <div class="info-panel__header">
+      <h3>Drawing Controls</h3>
+      <button class="close" data-close="#controlsPanel" aria-label="Close">×</button>
+    </div>
+    <div class="info-panel__content">
+      <p><strong>PINCH thumb and pointer finger to draw. Release to stop.</strong></p>
+      <p><strong>Or, DOUBLE CLICK to toggle Continuous Draw mode on/off.</strong></p>
+      <p><strong>Press UP/DOWN arrow keys to increase/decrease stroke width.</strong></p>
+      <p><strong>Press "E" to toggle Eraser.</strong></p>
+      <p><strong>Press SPACEBAR to clear canvas.</strong></p>
+    </div>
+  </aside>
 
-               </div>
-           </div>
-       </div>
-    </header>
+  <!-- RIGHT: Color keys -->
+  <button class="info-toggle right" aria-expanded="false" aria-controls="colorsPanel" title="Color keys">Colors</button>
+  <aside id="colorsPanel" class="info-panel right" aria-hidden="true">
+    <div class="info-panel__header">
+      <h3>Color Keys</h3>
+      <button class="close" data-close="#colorsPanel" aria-label="Close">×</button>
+    </div>
+    <div class="info-panel__content">
+      <p><strong>Press keys to change stroke color:</strong></p>
+      <div class="color-keys">
+        <p>
+          <strong class="color-r">R</strong> =
+          <span class="color-red">RED</span>&nbsp;&nbsp;
+          <strong class="color-o">O</strong> =
+          <span class="color-orange">ORANGE</span>&nbsp;&nbsp;
+          <strong class="color-y">Y</strong> =
+          <span class="color-yellow">YELLOW</span>
+        </p>
+        <p>
+          <strong class="color-g">G</strong> =
+          <span class="color-green">GREEN</span>&nbsp;&nbsp;
+          <strong class="color-b">B</strong> =
+          <span class="color-blue">BLUE</span>&nbsp;&nbsp;
+          <strong class="color-p">P</strong> =
+          <span class="color-purple">PURPLE</span>
+        </p>
+        <p>
+          <strong class="color-0">0</strong> =
+          <span class="color-black">BLACK</span>
+        </p>
+        <p><strong>Press "E" to toggle Eraser.</strong></p>
+      </div>
+    </div>
+  </aside>
+</div>
+       
+
 
    
 
