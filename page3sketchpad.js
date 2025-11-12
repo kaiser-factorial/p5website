@@ -234,7 +234,7 @@ function keyPressed(){
   }
   if (key == 't'){
     c = 'turquoise'
-    note1= aMin[3]
+    note1= 1000
   }
   if (key == '0'){
     c = 'black'
