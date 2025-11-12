@@ -1,4 +1,5 @@
 let drawingLayer;
+let fractalLayer;
 let prevPointerX = null;
 let prevPointerY = null;
 
@@ -65,6 +66,9 @@ function setup() {
 drawingLayer = createGraphics(windowWidth, windowHeight - totalOffset);
   drawingLayer.clear();
    drawingLayer.style('z-index', '2');
+ fractalLayer = createGraphics(windowWidth, windowHeight - totalOffset); // <--- NEW
+fractalLayer.clear();
+
   // Create the webcam video and hide it
   video = createCapture(VIDEO);
   video.size(640 , 400);
@@ -185,21 +189,16 @@ function draw() {
   
   
  
- if (clickF) {
-  const el = document.querySelector('#defaultCanvas0') || document.querySelector('canvas');
-  if (el) el.style.setProperty('z-index','10000','important');
-  // debug: draw a small dot at the seed so you know it's on-canvas
+ if (clickF){
+    // draw one frame onto the overlay layer
+    growFractal(fractalLayer, fractalX, fractalY);
+  } else {
+    // when not animating, keep overlay cleared
+    fractalLayer.clear();
+  }
 
-
-
-  circle(windowWidth/2, windowHeight/2, 116);
-
-
-  growFractal(fractalX, fractalY);
-} else {
-  const el = document.querySelector('#defaultCanvas0') || document.querySelector('canvas');
-  if (el) el.style.setProperty('z-index','0','important');
-}
+  // Composite overlay last so it appears above drawingLayer and hand dots
+  image(fractalLayer, 0, 0);
 
   if (cont%2==1){
     strokeWeight(sw)   
@@ -352,40 +351,37 @@ function startStop(osc){
     
 
 
-function drawCircles(x, y, radius) {
+function drawCircles(g, x, y, radius) {
+  g.noFill();
+  g.strokeWeight(20);
+  g.circle(x, y, radius * 2 * noise(.053*(frameCount % 45)));
 
-  noFill();
-  strokeWeight(20)
-
-  circle(x, y, radius * 2*noise(.053*(frameCount%45)));
   if (radius > 50) {
-    //{!4} drawCircles() calls itself four times.
- 
-    stroke('yellow')
-    drawCircles(x + radius / 2, y, radius / 2)
-    strokeWeight(19)
-    stroke('red')
-    drawCircles(x - radius / 2, y, radius / 2)
-    strokeWeight(20)
-    stroke('blue')
-    drawCircles(x, y + radius / 2, radius / 2)
-    strokeWeight(19)
-    stroke('black')
-    drawCircles(x, y - radius / 2, radius / 2)
+    g.stroke('yellow');
+    drawCircles(g, x + radius / 2, y, radius / 2);
+
+    g.strokeWeight(19);
+    g.stroke('red');
+    drawCircles(g, x - radius / 2, y, radius / 2);
+
+    g.strokeWeight(20);
+    g.stroke('blue');
+    drawCircles(g, x, y + radius / 2, radius / 2);
+
+    g.strokeWeight(19);
+    g.stroke('black');
+    drawCircles(g, x, y - radius / 2, radius / 2);
   }
 }
 
 
-
-function growFractal(x,y){
-  print("growing")
-  if (rad < windowWidth*3){
-    rad += 50
-    drawCircles(x, y, rad)
+function growFractal(g, x, y){
+  if (rad < windowWidth * 3){
+    rad += 50;
+    drawCircles(g, x, y, rad);
   } else {
-    // Reset fractal when it reaches max size
-    clickF = false
-    rad = 50
+    clickF = false;
+    rad = 50;
   }
 }
 
