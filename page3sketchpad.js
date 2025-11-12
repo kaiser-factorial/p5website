@@ -47,7 +47,7 @@ let phit=false
 let clickF=false
 var cnv;
 
-let sw=10
+let sw=15
 let c='black'
 let ts=1
 let cont=0
