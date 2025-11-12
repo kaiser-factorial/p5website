@@ -94,7 +94,7 @@ function draw() {
   userStartAudio()
   strokeWeight(.5)
   stroke(c)
-
+  fill(c)
  background('white')
   // Display the persistent drawing layer on top of white background
   image(drawingLayer, 0, 0);
@@ -105,7 +105,7 @@ function draw() {
   
 
     if (i==0){
-     
+
   fill(c)
       thumb=hand.keypoints[4]
       pointer= hand.keypoints[8]
@@ -133,8 +133,8 @@ function draw() {
           
           if (prevPointerX !== null && prevPointerY !== null) {
             // Draw a line connecting the previous point to current point
-            drawingLayer.stroke('black');
-            drawingLayer.strokeWeight(10);
+            drawingLayer.stroke(c);
+            drawingLayer.strokeWeight(sw);
          
       //      let steps = dist(prevPointerX, prevPointerY, currentX, currentY) / 5;
       //      interpolatePoints(prevPointerX, prevPointerY, currentX, currentY, steps)
@@ -231,11 +231,11 @@ function keyPressed(){
   
   // WEIGHT:
   if (keyCode== UP_ARROW){
-    sw++
+    sw+=3
   }
   if (keyCode==DOWN_ARROW){
     if (sw>1){
-      sw--
+      sw--2
     }else{
       sw=sw
     }
