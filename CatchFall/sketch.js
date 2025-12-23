@@ -154,7 +154,10 @@ if (h==0){
     song2.play()
   }
   textSize(windowWidth/15)
-  text('You Lost on Level '+level+ ' :(', windowWidth/5, windowHeight/2)
+  text('You lost on level '+level+ ' :(', windowWidth/5, windowHeight/2)
+  // Prompt to restart below the loss message
+  textSize(windowWidth/20)
+  text('Click to restart', windowWidth/5, windowHeight/2 + windowHeight/12)
   noLoop()
   
 }
@@ -327,9 +330,39 @@ function mousePressed(){
     loop()
   }
   
+  // If the player has no hearts left, treat the click as a restart command.
+  // Reset the game back to level 1 and rebuild initial state.
+  if (hearts.length === 0) {
+    // Reset level and progress
+    level = 1;
+    goal = 4;
+    prog = 0;
+
+    // Clear any existing falling objects
+    fires = [];
+    catches = [];
+
+    // Rebuild hearts (start with 3)
+    hearts = [];
+    h = 3;
+    for (let k = 0; k < h; k++) {
+      hearts.push(new Heart(k, h));
+    }
+
+    // Reset player position by re-creating the Guy at canvas center
+    g = new Guy(windowWidth/2);
+
+    // Ensure flags are reset and resume draw loop
+    win = false;
+    start = false;
+    loop();
+
+    // Stop here so the click doesn't also trigger other branches
+    return;
+  }
+
   if (win){
     
-  
     level+=1
       
       goal += ceil(noise(frameCount)*level)
