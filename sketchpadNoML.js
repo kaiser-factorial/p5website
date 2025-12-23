@@ -112,9 +112,9 @@ function keyPressed(){
     //resets background when spacebar is pressed
 
  cont=0 
- 
-  
- 
+  }
+  if (keyCode==ENTER){
+    saveCanvas('mySketch', 'png')
   }
 }
 

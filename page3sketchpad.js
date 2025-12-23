@@ -281,6 +281,9 @@ function keyPressed(){
 
  cont=0 
    }
+   if (keyCode==ENTER){
+    saveCanvas('myMLSketch', 'png')
+  }
   
  
   // === Voice HUD ===
