@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brick Breaker</title>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/addons/p5.sound.min.js"></script>
+    <script defer src="https://unpkg.com/p5.collide2d"></script>
+    <!-- Use root stylesheet -->
+    <link rel="stylesheet" type="text/css" href="../style.css">
+    <style>
+      /* Page background and text for Brick Breaker */
+      body.brickbreaker-page { background-color: #000; color: #fff; }
+
+      /* Center the canvas inside the main container */
+      .brickbreaker-page main { display: flex; justify-content: center; align-items: flex-start; padding: 32px 0; min-height: calc(100vh - 80px); }
+      .brickbreaker-page canvas { display: block; }
+    </style>
+  </head>
+  <body class="brickbreaker-page">
+    <nav>
+      <div class="nav-container">
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../about.html">About</a></li>
+          <li><a href="../sketchpadNoML.html">Sketchpad</a></li>
+          <li><a href="../p5spikes.html">Spikes</a></li>
+          <li><a href="../page2.html">Comments</a></li>
+          <li class="nav-dropdown">
+            <a href="../games.html">Games ▾</a>
+            <ul class="dropdown">
+              <li><a href="../p4catchfall.html">Catch Fall</a></li>
+              <li><a href="bbIndex.html">Brick Breaker</a></li>
+            </ul>
+          </li>
+          <li><a href="../page1contact.html">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+      <!-- Brick Breaker canvas and UI will render here -->
+    </main>
+
+    <script src="bbSketch.js"></script>
+    <script src="brick.js"></script>
+    <script src="ball.js"></script>
+    <script src="paddle.js"></script>
+    <script src="heart.js"></script>
+  </body>
+</html>

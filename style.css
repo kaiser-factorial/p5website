@@ -111,6 +111,42 @@ nav {
     z-index: 1000;
 }
 
+/* Dropdown for Games nav item */
+.nav-dropdown { position: relative; }
+.nav-dropdown > a { position: relative; }
+.nav-dropdown .dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    /* Solid background so the dropdown is not transparent */
+    background: #ffffff;
+    color: #000000;
+    min-width: 180px;
+    border-radius: 6px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    padding: 8px 0;
+    list-style: none;
+    z-index: 2000; /* ensure it sits above other content */
+}
+.nav-dropdown .dropdown li { padding: 0; margin: 0; }
+.nav-dropdown .dropdown li a { display: block; padding: 8px 14px; color: inherit; text-decoration: none; }
+.nav-dropdown .dropdown li a:hover { background: rgba(0,0,0,0.06); }
+/* Keep dropdown visible when hovering the parent OR the dropdown itself */
+.nav-dropdown:hover .dropdown,
+.nav-dropdown .dropdown:hover { display: block; }
+
+/* Ensure dropdown looks good on dark nav variants */
+body.catchfall-game .nav-dropdown .dropdown,
+body.comments-page .nav-dropdown .dropdown,
+body.brickbreaker-page .nav-dropdown .dropdown {
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+}
+body.catchfall-game .nav-dropdown .dropdown li a,
+body.comments-page .nav-dropdown .dropdown li a,
+body.brickbreaker-page .nav-dropdown .dropdown li a { color: #fff; }
+
 /* Center navigation only on home page */
 body.home nav {
     top: 50%;
