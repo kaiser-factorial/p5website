@@ -124,8 +124,8 @@ function draw() {
   if (start){
 
     fill('yellow')
-    textSize(windowWidth/15)
-    text('Move head L/R to move.\nCatch Yellow, Avoid Red.\nClick to Start.', windowWidth/6, windowHeight/3)
+    textSize(windowWidth/20)
+    text('Move head L/R to move.\nCatch YELLOW, Avoid RED.\nClick to start.', windowWidth/6, windowHeight/3)
     noLoop()
   }
   
@@ -218,7 +218,7 @@ if (h==0){
         }
   if (prog== goal){
     textSize(windowWidth/15)
-    text('Level '+level+ ' Complete!\nClick for Level '+(level+1)+'.', windowWidth/4, windowHeight/3)
+    text('Level '+level+ ' complete!\nClick for level '+(level+1)+'.', windowWidth/4, windowHeight/3)
     win =true 
     note= cMaj[4]
       let freq1= note

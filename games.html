@@ -11,6 +11,8 @@
             .game-item { display: flex; gap: 20px; align-items: flex-start; margin: 28px 0; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 8px; }
             .game-item img { width: 320px; height: auto; object-fit: cover; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
             .game-item .meta { flex: 1; }
+            /* Ensure <strong> appears bold inside game descriptions */
+            .game-item .meta p strong { font-weight: 700; }
             .game-item h2 { margin: 0 0 8px 0; }
             .game-item p { margin: 0; color: inherit; }
             @media (max-width: 740px) {
@@ -52,8 +54,12 @@
             <article class="game-item">
                 <img src="CatchFallSS.png" alt="CatchFall screenshot">
                 <div class="meta">
-                    <h2><a href="p4catchfall.html">CatchFall</a></h2>
-                    <p>Move your head left and right to catch the yellow falling items and avoid red ones. You must allow camera access in order to play this game, as it utilizes face tracking to control your character.</p>
+                    <h2><a href="p4catchfall.html">Catch-Fall Game</a></h2>
+                    <p><strong>Overview: </strong>Move your head left and right to catch the yellow falling items and avoid red ones. You must allow camera access in order to play this game, as it utilizes face tracking to control your character.</p>
+                    <p></p>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This game was created to explore game-making in tandem with the ml5.js library. Since it incorporates facial tracking for the controls, it requires that you allow the site to access your camera. </p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;In Catch-Fall, your objective is to move your blue character around the bottom of the screen to catch the yellow pieces and avoid the red ones. This is done by moving your head to the left and right– the tracking focuses on the top-middle point of your forehead in order to move the character. Each level requires a certain number of yellow pieces to be caught in order to advance– your progress will be shown at the bottom of the screen. The required number to catch and the frequency with which the red and yellow pieces fall will increase at each level. You will have 3 lives to advance as far as possible until the game ends. 
+</p>
                 </div>
             </article>
 
