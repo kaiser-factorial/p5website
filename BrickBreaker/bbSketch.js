@@ -26,6 +26,8 @@ let hitBr = false
 let hearts=[]
 let h=3
 
+let gameOver = false
+
 let stuck = true
 let restart = true
 
@@ -82,24 +84,26 @@ for (let k=0; k<h ; k++){
   hearts[k].displayHeart(width/2- 55 + 40*k)
 }
   
-  // Consider the player lost when there are no hearts remaining
-  if (hearts.length === 0 || h <= 0) {
-    stuck = false;
-    textSize(width/15);
-    text('You lost on level ' + level + ' :(', width/6, height/2);
-    // Prompt to restart
-    textSize(width/30);
-    text('Click to restart', width/6, height/2 + 40);
-    noLoop();
-  }
   if (b.loseLife){
-    h-=1
-    hearts.splice(h-1,1)
-
-    b.loseLife=false
-    b= new Ball(p.x+50, 565)
-    stuck=true
-    
+    // A life was just lost. If there are hearts available, remove one and continue.
+    // If there are already zero hearts, this triggers game over.
+    b.loseLife = false
+    if (hearts.length > 0) {
+      // remove one heart (last)
+      hearts.pop()
+      h = hearts.length
+      b = new Ball(p.x+50, 565)
+      stuck = true
+    } else {
+      // No hearts left before this loss -> game over now
+      gameOver = true
+      stuck = false
+      textSize(width/15)
+      text('You lost on level '+level+ ' :(', width/6, height/2)
+      textSize(width/30)
+      text('Click to restart', width/6, height/2 + 40)
+      noLoop()
+    }
   }
 
   // BALL ******************************************
@@ -198,8 +202,9 @@ function mousePressed(){
    playing=true
  }
  
-  // If the player has lost and clicked, restart the game
-  if (hearts.length === 0 || h <= 0) {
+  // If the game has ended and the player clicked, restart the game
+  if (gameOver) {
+    gameOver = false;
     // Reset level and progress
     level = 1;
     rows = 1;
