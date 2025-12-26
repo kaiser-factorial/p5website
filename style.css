@@ -136,6 +136,51 @@ nav {
 .nav-dropdown:hover .dropdown,
 .nav-dropdown .dropdown:hover { display: block; }
 
+/* Homepage: make dropdown wider and prevent wrapping so items remain on one line */
+body.home .nav-dropdown .dropdown {
+    min-width: 320px; /* wider to accommodate large homepage link sizes */
+}
+body.home .nav-dropdown .dropdown li a {
+    white-space: nowrap; /* prevent label wrapping */
+    padding: 10px 16px;
+    font-size: 2rem; /* slightly smaller so long labels fit */
+    line-height: 1.2;
+}
+
+/* Make dropdown background dark on the homepage so items match the nav */
+body.home .nav-dropdown .dropdown {
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+}
+body.home .nav-dropdown .dropdown li a { color: #fff; }
+body.home .nav-dropdown .dropdown li a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+
+/* Visitor counter style on homepage */
+.visitor-counter {
+    text-align: center;
+    color: #fff;
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+    opacity: 0.95;
+}
+.visitor-counter #visitor-count {
+    font-weight: 700;
+    margin-left: 0.25rem;
+}
+/* Position the counter in the same visual area as the welcome text on the homepage */
+body.home .visitor-counter {
+    position: fixed;
+    bottom: 14px; /* anchored near the bottom */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000; /* above nav and background */
+    pointer-events: none; /* decorative */
+    background: rgba(0,0,0,0.45); /* subtle dark pill so text is readable */
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+}
+
 /* Ensure dropdown looks good on dark nav variants */
 body.catchfall-game .nav-dropdown .dropdown,
 body.comments-page .nav-dropdown .dropdown,
@@ -147,10 +192,93 @@ body.catchfall-game .nav-dropdown .dropdown li a,
 body.comments-page .nav-dropdown .dropdown li a,
 body.brickbreaker-page .nav-dropdown .dropdown li a { color: #fff; }
 
-/* Center navigation only on home page */
+/* Hover state for dropdown items on dark nav variants */
+body.catchfall-game .nav-dropdown .dropdown li a:hover,
+body.comments-page .nav-dropdown .dropdown li a:hover,
+body.brickbreaker-page .nav-dropdown .dropdown li a:hover,
+body.spikes-page .nav-dropdown .dropdown li a:hover,
+body.sketchpad-page .nav-dropdown .dropdown li a:hover,
+body.project1-page .nav-dropdown .dropdown li a:hover,
+body.datascience-page .nav-dropdown .dropdown li a:hover,
+body.p5-page .nav-dropdown .dropdown li a:hover {
+    background: rgba(255,255,255,0.06);
+    color: #fff;
+}
+
+
+/* Home page layout: place the two nav rows at ~33% and ~66% of viewport height */
 body.home nav {
-    top: 50%;
-    transform: translateY(-50%);
+    /* keep nav fixed full-height so rows can be positioned inside the viewport */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100vh;
+    pointer-events: none; /* let only links themselves be clickable */
+}
+
+/* Ensure nav container stretches full height but does not intercept clicks */
+body.home .nav-container {
+    height: 100%;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    pointer-events: none;
+}
+
+/* Rows are centered horizontally and accept pointer events */
+body.home .nav-row {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    pointer-events: auto; /* enable links inside */
+}
+
+/* Top row sits about one-third down the viewport */
+body.home .nav-row.top-row {
+    position: absolute;
+    top: 25vh; /* moved up slightly as requested */
+}
+
+/* Bottom row sits about two-thirds down the viewport */
+body.home .nav-row.bottom-row {
+    position: absolute;
+    top: 66vh;
+}
+
+/* Welcome text between rows on homepage */
+body.home .home-welcome {
+    position: absolute;
+    top: 50vh;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-style: italic;
+    color: white;
+    text-align: center;
+    font-size: 1.6rem;
+    pointer-events: none; /* don't intercept clicks */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+}
+
+/* Keep the nav-links layout inside each row */
+body.home .nav-row .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Make homepage nav links large and visible (matches previous home style) */
+body.home .nav-row .nav-links a {
+    text-shadow: 2px 2px 4px rgba(255,255,0,1);
+    font-size: 3.2rem;
+    background: rgba(0,0,0,1);
+    color: white;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 8px;
 }
 
 /* Keep navigation at top for all other pages - not floating */
@@ -321,6 +449,9 @@ a:active {
         z-index: 0;
 }
 
+/* Ensure animated background doesn't block pointer events */
+#vanta-bg { pointer-events: none; }
+
 
 
 
@@ -488,7 +619,7 @@ a {
   font: 800 24px/1 system-ui, -apple-system, Segoe UI, Roboto, Arial;
   border: none;
     letter-spacing: .1em;
-        text-trasnsform: uppercase;
+    text-transform: uppercase;
   border-radius: 999px;
   background: rgba(0,0,0,.75);
   color: white;
@@ -629,4 +760,84 @@ body.sketchpad-page h1 {
 .color-0, .color-black { 
     color: black; 
     font-size: 1.1rem;
+}
+
+/* Mobile: stacked dropdowns and homepage layout adjustments */
+@media (max-width: 740px) {
+    /* Make dropdowns stack vertically and fill the available width */
+    .nav-dropdown .dropdown {
+        position: static !important; /* flow with document */
+        display: none;               /* shown when parent hovered / opened */
+        width: 100%;
+        box-shadow: none;
+        padding: 0;
+        border-radius: 0;
+        background: rgba(255,255,255,0.98);
+    }
+
+    /* show as a vertical list when parent is hovered or has .open */
+    .nav-dropdown:hover .dropdown,
+    .nav-dropdown.open .dropdown {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nav-dropdown .dropdown li a {
+        padding: 14px 18px;
+        font-size: 1rem;
+        white-space: normal; /* allow wrapping inside each item */
+        display: block;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .nav-dropdown .dropdown li:last-child a { border-bottom: none; }
+
+    /* Homepage: revert the big fixed, absolute-row layout to a normal stacked layout */
+    body.home nav {
+        /* keep it positioned so z-index works, but leave it in flow */
+        position: relative;
+        height: auto;
+        pointer-events: auto;
+        z-index: 99999; /* ensure nav sits above backgrounds/overlays on mobile */
+    }
+    body.home .nav-container {
+        height: auto;
+        pointer-events: auto;
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    body.home .nav-row {
+        position: static;
+        top: auto;
+        margin: 8px 0;
+    }
+    body.home .home-welcome {
+        position: static;
+        transform: none;
+        margin: 6px 0;
+        font-size: 1.05rem;
+    }
+    /* Stack homepage nav links into a single column on small screens */
+    body.home .nav-row .nav-links {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    body.home .nav-row .nav-links a {
+        font-size: 1.6rem;
+        letter-spacing: 0.12em;
+        padding: 12px 18px;
+        display: inline-block;
+    }
+        /* Arrange welcome text above the combined button column and make both rows flow consecutively */
+        body.home .home-welcome { order: 0; }
+        body.home .nav-row.top-row { order: 1; }
+        body.home .nav-row.bottom-row { order: 2; }
+        /* Make spacing consistent between all buttons across both rows */
+        body.home .nav-row .nav-links { gap: 0.75rem; }
+        /* Make spacing uniform between ALL buttons (li elements), even across the two ul groups */
+        body.home .nav-row .nav-links { margin: 0; padding: 0; }
+        body.home .nav-row .nav-links li { margin: 0 0 0.75rem 0; list-style: none; }
+        /* Remove default list spacing on the ULs so groups appear continuous */
+        body.home .nav-row { margin: 0; padding: 0; }
 }

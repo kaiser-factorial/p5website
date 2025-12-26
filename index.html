@@ -15,36 +15,37 @@
  
 <body class="home">
     
-    <nav>
-        <div class="nav-container">
-            <div class="nav-left">
-                <ul class="nav-links-column">
-                    <li><a href="about.html">ABOUT</a></li>
+  <nav>
+    <div class="nav-container">
+      <div class="nav-row top-row">
+        <ul class="nav-links">
+          <li><a href="about.html">ABOUT</a></li>
+          <li><a href="page1contact.html">CONTACT</a></li>
+        </ul>
+      </div>
+      <div class="home-welcome">Welcome to Corina Kaiser's portfolio!</div>
+  <div class="visitor-counter">Visitors: <span id="visitor-count">—</span></div>
+      <div class="nav-row bottom-row">
+        <ul class="nav-links">
           <li><a href="datascience.html">DATA SCIENCE</a></li>
-                    <li><a href="sketchpadNoML.html">SKETCHPAD</a></li>
-                </ul>
-            </div>
-            
-            <div class="nav-center">
-                <!-- Audio button will appear here via p5.js -->
-            </div>
-            
-            <div class="nav-right">
-                <ul class="nav-links-column">
-                    <li><a href="p5spikes.html">SPIKES</a></li>
-                    
+          <li class="nav-dropdown">
+            <a href="p5js.html">p5.js ▾</a>
+            <ul class="dropdown">
+              <li><a href="p5spikes.html">Spikes</a></li>
+              <li><a href="sketchpadNoML.html">Sketchpad</a></li>
+            </ul>
+          </li>
           <li class="nav-dropdown">
             <a href="games.html">GAMES ▾</a>
             <ul class="dropdown">
-              <li><a href="p4catchfall.html">Catch Fall</a></li>
+              <li><a href="p4catchfall.html">Catch-Fall</a></li>
               <li><a href="BrickBreaker/bbIndex.html">Brick Breaker</a></li>
             </ul>
           </li>
-          <li><a href="page1contact.html">CONTACT</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+        </ul>
+      </div>
+    </div>
+  </nav>
     <div id="vanta-bg"></div>
     <div class="content">   
         
@@ -110,6 +111,37 @@
 } catch (error) {
   console.error('Error initializing Vanta:', error);
 } */
+</script>
+<!-- Visitor counter using CountAPI (no server required). Counts once per visitor per 24 hours using localStorage throttle. -->
+<script>
+  (function(){
+    // Session-only counting: increment once per browser session (cleared on tab close)
+    const NAMESPACE = 'kaiser-portfolio';
+    const KEY = 'homepage';
+    const HIT_URL = `https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`;
+    const GET_URL = `https://api.countapi.xyz/get/${NAMESPACE}/${KEY}`;
+    const SESSION_FLAG = 'kaiser_counter_session_hit';
+    const el = document.getElementById('visitor-count');
+    if (!el) return;
+
+    const didHitThisSession = sessionStorage.getItem(SESSION_FLAG) === '1';
+    const url = didHitThisSession ? GET_URL : HIT_URL;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (data && typeof data.value !== 'undefined') {
+          el.textContent = data.value;
+          if (!didHitThisSession) sessionStorage.setItem(SESSION_FLAG, '1');
+        } else {
+          el.textContent = '—';
+        }
+      })
+      .catch(err => {
+        console.error('Visitor counter error:', err);
+        el.textContent = '—';
+      });
+  })();
 </script>
 </body>
 

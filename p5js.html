@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>p5.js Projects</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+      .p5-list { max-width: 1000px; margin: 96px auto; padding: 16px; }
+      .p5-item { display: flex; gap: 18px; align-items: flex-start; margin: 18px 0; padding: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; }
+      .p5-item .meta { flex: 1; }
+      .p5-item h2 { margin: 0 0 8px 0; }
+      .p5-item p { margin: 0 0 8px 0; color: inherit; }
+      .p5-links { margin-top: 8px; display: flex; gap: 12px; }
+      .p5-links a { background: #222; color: #fff; padding: 8px 12px; border-radius: 6px; text-decoration: none; }
+      @media (max-width: 740px) { .p5-item { flex-direction: column; text-align: center; } .p5-item img { width: 100%; max-width: 420px; } }
+    </style>
+</head>
+<body class="p5-page">
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="datascience.html">Data Science Projects</a></li>
+                <li class="nav-dropdown">
+                    <a href="p5js.html">p5.js ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="p5spikes.html">Spikes</a></li>
+                        <li><a href="sketchpadNoML.html">Sketchpad</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="games.html">Games ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="p4catchfall.html">Catch Fall</a></li>
+                        <li><a href="BrickBreaker/bbIndex.html">Brick Breaker</a></li>
+                    </ul>
+                </li>
+                
+                <li><a href="page1contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="content">
+        <header>
+            <h1>p5.js Projects</h1>
+
+        </header>
+
+        <section class="p5-list">
+            <article class="p5-item">
+                <div class="meta">
+                    <h2>Spikes</h2>
+                    <p>A generative audiovisual sketch that explores rhythmic patterns and color. Use the controls on the Spikes page to interact with the composition; press keys or click to change behavior.</p>
+                    <div class="p5-links">
+                        <a href="p5spikes.html">Open Spikes</a>
+                       
+                    </div>
+                </div>
+            </article>
+
+            <article class="p5-item">
+                <div class="meta">
+                    <h2>Sketchpad</h2>
+                    <p>An interactive drawing environment with options for using machine learning (on the ML-enabled page). Click through to try the sketchpad with and without ML features.</p>
+                    <div class="p5-links">
+                        <a href="sketchpadNoML.html">Open Sketchpad (No ML)</a>
+                        <a href="page3sketchpad.html">Open Sketchpad (ML)</a>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+</body>
+</html>
