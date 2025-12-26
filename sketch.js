@@ -156,22 +156,26 @@ function setup() {
 
 
   // Create enable sound button
-  enableSoundButton = createButton('')
-  enableSoundButton.style('padding', '10px 20px')
-  enableSoundButton.size(100, 50)
-  enableSoundButton.style('font-size', '16px')
-  enableSoundButton.style('font-family', 'Times New Roman, serif')
-  enableSoundButton.style('background-color', 'yellow')
-  enableSoundButton.style('color', 'black')
-  enableSoundButton.style('border', 'none')
-  enableSoundButton.style('border-radius', '5px')
-  enableSoundButton.style('cursor', 'pointer')
-  enableSoundButton.style('position', 'fixed')
-  enableSoundButton.style('top', '50%')
-  enableSoundButton.style('left', '50%')
-  enableSoundButton.style('transform', 'translate(-50%, -50%)')
-  enableSoundButton.style('z-index', '1000')
-  enableSoundButton.mousePressed(enableSound)
+  // Only create the prominent enable-sound button on non-home pages.
+  // The homepage shows a different UI; user requested the yellow button removed there.
+  if (!(document.body && document.body.classList && document.body.classList.contains('home'))) {
+    enableSoundButton = createButton('')
+    enableSoundButton.style('padding', '10px 20px')
+    enableSoundButton.size(100, 50)
+    enableSoundButton.style('font-size', '16px')
+    enableSoundButton.style('font-family', 'Times New Roman, serif')
+    enableSoundButton.style('background-color', 'yellow')
+    enableSoundButton.style('color', 'black')
+    enableSoundButton.style('border', 'none')
+    enableSoundButton.style('border-radius', '5px')
+    enableSoundButton.style('cursor', 'pointer')
+    enableSoundButton.style('position', 'fixed')
+    enableSoundButton.style('top', '50%')
+    enableSoundButton.style('left', '50%')
+    enableSoundButton.style('transform', 'translate(-50%, -50%)')
+    enableSoundButton.style('z-index', '1000')
+    enableSoundButton.mousePressed(enableSound)
+  }
 
   col1=color(255,255,255)
 
