@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Capstone — Rate My Professor Data Analysis</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Page-local styles to host the full report (keeps original formatting intact via iframe) */
+  .report-container { max-width: 1100px; margin: 2rem auto 0; padding: 24px; background: rgba(255,255,255,0.02); border-radius: 8px; }
+  .frame-wrap { background: rgba(0,0,0,0.02); padding: 18px; border-radius: 6px; }
+  #report-frame { display: block; width: 100%; height: calc(100vh - 220px); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; background: transparent; }
+    @media (max-width: 740px) { #report-frame { height: 70vh; } .report-container { margin: 1rem; } }
+  
+  </style>
+</head>
+<body class="capstone-page">
+
+  <nav>
+    <div class="nav-container">
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="about.html">About</a></li>
+        <li class="nav-dropdown">
+          <a href="datascience.html">Data Science ▾</a>
+          <ul class="dropdown">
+            <li><a href="project1.html">Project 1</a></li>
+            <li><a href="capstone.html">Capstone</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="p5js.html">p5.js ▾</a>
+          <ul class="dropdown">
+            <li><a href="p5spikes.html">Spikes</a></li>
+            <li><a href="sketchpadNoML.html">Sketchpad</a></li>
+          </ul>
+        </li>
+        <li class="nav-dropdown">
+          <a href="games.html">Games ▾</a>
+          <ul class="dropdown">
+            <li><a href="p4catchfall.html">Catch Fall</a></li>
+            <li><a href="BrickBreaker/bbIndex.html">Brick Breaker</a></li>
+          </ul>
+        </li>
+        <li><a href="page1contact.html">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  
+
+
+
+  <main class="content">
+    <div class="report-container">
+      <!-- Embed the uploaded raw Capstone HTML to preserve exact Word-export formatting and images -->
+
+      <div class="frame-wrap">
+        <iframe id="report-frame" src="Capstone HTML.html" title="Capstone report: Rate My Professor Data Analysis" loading="lazy"></iframe>
+      </div>
+
+      <script>
+        // Resize the iframe to match the embedded document height (same-origin)
+        // and remove the inner scrollbar so only the page scrolls.
+        (function(){
+          const iframe = document.getElementById('report-frame');
+          iframe.setAttribute('scrolling', 'no');
+          iframe.style.overflow = 'visible';
+
+          function resizeIframe(){
+            try {
+              const doc = iframe.contentDocument || iframe.contentWindow.document;
+              if (!doc) return;
+              const body = doc.body, html = doc.documentElement;
+              // try to remove inner scrollbars
+              body.style.overflow = 'visible';
+              html.style.overflow = 'visible';
+              // compute full height of embedded content
+              const height = Math.max(
+                body.scrollHeight, body.offsetHeight,
+                html.clientHeight, html.scrollHeight, html.offsetHeight
+              );
+              // add a tiny buffer to avoid rounding clipping
+              iframe.style.height = (height + 6) + 'px';
+            } catch (e) {
+              // If anything fails (cross-origin), fallback to viewport-based height
+              iframe.style.height = 'calc(100vh - 220px)';
+            }
+          }
+
+          iframe.addEventListener('load', function(){
+            // Resize after load and again shortly after to allow images/fonts to settle
+            resizeIframe();
+            setTimeout(resizeIframe, 200);
+            setTimeout(resizeIframe, 800);
+          });
+
+          // On window resize, recalc
+          window.addEventListener('resize', resizeIframe);
+        })();
+      </script>
+    </div>
+  </main>
+
+</body>
+</html>

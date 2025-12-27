@@ -192,6 +192,17 @@ body.catchfall-game .nav-dropdown .dropdown li a,
 body.comments-page .nav-dropdown .dropdown li a,
 body.brickbreaker-page .nav-dropdown .dropdown li a { color: #fff; }
 
+/* Capstone page uses the light dropdown so text is readable on a white background */
+body.capstone-page .nav-dropdown .dropdown {
+    background: #fff;
+    color: #000;
+}
+body.capstone-page .nav-dropdown .dropdown li a { color: #000; }
+body.capstone-page .nav-dropdown .dropdown li a:hover {
+    background: rgba(0,0,0,0.06);
+    color: #000;
+}
+
 /* Hover state for dropdown items on dark nav variants */
 body.catchfall-game .nav-dropdown .dropdown li a:hover,
 body.comments-page .nav-dropdown .dropdown li a:hover,
