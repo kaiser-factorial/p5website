@@ -1,6 +1,6 @@
 # Site Info
 
-Made by Corina Kaiser during Fall 2025 at NYU Tandon for DM-GY 6063. 
+First made by Corina Kaiser during Fall 2025 at NYU Tandon for DM-GY 6063. 
 
 
 # Legal
