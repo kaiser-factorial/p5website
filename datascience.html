@@ -6,13 +6,7 @@
     <title>Data Science Projects</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        .projects-list { max-width: 1000px; margin: 28px auto; padding: 0 16px; }
-        .project-item { display: flex; gap: 20px; align-items: center; margin: 18px 0; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 8px; }
-        .project-item img { width: 220px; height: auto; object-fit: cover; border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
-        .project-item .meta { flex: 1; }
-        @media (max-width: 740px) { .project-item { flex-direction: column; text-align: center; } .project-item img { width: 100%; max-width: 420px; } }
-    </style>
+
 </head>
 <body class="datascience-page">
     <nav>
@@ -53,23 +47,54 @@
 
         </header>
 
-        <section class="projects-list">
-            <article class="project-item">
-                <img src="Kaiser_DS-GA1001_Project1.fld/image001.jpg" alt="Project 1 thumbnail">
-                <div class="meta">
-                    <h2><a href="project1.html">Hypothesis Testing of Movie Ratings Data</a></h2>
-                    <p>Course project for DS-GA 1001: Internship in Data Science (Fall 2025). </p>
-                    <p>This report contains answers determined by analyzing a dataset which includes ratings data of 400 movies from 1097 research participants. Aside from viewers’ movie ratings from 0 to 4, the survey also gathered information regarding self-assessments on sensation seeking behaviors, responses to personality questions, self-reported movie experience ratings, gender identity, whether responders were only children, and whether responders believed that movies are best enjoyed alone. Analysis is based upon a significance level of 𝛼 = 0.005.</p>
+        <section class="projects-gallery">
+            <!-- Project 1: Movies -->
+            <a href="project1.html" class="project-card">
+                <div class="thumb-wrap">
+                    <img src="Kaiser_DS-GA1001_Project1.fld/image001.jpg" alt="Movie Ratings Analysis Visualization">
                 </div>
-            </article>
-            <article class="project-item">
-                <img src="Capstone HTML.fld/image001.jpg" alt="Capstone thumbnail">
-                <div class="meta">
-                    <h2><a href="capstone.html">Rate My Professor Data Analysis and Modeling</a></h2>
-                    <p>Capstone report for DS-GA 1001 (Fall 2025).</p>
-                    <p>This report combines hypothesis testing and machine learning to investigate patterns in student evaluations across almost 90k professor records.</p>
+                <div class="card-content">
+                    <span class="course-tag">DS-GA 1001: Internship in Data Science (Fall 2025)</span>
+                    <h2>Hypothesis Testing of Movie Ratings Data</h2>
+                    <p>An exploratory statistical analysis of movie preferences across 1,097 participants and 400 films. This study investigates the intersection of cinematic ratings with behavioral and demographic factors, such as sensation-seeking traits and social viewing habits. Utilizing rigorous hypothesis testing (α = 0.005), the project identifies significant correlations between viewer identity and the film experience.</p>
+                    
+                    <div class="method-pills">
+                        <span class="method-pill tech">Python</span>
+                        <span class="method-pill stats">Hypothesis Testing</span>
+                        <span class="method-pill stats">Distribution Analysis</span>
+                        <span class="method-pill focus">α = 0.005</span>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="btn-detail">View Full Report <span>→</span></div>
+                    </div>
                 </div>
-            </article>
+            </a>
+
+            <!-- Project 2: Capstone -->
+            <a href="capstone.html" class="project-card">
+                <div class="thumb-wrap">
+                    <img src="Capstone HTML.fld/image008_cropped.png" alt="Capstone Actual vs Predicted Ratings Regression (Model 1)">
+                </div>
+                <div class="card-content">
+                    <span class="course-tag">Capstone Report for DS-GA 1001 (Fall 2025)</span>
+                    <h2>Rate My Professor Data Analysis & Modeling</h2>
+                    <p>A large-scale analysis of nearly 90,000 student evaluations from RateMyProfessor.com. This study leverages Weighted Least Squares, Logistic Regression, and PCA to uncover hidden patterns in academic evaluations—investigating gender bias, the predictive power of qualitative tags (e.g., *Inspirational*, *Tough Grader*), and the metrics that correlate with student-assigned descriptors across STEM and humanities disciplines.</p>
+
+                    <div class="method-pills">
+                        <span class="method-pill tech">Python</span>
+                        <span class="method-pill tech">Weighted Least Squares</span>
+                        <span class="method-pill tech">Logistic Regression</span>
+                        <span class="method-pill tech">PCA</span>
+                        <span class="method-pill stats">Permutation Testing</span>
+                        <span class="method-pill focus">90k Records</span>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="btn-detail">View Full Report <span>→</span></div>
+                    </div>
+                </div>
+            </a>
         </section>
     </main>
 
