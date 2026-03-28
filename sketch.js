@@ -180,7 +180,7 @@ function setup() {
   col1=color(255,255,255)
 
   // Add event listeners to navigation links to trigger fractal
-  setupLinkFractals()
+  // setupLinkFractals()
 
 }
 

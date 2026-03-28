@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,76 +8,58 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
     <link href="https://fonts.cdnfonts.com/css/rockwell-nova" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/addons/p5.sound.min.js"></script>
-     <script src="sketch.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet">
+
 </head>
- 
- 
+
+
 <body class="home">
-    
-  <nav>
-    <div class="nav-container">
-      <div class="nav-row top-row">
-        <ul class="nav-links">
-          <li><a href="about.html">ABOUT</a></li>
-          <li><a href="page1contact.html">CONTACT</a></li>
-        </ul>
-      </div>
-      <div class="home-welcome">Welcome to Corina Kaiser's portfolio!</div>
-  <div class="visitor-counter">Visitors: <span id="visitor-count">—</span></div>
-      <div class="nav-row bottom-row">
-        <ul class="nav-links">
-          <li class="nav-dropdown">
-            <a href="datascience.html">DATA SCIENCE ▾</a>
-            <ul class="dropdown">
-              <li><a href="project1.html">Hypothesis Testing of Movie Ratings</a></li>
-                        <li><a href="capstone.html">Rate My Professor Analysis and Modeling</a></li>  </ul>
-          </li>
-          <li class="nav-dropdown">
-            <a href="p5js.html">p5.js ▾</a>
-            <ul class="dropdown">
-              <li><a href="p5spikes.html">Spikes</a></li>
-              <li><a href="sketchpadNoML.html">Sketchpad</a></li>
-            </ul>
-          </li>
-          <li class="nav-dropdown">
-            <a href="games.html">GAMES ▾</a>
-            <ul class="dropdown">
-              <li><a href="p4catchfall.html">Catch-Fall</a></li>
-              <li><a href="BrickBreaker/bbIndex.html">Brick Breaker</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
+
+    <nav>
+        <div class="home-layout">
+            <!-- Left: name -->
+            <div class="home-name">
+                <div class="name-first">Corina</div>
+                <div class="name-last">Kaiser</div>
+            </div>
+
+            <!-- Yellow vertical divider -->
+            <div class="home-divider"></div>
+
+            <!-- Right: nav links -->
+            <div class="home-links">
+                <ul class="home-nav-list">
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="datascience.html">Data Science</a></li>
+                    <li><a href="p5js.html">p5.js</a></li>
+                    <li><a href="games.html">Games</a></li>
+                    <li><a href="page1contact.html">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <!-- Ising model full-screen background canvas -->
+    <canvas id="ising-bg"></canvas>
+    <!-- Bezier ring overlay canvas -->
+    <canvas id="bezier-bg"></canvas>
+
+    <!-- Minimal floating temperature control -->
+    <div id="ising-ctrl" role="region" aria-label="Ising model temperature control">
+        <label for="ising-temp-home">T = <span id="ising-temp-val">1.5</span></label>
+        <input type="range" id="ising-temp-home" min="0.1" max="5" step="0.1" value="1.5" aria-label="Temperature">
+        <button id="ising-reset-home" title="Reset simulation">↺</button>
     </div>
-  </nav>
-    <div id="vanta-bg"></div>
-    <div class="content">   
-        
+    <div class="content">
 
-   
 
-    <main>
 
-        <section >
-            <p id="fly1">*</p>
-            <p id="fly2">*</p>
-            <p id="fly3">*</p>
-            <p id="fly4">*</p>
-            <p id="fly5">*</p>
-            <p id="fly6">*</p>
-            <p id="fly7">*</p>
-            <p id="fly8">*</p>
-            <p id="fly9">*</p>
-            <p id="fly0">*</p>
 
-        </section>
-    </main>
+        </main>
 
-  
 
-   <!-- Elfsight Visitor Counter 
+
+        <!-- Elfsight Visitor Counter 
 
    <script src="https://elfsightcdn.com/platform.js" async></script>
 <div class="elfsight-app-f7284995-04e4-4c52-8e29-116fb0c00b56" data-elfsight-app-lazy>
@@ -89,65 +72,172 @@
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vanta/dist/vanta.net.min.js"></script>
-<script>
-// Add error checking for Vanta.js
-/* try {
-  if (typeof VANTA !== 'undefined') {
-    VANTA.NET({
-      el: "#vanta-bg",
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: false,
-      minHeight: 200.00,
-      minWidth: 200.00,
-      scale: 1.00,
-      scaleMobile: 1.00,
-      color: 0xffec00,
-      backgroundColor: 0x0,
-      points: 4.00,
-      maxDistance: 24.00,
-      spacing: 20.00
-    })
-  } else {
-    console.error('VANTA library failed to load');
-  }
-} catch (error) {
-  console.error('Error initializing Vanta:', error);
-} */
-</script>
-<!-- Visitor counter using CountAPI (no server required). Counts once per visitor per 24 hours using localStorage throttle. -->
-<script>
-  (function(){
-    // Session-only counting: increment once per browser session (cleared on tab close)
-    const NAMESPACE = 'kaiser-portfolio';
-    const KEY = 'homepage';
-    const HIT_URL = `https://api.countapi.xyz/hit/${NAMESPACE}/${KEY}`;
-    const GET_URL = `https://api.countapi.xyz/get/${NAMESPACE}/${KEY}`;
-    const SESSION_FLAG = 'kaiser_counter_session_hit';
-    const el = document.getElementById('visitor-count');
-    if (!el) return;
+        <script>
+            // ── Bezier ring — vanilla JS canvas (no p5, no global event conflicts) ──
+            (function () {
+                const canvas = document.getElementById('bezier-bg');
+                const ctx = canvas.getContext('2d');
+                const N = 60;   // modulus
+                let t = 0;    // time
+                let CX, CY, RAD;
 
-    const didHitThisSession = sessionStorage.getItem(SESSION_FLAG) === '1';
-    const url = didHitThisSession ? GET_URL : HIT_URL;
+                function resize() {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    CX = canvas.width * 0.76;   // centre of right panel, away from divider
+                    CY = canvas.height * 0.50;
+                    RAD = Math.min(canvas.width * 0.30, canvas.height * 0.40);
+                }
+                window.addEventListener('resize', resize);
+                resize();
 
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        if (data && typeof data.value !== 'undefined') {
-          el.textContent = data.value;
-          if (!didHitThisSession) sessionStorage.setItem(SESSION_FLAG, '1');
-        } else {
-          el.textContent = '—';
-        }
-      })
-      .catch(err => {
-        console.error('Visitor counter error:', err);
-        el.textContent = '—';
-      });
-  })();
-</script>
+                function lerpAng(a1, a2, frac) {
+                    let d = a2 - a1;
+                    if (d > Math.PI) d -= 2 * Math.PI;
+                    if (d < -Math.PI) d += 2 * Math.PI;
+                    return a1 + d * frac;
+                }
+
+                function hslStr(h, s, l, a) {
+                    return 'hsla(' + (h % 360).toFixed(1) + ',' + s + '%,' + l + '%,' + a + ')';
+                }
+
+                function bezierFrame() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    t += 0.004;
+                    const mult = 2 + 1.5 * Math.sin(t);
+
+                    for (let k = 0; k < N; k++) {
+                        const target = (mult * k) % N;
+                        const a1 = -Math.PI / 2 + (2 * Math.PI) * (k / N);
+                        const a2 = -Math.PI / 2 + (2 * Math.PI) * (target / N);
+
+                        const x1 = CX + RAD * Math.cos(a1), y1 = CY + RAD * Math.sin(a1);
+                        const x2 = CX + RAD * Math.cos(a2), y2 = CY + RAD * Math.sin(a2);
+
+                        const cr = RAD * 0.5;
+                        const ma1 = lerpAng(a1, a2, 0.3);
+                        const ma2 = lerpAng(a1, a2, 0.7);
+                        const cx1 = CX + cr * Math.cos(ma1), cy1 = CY + cr * Math.sin(ma1);
+                        const cx2 = CX + cr * Math.cos(ma2), cy2 = CY + cr * Math.sin(ma2);
+
+                        const hue = 45 + 13 * Math.sin(k * 0.42 + t * 0.6); // 32–58: amber→yellow
+                        const sat = 85 + 12 * Math.sin(k * 0.3);             // 73–97%
+                        const lit = 58 + 18 * Math.sin(k * 0.25 + t * 0.4); // 40–76%
+                        ctx.strokeStyle = hslStr(hue, sat, lit, 0.5);
+                        ctx.lineWidth = 1.2;
+                        ctx.beginPath();
+                        ctx.moveTo(x1, y1);
+                        ctx.bezierCurveTo(cx1, cy1, cx2, cy2, x2, y2);
+                        ctx.stroke();
+                    }
+                    requestAnimationFrame(bezierFrame);
+                }
+                bezierFrame();
+            })();
+        </script>
+
+        <script>
+            (function () {
+                /* ── Ising model background ── */
+                const canvas = document.getElementById('ising-bg');
+                const ctx = canvas.getContext('2d');
+
+                // Spin colours matching the standalone page
+                const UP_COLOR = '#4195DE';
+                const DN_COLOR = '#D23B72';
+
+                let N = 60;            // grid cells
+                let spin = [];
+                let sweepCount = 0;
+                let animId = null;
+
+                // ── Resize canvas to fill the viewport ──────────────────────────────────
+                function resize() {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                }
+                window.addEventListener('resize', resize);
+                resize();
+
+                // ── Init grid (random) ───────────────────────────────────────────────────
+                function makeGrid() {
+                    spin = [];
+                    for (let i = 0; i < N; i++) {
+                        spin[i] = new Int8Array(N);
+                        for (let j = 0; j < N; j++) {
+                            spin[i][j] = Math.random() < 0.5 ? 1 : -1;
+                        }
+                    }
+                    sweepCount = 0;
+                }
+
+                // ── Metropolis sweep ─────────────────────────────────────────────────────
+                function sweep(T) {
+                    const beta = 1 / T;
+                    const cache = {};
+                    for (let k = 0; k < N * N; k++) {
+                        const i = (Math.random() * N) | 0;
+                        const j = (Math.random() * N) | 0;
+                        const s = spin[i][j];
+                        const nb = spin[(i - 1 + N) % N][j] + spin[(i + 1) % N][j]
+                            + spin[i][(j - 1 + N) % N] + spin[i][(j + 1) % N];
+                        const dE = 2 * s * nb;
+                        if (dE <= 0) {
+                            spin[i][j] = -s;
+                        } else {
+                            if (cache[dE] === undefined) cache[dE] = Math.exp(-beta * dE);
+                            if (Math.random() < cache[dE]) spin[i][j] = -s;
+                        }
+                    }
+                }
+
+                // ── Draw ─────────────────────────────────────────────────────────────────
+                function isingDraw() {
+                    const W = canvas.width;
+                    const H = canvas.height;
+                    const cw = W / N;
+                    const ch = H / N;
+                    for (let i = 0; i < N; i++) {
+                        for (let j = 0; j < N; j++) {
+                            ctx.fillStyle = spin[i][j] === 1 ? UP_COLOR : DN_COLOR;
+                            ctx.fillRect(j * cw, i * ch, cw + 0.5, ch + 0.5); // +0.5 avoids hairlines
+                        }
+                    }
+                }
+
+                // ── Animation loop ───────────────────────────────────────────────────
+                // 1 sweep per frame ≈ 60 physics steps/sec at 60 fps
+                function isingLoop() {
+                    const T = parseFloat(document.getElementById('ising-temp-home').value);
+                    sweep(T);
+                    sweepCount++;
+                    isingDraw();
+                    animId = requestAnimationFrame(isingLoop);
+                }
+
+                // ── Controls ─────────────────────────────────────────────────────────────
+                const slider = document.getElementById('ising-temp-home');
+                const tempVal = document.getElementById('ising-temp-val');
+                const resetBtn = document.getElementById('ising-reset-home');
+
+                slider.addEventListener('input', function () {
+                    tempVal.textContent = parseFloat(this.value).toFixed(1);
+                });
+
+                resetBtn.addEventListener('click', function () {
+                    makeGrid();
+                });
+
+                // ── Kick off ─────────────────────────────────────────────────────────────
+                makeGrid();
+                isingLoop();
+            })();
+        </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="magnetic_headers.js"></script>
+    <script src="global_transition.js"></script>
 </body>
 
 </html>

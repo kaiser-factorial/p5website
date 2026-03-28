@@ -100,7 +100,7 @@ function setup() {
   }
   
   // Defer facemesh start until model is created (after user gesture)
-  setupLinkFractals()
+  // setupLinkFractals()
 }
 
 function draw() {

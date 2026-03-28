@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Ising Model — Ferromagnetic Spin Switching</title>
+    <style>
+        :root {
+            --up: #534AB7;
+            --up-arrow: #EEEDFE;
+            --down: #D85A30;
+            --down-arrow: #FAECE7;
+            --bg: #FAFAF8;
+            --surface: #F1F0EC;
+            --text: #1a1a1a;
+            --text-muted: #6b6b6b;
+            --text-hint: #9a9a9a;
+            --border: rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #1a1a1a;
+                --surface: #262626;
+                --text: #e8e8e4;
+                --text-muted: #a0a0a0;
+                --text-hint: #707070;
+                --border: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .ising-container {
+            max-width: 860px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .ising-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .ising-header h1 {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .ising-header p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .ising-layout {
+            display: flex;
+            gap: 1.25rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .ising-canvas-wrap {
+            flex-shrink: 0;
+        }
+
+        #ising-grid {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            display: block;
+            width: 420px;
+            height: 420px;
+        }
+
+        .ising-controls {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .ising-slider-group {
+            margin-bottom: 1rem;
+        }
+
+        .ising-slider-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+
+        .ising-slider-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ising-slider-row input[type="range"] {
+            flex: 1;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: var(--border);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .ising-slider-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--text);
+            cursor: pointer;
+        }
+
+        .ising-slider-row input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--text);
+            border: none;
+            cursor: pointer;
+        }
+
+        .ising-readout {
+            font-size: 0.85rem;
+            font-weight: 500;
+            min-width: 28px;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ising-hint {
+            font-size: 0.7rem;
+            color: var(--text-hint);
+            margin-top: 2px;
+        }
+
+        .ising-btn-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .ising-btn {
+            font-family: inherit;
+            font-size: 0.8rem;
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: transparent;
+            color: var(--text);
+            cursor: pointer;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .ising-btn:hover {
+            background: var(--surface);
+        }
+
+        .ising-btn:active {
+            transform: scale(0.97);
+        }
+
+        .ising-btn--active {
+            border-color: var(--text-muted);
+            background: var(--surface);
+        }
+
+        .ising-btn--primary {
+            min-width: 68px;
+        }
+
+        .ising-btn--sm {
+            font-size: 0.72rem;
+            padding: 4px 10px;
+        }
+
+        .ising-mode-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .ising-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 1rem;
+        }
+
+        .ising-stat {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 10px 12px;
+        }
+
+        .ising-stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .ising-stat-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ising-legend {
+            margin-top: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .ising-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .ising-legend-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 680px) {
+            #ising-grid {
+                width: 100%;
+                height: auto;
+                aspect-ratio: 1;
+            }
+
+            .ising-canvas-wrap {
+                width: 100%;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="ising-container">
+        <div class="ising-header">
+            <h1>2D Ising model</h1>
+            <p>Ferromagnetic spin switching with Metropolis dynamics. Click any cell to flip it and observe the system's
+                response.</p>
+        </div>
+
+        <div class="ising-layout">
+            <div class="ising-canvas-wrap">
+                <canvas id="ising-grid" width="420" height="420"></canvas>
+            </div>
+
+            <div class="ising-controls">
+                <div class="ising-slider-group">
+                    <label>Grid size</label>
+                    <div class="ising-slider-row">
+                        <input type="range" min="8" max="40" step="1" value="16" id="ising-gsize" />
+                        <span class="ising-readout" id="ising-gsize-out">16</span>
+                    </div>
+                </div>
+
+                <div class="ising-slider-group">
+                    <label>Temperature (T)</label>
+                    <div class="ising-slider-row">
+                        <input type="range" min="0.1" max="5" step="0.1" value="1.0" id="ising-temp" />
+                        <span class="ising-readout" id="ising-temp-out">1.0</span>
+                    </div>
+                    <div class="ising-hint">Critical temp ≈ 2.27 (phase transition)</div>
+                </div>
+
+                <div class="ising-slider-group">
+                    <label>Sweeps per frame</label>
+                    <div class="ising-slider-row">
+                        <input type="range" min="1" max="50" step="1" value="5" id="ising-speed" />
+                        <span class="ising-readout" id="ising-speed-out">5</span>
+                    </div>
+                </div>
+
+                <div class="ising-mode-label">Click behavior</div>
+                <div class="ising-btn-row">
+                    <button class="ising-btn ising-btn--sm ising-btn--active" id="ising-mode-step">Flip + step</button>
+                    <button class="ising-btn ising-btn--sm" id="ising-mode-flip">Flip only</button>
+                </div>
+
+                <div class="ising-btn-row">
+                    <button class="ising-btn ising-btn--primary" id="ising-play">Play</button>
+                    <button class="ising-btn" id="ising-step">Step</button>
+                    <button class="ising-btn" id="ising-reset">Reset</button>
+                </div>
+
+                <div class="ising-btn-row">
+                    <button class="ising-btn ising-btn--sm" id="ising-random">Random</button>
+                    <button class="ising-btn ising-btn--sm" id="ising-half">Half / half</button>
+                    <button class="ising-btn ising-btn--sm" id="ising-checker">Checkerboard</button>
+                </div>
+
+                <div class="ising-stats">
+                    <div class="ising-stat">
+                        <div class="ising-stat-label">Energy / spin</div>
+                        <div class="ising-stat-value" id="ising-energy">0</div>
+                    </div>
+                    <div class="ising-stat">
+                        <div class="ising-stat-label">Magnetization</div>
+                        <div class="ising-stat-value" id="ising-mag">0</div>
+                    </div>
+                    <div class="ising-stat">
+                        <div class="ising-stat-label">Sweeps</div>
+                        <div class="ising-stat-value" id="ising-sweeps">0</div>
+                    </div>
+                    <div class="ising-stat">
+                        <div class="ising-stat-label">Flips this frame</div>
+                        <div class="ising-stat-value" id="ising-flips">&mdash;</div>
+                    </div>
+                </div>
+
+                <div class="ising-legend">
+                    <div class="ising-legend-item">
+                        <div class="ising-legend-swatch" style="background: #534AB7;"></div>
+                        <span>Spin +1 (up)</span>
+                    </div>
+                    <div class="ising-legend-item">
+                        <div class="ising-legend-swatch" style="background: #D85A30;"></div>
+                        <span>Spin −1 (down)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const canvas = document.getElementById('ising-grid');
+            const ctx = canvas.getContext('2d');
+
+            let N = 16;
+            let spin = [];
+            let running = false;
+            let animId = null;
+            let sweepCount = 0;
+            let lastFlips = 0;
+            let clickMode = 'step';
+
+            const UP_FILL = '#534AB7', DN_FILL = '#D85A30';
+            const UP_ARROW = '#EEEDFE', DN_ARROW = '#FAECE7';
+            const GRID_LINE = 'rgba(0,0,0,0.1)';
+
+            // --- Initialization ---
+
+            function makeGrid(n) {
+                N = n;
+                spin = [];
+                for (let i = 0; i < N; i++) {
+                    spin[i] = [];
+                    for (let j = 0; j < N; j++) {
+                        spin[i][j] = Math.random() < 0.5 ? 1 : -1;
+                    }
+                }
+                sweepCount = 0;
+                lastFlips = 0;
+                updateStats();
+            }
+
+            function initHalf() {
+                spin = [];
+                for (let i = 0; i < N; i++) {
+                    spin[i] = [];
+                    for (let j = 0; j < N; j++) {
+                        spin[i][j] = j < N / 2 ? 1 : -1;
+                    }
+                }
+                sweepCount = 0;
+                lastFlips = 0;
+                updateStats();
+            }
+
+            function initChecker() {
+                spin = [];
+                for (let i = 0; i < N; i++) {
+                    spin[i] = [];
+                    for (let j = 0; j < N; j++) {
+                        spin[i][j] = (i + j) % 2 === 0 ? 1 : -1;
+                    }
+                }
+                sweepCount = 0;
+                lastFlips = 0;
+                updateStats();
+            }
+
+            // --- Rendering ---
+
+            function draw() {
+                const CW = canvas.width;
+                const CH = canvas.height;
+                ctx.clearRect(0, 0, CW, CH);
+                const cell = CW / N;
+
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        const x = j * cell;
+                        const y = i * cell;
+                        const s = spin[i][j];
+
+                        // Cell background
+                        ctx.fillStyle = s === 1 ? UP_FILL : DN_FILL;
+                        ctx.fillRect(x, y, cell, cell);
+
+                        // Grid lines
+                        ctx.strokeStyle = GRID_LINE;
+                        ctx.lineWidth = 0.5;
+                        ctx.strokeRect(x, y, cell, cell);
+
+                        // Arrow
+                        const cx = x + cell / 2;
+                        const cy = y + cell / 2;
+                        const aLen = cell * 0.32;
+                        const headW = cell * 0.16;
+                        const headH = cell * 0.14;
+                        const arrowColor = s === 1 ? UP_ARROW : DN_ARROW;
+
+                        ctx.fillStyle = arrowColor;
+                        ctx.strokeStyle = arrowColor;
+                        ctx.lineWidth = Math.max(1.5, cell * 0.06);
+
+                        if (s === 1) {
+                            // Shaft pointing up
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy + aLen);
+                            ctx.lineTo(cx, cy - aLen);
+                            ctx.stroke();
+                            // Arrowhead
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - aLen - headH * 0.3);
+                            ctx.lineTo(cx - headW, cy - aLen + headH);
+                            ctx.lineTo(cx + headW, cy - aLen + headH);
+                            ctx.closePath();
+                            ctx.fill();
+                        } else {
+                            // Shaft pointing down
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy - aLen);
+                            ctx.lineTo(cx, cy + aLen);
+                            ctx.stroke();
+                            // Arrowhead
+                            ctx.beginPath();
+                            ctx.moveTo(cx, cy + aLen + headH * 0.3);
+                            ctx.lineTo(cx - headW, cy + aLen - headH);
+                            ctx.lineTo(cx + headW, cy + aLen - headH);
+                            ctx.closePath();
+                            ctx.fill();
+                        }
+                    }
+                }
+            }
+
+            // --- Physics ---
+
+            function neighborSum(i, j) {
+                return (
+                    spin[(i - 1 + N) % N][j] +
+                    spin[(i + 1) % N][j] +
+                    spin[i][(j - 1 + N) % N] +
+                    spin[i][(j + 1) % N]
+                );
+            }
+
+            function sweep(T) {
+                let flips = 0;
+                const beta = 1 / T;
+                const expCache = {};
+
+                for (let k = 0; k < N * N; k++) {
+                    const i = Math.floor(Math.random() * N);
+                    const j = Math.floor(Math.random() * N);
+                    const s = spin[i][j];
+                    const dE = 2 * s * neighborSum(i, j);
+
+                    if (dE <= 0) {
+                        spin[i][j] = -s;
+                        flips++;
+                    } else {
+                        if (expCache[dE] === undefined) {
+                            expCache[dE] = Math.exp(-beta * dE);
+                        }
+                        if (Math.random() < expCache[dE]) {
+                            spin[i][j] = -s;
+                            flips++;
+                        }
+                    }
+                }
+                return flips;
+            }
+
+            function calcEnergy() {
+                let E = 0;
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        E -= spin[i][j] * (spin[(i + 1) % N][j] + spin[i][(j + 1) % N]);
+                    }
+                }
+                return E / (N * N);
+            }
+
+            function calcMagnetization() {
+                let M = 0;
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        M += spin[i][j];
+                    }
+                }
+                return M / (N * N);
+            }
+
+            // --- UI ---
+
+            function updateStats() {
+                document.getElementById('ising-energy').textContent = calcEnergy().toFixed(2);
+                document.getElementById('ising-mag').textContent = calcMagnetization().toFixed(3);
+                document.getElementById('ising-sweeps').textContent = sweepCount;
+                document.getElementById('ising-flips').textContent = lastFlips || '\u2014';
+            }
+
+            function doStep() {
+                const T = parseFloat(document.getElementById('ising-temp').value);
+                const spd = parseInt(document.getElementById('ising-speed').value);
+                let totalFlips = 0;
+                for (let s = 0; s < spd; s++) {
+                    totalFlips += sweep(T);
+                    sweepCount++;
+                }
+                lastFlips = totalFlips;
+                draw();
+                updateStats();
+            }
+
+            function loop() {
+                if (!running) return;
+                doStep();
+                animId = requestAnimationFrame(loop);
+            }
+
+            // --- Event Binding ---
+
+            document.getElementById('ising-temp').addEventListener('input', function (e) {
+                document.getElementById('ising-temp-out').textContent = parseFloat(e.target.value).toFixed(1);
+            });
+
+            document.getElementById('ising-speed').addEventListener('input', function (e) {
+                document.getElementById('ising-speed-out').textContent = e.target.value;
+            });
+
+            document.getElementById('ising-gsize').addEventListener('input', function (e) {
+                var v = parseInt(e.target.value);
+                document.getElementById('ising-gsize-out').textContent = v;
+                makeGrid(v);
+                draw();
+            });
+
+            var btnModeStep = document.getElementById('ising-mode-step');
+            var btnModeFlip = document.getElementById('ising-mode-flip');
+
+            function setClickMode(mode) {
+                clickMode = mode;
+                btnModeStep.className = 'ising-btn ising-btn--sm' + (mode === 'step' ? ' ising-btn--active' : '');
+                btnModeFlip.className = 'ising-btn ising-btn--sm' + (mode === 'flip' ? ' ising-btn--active' : '');
+            }
+
+            btnModeStep.addEventListener('click', function () { setClickMode('step'); });
+            btnModeFlip.addEventListener('click', function () { setClickMode('flip'); });
+
+            document.getElementById('ising-play').addEventListener('click', function () {
+                running = !running;
+                this.textContent = running ? 'Pause' : 'Play';
+                if (running) loop();
+            });
+
+            document.getElementById('ising-step').addEventListener('click', doStep);
+
+            document.getElementById('ising-reset').addEventListener('click', function () {
+                running = false;
+                document.getElementById('ising-play').textContent = 'Play';
+                if (animId) cancelAnimationFrame(animId);
+                makeGrid(N);
+                draw();
+                updateStats();
+            });
+
+            document.getElementById('ising-random').addEventListener('click', function () {
+                makeGrid(N); draw(); updateStats();
+            });
+
+            document.getElementById('ising-half').addEventListener('click', function () {
+                initHalf(); draw(); updateStats();
+            });
+
+            document.getElementById('ising-checker').addEventListener('click', function () {
+                initChecker(); draw(); updateStats();
+            });
+
+            canvas.addEventListener('click', function (e) {
+                var rect = canvas.getBoundingClientRect();
+                var scaleX = canvas.width / rect.width;
+                var scaleY = canvas.height / rect.height;
+                var cj = Math.floor((e.clientX - rect.left) * scaleX / canvas.width * N);
+                var ci = Math.floor((e.clientY - rect.top) * scaleY / canvas.height * N);
+
+                if (ci >= 0 && ci < N && cj >= 0 && cj < N) {
+                    spin[ci][cj] *= -1;
+                    if (clickMode === 'step') {
+                        doStep();
+                    } else {
+                        draw();
+                        updateStats();
+                    }
+                }
+            });
+
+            // --- Start ---
+            makeGrid(16);
+            draw();
+        })();
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="magnetic_headers.js"></script>
+    <script src="global_transition.js"></script>
+</body>
+
+</html>

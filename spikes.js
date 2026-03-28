@@ -36,7 +36,7 @@ function setup() {
   q=g
   s=b
 
-  setupLinkFractals()
+  // setupLinkFractals()
 }
 
 function windowResized() {

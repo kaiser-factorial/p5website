@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { margin: 0; padding: 0; background: #fcfcfc; font-family: sans-serif; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; }
+  .ripple { position: fixed; border-radius: 50%; background: #4195DE; transform: translate(-50%, -50%) scale(0); transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1); pointer-events: none; z-index: 100; }
+  .active .ripple { transform: translate(-50%, -50%) scale(1); }
+  button { padding: 15px 30px; font-size: 1.2rem; cursor: pointer; z-index: 10; background: #333; color: white; border: none; border-radius: 8px;}
+</style>
+</head>
+<body>
+  <div class="ripple" id="r1"></div>
+  <button id="btn">Trigger Option 2: Ripple</button>
+  <script>
+    document.getElementById('btn').addEventListener('click', (e) => {
+       const r = document.getElementById('r1');
+       r.style.left = e.clientX + 'px';
+       r.style.top = e.clientY + 'px';
+       // calculate max dimension to cover screen
+       const maxDim = Math.max(window.innerWidth, window.innerHeight) * 2.5;
+       r.style.width = maxDim + 'px';
+       r.style.height = maxDim + 'px';
+       document.body.classList.add('active');
+       setTimeout(() => { document.body.classList.remove('active'); setTimeout(()=>{r.style.width='0px'; r.style.height='0px';}, 800) }, 1500);
+    });
+  </script>
+</body>
+</html>

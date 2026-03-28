@@ -22,7 +22,7 @@ let lastButtonTime = 0
 
 function setup() {
   createCanvas(windowWidth, windowHeight-75);
-setupLinkFractals()
+// setupLinkFractals()
 }
 
 function draw() {

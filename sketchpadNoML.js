@@ -30,7 +30,7 @@ function setup() {
   
   background(255);
   
-  setupLinkFractals()
+  // setupLinkFractals()
 }
 
 function draw() {

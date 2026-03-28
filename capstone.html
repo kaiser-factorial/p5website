@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Capstone — Rate My Professor Data Analysis</title>
   <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     /* Page-local styles to host the full report (keeps original formatting intact via iframe) */
-  .report-container { max-width: 1100px; margin: 2rem auto 0; padding: 24px; background: rgba(255,255,255,0.02); border-radius: 8px; }
-  .frame-wrap { background: rgba(0,0,0,0.02); padding: 18px; border-radius: 6px; }
-  #report-frame { display: block; width: 100%; height: calc(100vh - 220px); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; background: transparent; }
-    @media (max-width: 740px) { #report-frame { height: 70vh; } .report-container { margin: 1rem; } }
+  .report-container { max-width: 1000px; margin: 32px auto 3rem; padding: 24px; background: rgba(255,255,255,0.02); border-radius: 8px; }
+  .frame-wrap { background: rgba(0,0,0,0.02); padding: 0; border-radius: 6px; }
+  #report-frame { display: block; width: 100%; height: calc(100vh - 120px); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; background: transparent; }
+    @media (max-width: 769px) { #report-frame { height: 70vh; } .report-container { margin: 1rem; } }
+    @media (min-width: 769px) { body.capstone-page main { padding-top: 1rem; } }
   
   </style>
 </head>
@@ -24,8 +26,8 @@
         <li class="nav-dropdown">
           <a href="datascience.html">Data Science ▾</a>
           <ul class="dropdown">
-            <li><a href="project1.html">Project 1</a></li>
-            <li><a href="capstone.html">Capstone</a></li>
+            <li><a href="project1.html">Hypothesis Testing of Movie Ratings Data</a></li>
+            <li><a href="capstone.html">Rate My Professor Data Analysis & Modeling</a></li>
           </ul>
         </li>
         <li class="nav-dropdown">
@@ -61,30 +63,31 @@
 
       <script>
         // Resize the iframe to match the embedded document height (same-origin)
-        // and remove the inner scrollbar so only the page scrolls.
+        // or allow normal viewing if cross-origin restricts full size wrapping
         (function(){
           const iframe = document.getElementById('report-frame');
-          iframe.setAttribute('scrolling', 'no');
-          iframe.style.overflow = 'visible';
 
           function resizeIframe(){
             try {
               const doc = iframe.contentDocument || iframe.contentWindow.document;
-              if (!doc) return;
+              if (!doc) throw new Error("No doc access");
               const body = doc.body, html = doc.documentElement;
-              // try to remove inner scrollbars
-              body.style.overflow = 'visible';
-              html.style.overflow = 'visible';
-              // compute full height of embedded content
+              // If we have doc access, remove internal scrolling and let iframe expand
+              body.style.overflow = 'hidden';
+              html.style.overflow = 'hidden';
+              iframe.setAttribute('scrolling', 'no');
+              iframe.style.overflow = 'hidden';
+              
               const height = Math.max(
                 body.scrollHeight, body.offsetHeight,
                 html.clientHeight, html.scrollHeight, html.offsetHeight
               );
-              // add a tiny buffer to avoid rounding clipping
-              iframe.style.height = (height + 6) + 'px';
+              iframe.style.height = (height + 20) + 'px';
             } catch (e) {
-              // If anything fails (cross-origin), fallback to viewport-based height
-              iframe.style.height = 'calc(100vh - 220px)';
+              // If local viewing (file://) blocks doc access, fallback to scrollable viewport
+              iframe.setAttribute('scrolling', 'yes');
+              iframe.style.overflow = 'auto';
+              iframe.style.height = 'calc(100vh - 120px)';
             }
           }
 
@@ -102,5 +105,8 @@
     </div>
   </main>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="magnetic_headers.js"></script>
+    <script src="global_transition.js"></script>
 </body>
 </html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grid Background — Preserved</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+
+        .label {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            color: rgba(255,255,255,0.4);
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 0.85rem;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <p class="label">original homepage background — noise grid</p>
+
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.js"></script>
+    <script>
+        let rows = 5;
+        let cols = 10;
+
+        new p5(function(p) {
+            p.setup = function() {
+                let cnv = p.createCanvas(p.windowWidth, p.windowHeight);
+                cnv.style('position', 'fixed');
+                cnv.style('top', '0');
+                cnv.style('left', '0');
+                cnv.style('z-index', '0');
+            };
+
+            p.draw = function() {
+                p.background(255, 255, 255, 0.7);
+                p.rectMode(p.CENTER);
+                p.translate(p.width / (2 * cols), p.height / (2 * rows));
+
+                let n = 1.2 * p.noise(0.02 * p.frameCount);
+
+                for (let x = 0; x < cols; x++) {
+                    for (let y = 0; y < rows; y++) {
+                        for (let i = 0; i < 8; i++) {
+                            if (i % 3 === 0) {
+                                let r = 255 * Math.cos(p.map(i, 0, 6, 0, 2 * Math.PI));
+                                let b = 255 - r;
+                                p.fill(r, 0, 0);
+                            } else if (i % 3 === 1) {
+                                let r = 255 * Math.cos(p.map(i, 0, 6, 0, 2 * Math.PI));
+                                let b = 255 - r;
+                                p.fill(0, 0, b);
+                            } else if (i % 3 === 2) {
+                                p.fill('yellow');
+                            }
+                            p.noStroke();
+                            p.rect(
+                                x * p.width / cols,
+                                y * p.height / rows,
+                                n * p.width / cols - i * 9,
+                                n * p.height / rows - i * 7
+                            );
+                        }
+                    }
+                }
+            };
+
+            p.windowResized = function() {
+                p.resizeCanvas(p.windowWidth, p.windowHeight);
+            };
+        });
+    </script>
+    <script src="magnetic_headers.js"></script>
+    <script src="global_transition.js"></script>
+</body>
+</html>

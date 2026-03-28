@@ -102,7 +102,7 @@ fractalLayer.clear();
   //*************************************************************************
   //background(255);
   
-  setupLinkFractals()
+  // setupLinkFractals()
  initVoice(); 
 }
 
