@@ -1,22 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>p5.js Projects</title>
+    <title>p5.js</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <style>
-      .p5-list { max-width: 1000px; margin: 96px auto; padding: 16px; }
-      .p5-item { display: flex; gap: 18px; align-items: flex-start; margin: 18px 0; padding: 14px; background: rgba(255,255,255,0.02); border-radius: 8px; }
-      .p5-item .meta { flex: 1; }
-      .p5-item h2 { margin: 0 0 8px 0; }
-      .p5-item p { margin: 0 0 8px 0; color: inherit; }
-      .p5-links { margin-top: 8px; display: flex; gap: 12px; }
-      .p5-links a { background: #222; color: #fff; padding: 8px 12px; border-radius: 6px; text-decoration: none; }
-      @media (max-width: 740px) { .p5-item { flex-direction: column; text-align: center; } .p5-item img { width: 100%; max-width: 420px; } }
+        .p5-list {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 16px;
+        }
+
+        .p5-item {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            margin: 32px 0;
+            padding: 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .p5-item img {
+            width: 320px;
+            height: auto;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        .p5-item .meta {
+            flex: 1;
+        }
+
+        .p5-item h2 {
+            margin: 0 0 12px 0;
+            font-family: 'Russo One', sans-serif;
+            font-size: 1.5rem;
+        }
+
+        .p5-item h2 a {
+            color: #111;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .p5-item h2 a:hover {
+            color: #FFD600;
+        }
+
+        .p5-item p {
+            margin: 0 0 12px 0;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Ensure strong tags are visible */
+        .p5-item .meta strong {
+            font-weight: 700;
+            color: #000;
+        }
+
+        .p5-links {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .p5-links a {
+            background: #222;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        .p5-links a:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        @media (max-width: 850px) {
+            .p5-item {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .p5-item img {
+                width: 100%;
+                max-width: 480px;
+            }
+        }
     </style>
 </head>
+
 <body class="p5-page">
     <nav>
         <div class="nav-container">
@@ -26,24 +111,20 @@
                 <li class="nav-dropdown">
                     <a href="datascience.html">Data Science ▾</a>
                     <ul class="dropdown">
-                         <li><a href="project1.html">Hypothesis Testing of Movie Ratings Data</a></li>
-                        <li><a href="capstone.html">Rate My Professor Data Analysis & Modeling</a></li></ul>
-                </li>
-                <li class="nav-dropdown">
-                    <a href="p5js.html">p5.js ▾</a>
-                    <ul class="dropdown">
-                        <li><a href="p5spikes.html">Spikes</a></li>
-                        <li><a href="sketchpadNoML.html">Sketchpad</a></li>
+                        <li><a href="project1.html">Hypothesis Testing of Movie Ratings Data</a></li>
+                        <li><a href="capstone.html">Rate My Professor Data Analysis & Modeling</a></li>
                     </ul>
                 </li>
                 <li class="nav-dropdown">
-                    <a href="games.html">Games ▾</a>
+                    <a href="p5js.html" style="color: #FFD600;">p5.js ▾</a>
                     <ul class="dropdown">
+                        <li><a href="p5spikes.html">Spikes</a></li>
+                        <li><a href="sketchpadNoML.html">Sketchpad</a></li>
                         <li><a href="p4catchfall.html">Catch Fall</a></li>
                         <li><a href="BrickBreaker/bbIndex.html">Brick Breaker</a></li>
                     </ul>
                 </li>
-                
+                <li><a href="photography.html">Photography</a></li>
                 <li><a href="page1contact.html">Contact</a></li>
             </ul>
         </div>
@@ -51,36 +132,70 @@
 
     <main class="content">
         <header>
-            <h1>p5.js Projects</h1>
-
+            <h1>p5.js</h1>
         </header>
 
         <section class="p5-list">
+            <!-- Game 1: Catch Fall -->
             <article class="p5-item">
+                <img src="CatchFallSS.png" alt="CatchFall screenshot">
                 <div class="meta">
-                    <h2>Spikes</h2>
-                    <p>A generative audiovisual sketch that explores rhythmic patterns and color. Use the controls on the Spikes page to interact with the composition; press keys or click to change behavior.</p>
+                    <h2><a href="p4catchfall.html">Catch-Fall</a></h2>
+                    <p><strong>Overview: </strong>Move your head left and right to catch the yellow falling items and
+                        avoid red ones. This project utilizes <strong>ml5.js</strong> facial tracking for a unique
+                        hands-free interaction style.</p>
+                    <p>In Catch-Fall, you control a blue character by moving your head. The tracking focuses on your
+                        forehead to determine movement. Catch yellow pieces to level up, but be careful—the speed and
+                        frequency increase quickly!</p>
                     <div class="p5-links">
-                        <a href="p5spikes.html">Open Spikes</a>
-                       
+                        <a href="p4catchfall.html">Play Catch-Fall</a>
                     </div>
                 </div>
             </article>
 
+            <!-- Game 2: Brick Breaker -->
+            <article class="p5-item">
+                <img src="BrickBreakerSS.png" alt="Brick Breaker screenshot">
+                <div class="meta">
+                    <h2><a href="BrickBreaker/bbIndex.html">Brick Breaker</a></h2>
+                    <p>A classic arcade experience built with p5.js. Use the paddle to keep the ball in play and clear
+                        the bricks. A focus on collision physics and state management.</p>
+                    <div class="p5-links">
+                        <a href="BrickBreaker/bbIndex.html">Play Brick Breaker</a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Sketch 1: Spikes -->
+            <article class="p5-item">
+                <div class="meta">
+                    <h2>Spikes</h2>
+                    <p>A generative audiovisual sketch that explores rhythmic patterns and color. An experiment in
+                        mapping sound frequency to visual geometry.</p>
+                    <div class="p5-links">
+                        <a href="p5spikes.html">Open Spikes</a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Sketch 2: Sketchpad -->
             <article class="p5-item">
                 <div class="meta">
                     <h2>Sketchpad</h2>
-                    <p>An interactive drawing environment with options for using machine learning (on the ML-enabled page). Click through to try the sketchpad with and without ML features.</p>
+                    <p>An interactive drawing environment. Includes a variant that incorporates machine learning for
+                        gesture and voice recognition to manipulate controls.</p>
                     <div class="p5-links">
-                        <a href="sketchpadNoML.html">Open Sketchpad (No ML)</a>
-                        <a href="page3sketchpad.html">Open Sketchpad (ML)</a>
+                        <a href="sketchpadNoML.html">Sketchpad (No ML)</a>
+                        <a href="page3sketchpad.html">Sketchpad (ML)</a>
                     </div>
                 </div>
             </article>
         </section>
     </main>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
     <script src="magnetic_headers.js"></script>
     <script src="global_transition.js"></script>
 </body>
+
 </html>
