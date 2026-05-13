@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaiser:Bot Lexicon Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        body.portal-page {
+            background-color: #0D1117;
+            color: #C8CBD8;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        nav {
+            background-color: rgba(13, 17, 23, 0.95);
+            border-bottom: 1px solid #30363D;
+            position: relative;
+            z-index: 1001;
+            padding: 1rem 0;
+        }
+
+        .portal-header {
+            padding: 1.5rem 2rem 0.5rem;
+            text-align: center;
+        }
+
+        .portal-header h1 {
+            color: #FFD600;
+            /* Matching the new yellow theme */
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .portal-header p {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1rem;
+            color: #8B949E;
+            line-height: 1.5;
+        }
+
+        .external-link {
+            color: #00E678;
+            /* Bright green */
+            text-decoration: none;
+            font-weight: 600;
+            margin-left: 8px;
+            transition: opacity 0.2s;
+        }
+
+        .external-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .iframe-container {
+            flex: 1;
+            position: relative;
+            margin: 10px 20px 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 214, 0, 0.05);
+            border: 1px solid #30363D;
+            background: #000;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Custom styles for portal nav */
+        body.portal-page .nav-links a {
+            color: #8B949E;
+        }
+
+        body.portal-page .nav-links a:hover {
+            color: #FFD600;
+        }
+    </style>
+</head>
+
+<body class="portal-page">
+    <nav>
+        <div class="nav-container">
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li class="nav-dropdown">
+                    <a href="datascience.html">Data Science ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="project1.html">Hypothesis Testing of Movie Ratings Data</a></li>
+                        <li><a href="capstone.html">Rate My Professor Data Analysis & Modeling</a></li>
+                        <li><a href="bot-lexicon-portal.html">Bot Lexicon MapReduce Visualizer</a></li>
+                    </ul>
+                </li>
+                <li class="nav-dropdown">
+                    <a href="p5js.html">p5.js ▾</a>
+                    <ul class="dropdown">
+                        <li><a href="p5spikes.html">Spikes</a></li>
+                        <li><a href="sketchpadNoML.html">Sketchpad</a></li>
+                        <li><a href="p4catchfall.html">Catch Fall</a></li>
+                        <li><a href="BrickBreaker/bbIndex.html">Brick Breaker</a></li>
+                    </ul>
+                </li>
+                <li><a href="photography.html">Photography</a></li>
+                <li><a href="page1contact.html">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="portal-header">
+        <h2>Vat Lexicon MapReduce Visualizer</h2>
+        <p>A portal into the linguistic world of the v1 bots living at <a href="https://vat.social">brain.vat</a>. This
+            interactive MapReduce simulation
+            processes thousands of message records to reveal vocabulary distributions between MAUK and ABACI.
+            <a href="https://kaiser-factorial.github.io/bot-lexicon/index.html" target="_blank"
+                class="external-link">View Full Site ↗</a>
+        </p>
+    </div>
+
+    <div class="iframe-container">
+        <iframe src="bot-lexicon/index.html" title="Bot Lexicon Visualizer"></iframe>
+    </div>
+
+    <script src="global_transition.js"></script>
+</body>
+
+</html>

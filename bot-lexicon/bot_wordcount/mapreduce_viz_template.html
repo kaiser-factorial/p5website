@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapReduce Visualizer — MAUK × ABACI</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0D1117;
+      color: #C8CBD8;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      background: #161B22;
+      border-bottom: 1px solid #21262D;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+    #header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #E6EDF3;
+      white-space: nowrap;
+    }
+    #header h1 span.mauk  { color: #03A6A1; }
+    #header h1 span.abaci { color: #FF9D23; }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #21262D;
+      border: 1px solid #30363D;
+      color: #C8CBD8;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: #2D333B; border-color: #444C56; }
+    .btn.active { background: #00E67822; border-color: #00E678; color: #00E678; }
+    .btn#btn-play { min-width: 72px; }
+    .filter-group { display: flex; gap: 4px; }
+    .filter-btn {
+      background: #21262D;
+      border: 1px solid #30363D;
+      color: #8B949E;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { color: #C8CBD8; border-color: #444C56; }
+    .filter-btn.active-all   { background:#00E67822; border-color:#00E678; color:#00E678; }
+    .filter-btn.active-mauk  { background:#03A6A122; border-color:#03A6A1; color:#03A6A1; }
+    .filter-btn.active-abaci { background:#FF9D2322; border-color:#FF9D23; color:#FF9D23; }
+    .filter-btn.active-shared{ background:#E6394622; border-color:#E63946; color:#E63946; }
+    .speed-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #8B949E;
+    }
+    #speed-slider {
+      -webkit-appearance: none;
+      width: 80px; height: 4px;
+      border-radius: 2px;
+      background: #30363D;
+      outline: none;
+    }
+    #speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #00E678;
+      cursor: pointer;
+    }
+    .stats {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: #8B949E;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stats span { white-space: nowrap; }
+    .stats span b { color: #C8CBD8; }
+    #canvas-container { flex: 1; overflow: hidden; }
+    #canvas-container canvas { display: block; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1>MapReduce — <span class="mauk">MAUK</span> × <span class="abaci">ABACI</span> Word Count</h1>
+  <div class="controls">
+    <button class="btn" id="btn-play">⏸ Pause</button>
+    <button class="btn" id="btn-reset">↺ Reset</button>
+    <button class="btn" id="btn-bucket">⬡ Bucket Mode</button>
+    <div class="filter-group">
+      <button class="filter-btn active-all" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="shared">Shared</button>
+      <button class="filter-btn" data-filter="mauk_only">MAUK</button>
+      <button class="filter-btn" data-filter="abaci_only">ABACI</button>
+    </div>
+    <div class="speed-wrap">
+      <span>Speed</span>
+      <input type="range" id="speed-slider" min="0.3" max="5" step="0.1" value="1.5">
+      <span id="speed-label">1.5×</span>
+    </div>
+    <div class="stats">
+      <span>Map outputs: <b id="stat-mapped">0</b></span>
+      <span>Unique keys reduced: <b id="stat-reduced">0</b></span>
+      <span>Queue: <b id="stat-queue">0</b></span>
+    </div>
+  </div>
+</div>
+
+<div id="canvas-container"></div>
+
+<script>
+// ── Injected word data ────────────────────────────────────────────────────────
+const ALL_WORDS = __WORD_DATA__;
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── UI controls ───────────────────────────────────────────────────────────────
+let paused     = false;
+let speedMult  = 1.5;
+let filterMode = 'all';
+let bucketMode = false;
+let laneParkedCounts = {}; // letter → count of parked particles at that lane
+
+document.getElementById('btn-play').addEventListener('click', () => {
+  paused = !paused;
+  document.getElementById('btn-play').textContent = paused ? '▶ Play' : '⏸ Pause';
+});
+document.getElementById('btn-reset').addEventListener('click', () => { resetSim(); });
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn');
+    filterMode = btn.dataset.filter;
+    const cls = filterMode === 'all' ? 'active-all'
+              : filterMode === 'shared' ? 'active-shared'
+              : filterMode === 'mauk_only' ? 'active-mauk' : 'active-abaci';
+    btn.classList.add(cls);
+    resetSim();
+  });
+});
+
+document.getElementById('btn-bucket').addEventListener('click', () => {
+  bucketMode = !bucketMode;
+  const btn = document.getElementById('btn-bucket');
+  btn.classList.toggle('active', bucketMode);
+  btn.textContent = bucketMode ? '⬡ Bucketed' : '⬡ Bucket Mode';
+  if (!bucketMode) {
+    // Release all parked particles back into the lane toward the reducer
+    for (const pt of simParticles) {
+      if (pt.state === 'parked') {
+        pt.state    = 'lane';
+        pt.progress = (pt.x - pt.xShufEnd) / (pt.xLaneEnd - pt.xShufEnd);
+        pt.progress = Math.max(0, Math.min(0.99, pt.progress));
+      }
+    }
+    laneParkedCounts = {};
+  }
+});
+
+const speedSlider = document.getElementById('speed-slider');
+speedSlider.addEventListener('input', () => {
+  speedMult = parseFloat(speedSlider.value);
+  document.getElementById('speed-label').textContent = speedMult.toFixed(1) + '×';
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Simulation state (shared between p5 and UI) ───────────────────────────────
+let simParticles  = [];
+let simQueue      = [];
+let simReducer    = {}; // word → {mauk:n, abaci:n, source}
+let simRecent     = []; // last ~28 reduced entries for display
+let simMapped     = 0;
+let simReduced    = 0;
+let emitTimer     = 0;
+const EMIT_MS     = 320; // base ms between emissions (divided by speedMult)
+
+function resetSim() {
+  simParticles     = [];
+  simReducer       = {};
+  simRecent        = [];
+  simMapped        = 0;
+  simReduced       = 0;
+  emitTimer        = 0;
+  laneParkedCounts = {};
+
+  let pool = ALL_WORDS.filter(w =>
+    filterMode === 'all' ? true : w.source === filterMode
+  );
+  // Fisher-Yates shuffle for random emission order
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  simQueue = pool;
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('stat-mapped').textContent  = simMapped;
+  document.getElementById('stat-reduced').textContent = simReduced;
+  document.getElementById('stat-queue').textContent   = simQueue.length;
+}
+
+resetSim(); // init on load
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── p5.js sketch ─────────────────────────────────────────────────────────────
+const sketch = (p) => {
+
+  // Palette
+  const C_BG       = [13,  17,  23 ];
+  const C_ZONE     = [17,  22,  30 ];
+  const C_LANE     = [22,  27,  38 ];
+  const C_DIVIDER  = [33,  38,  55 ];
+  const C_MAUK     = [3,   166, 161];
+  const C_ABACI    = [255, 157, 35 ];
+  const C_SHARED   = [230, 57,  70 ]; // site red — shared / both-bot words
+  const C_EQUAL    = [0,   230, 120]; // terminal green — both bots tied
+  const C_TEXT_DIM = [100, 110, 140];
+  const C_TEXT     = [200, 205, 220];
+
+  // Layout (computed in setup/resize)
+  let W, H;
+  let INPUT_W, MAP_W, SHUF_X, SHUF_W, RED_X, RED_W;
+  let LANE_TOP, LANE_BTM, LANE_H;
+  let MAUK_Y, ABACI_Y;
+  const LANES = 26;
+
+  let monoFont;
+
+  // ── helpers ────────────────────────────────────────────────────────────────
+  const smoothstep = t => t * t * (3 - 2 * t);
+  const lerp       = (a, b, t) => a + (b - a) * t;
+
+  function laneY(letter) {
+    const idx = Math.max(0, Math.min(25, letter.charCodeAt(0) - 97));
+    return LANE_TOP + idx * LANE_H + LANE_H * 0.5;
+  }
+
+  function srcColor(src) {
+    if (src === 'mauk')       return C_MAUK;
+    if (src === 'abaci')      return C_ABACI;
+    if (src === 'mauk_only')  return C_MAUK;
+    if (src === 'abaci_only') return C_ABACI;
+    return C_SHARED;
+  }
+
+  // Color for a fully-reduced entry: dominant bot wins, green if tied.
+  function dominantColor(mauk, abaci) {
+    if (mauk > 0 && abaci > 0) {
+      if (mauk > abaci)  return C_MAUK;
+      if (abaci > mauk)  return C_ABACI;
+      return C_EQUAL;
+    }
+    return mauk > 0 ? C_MAUK : C_ABACI;
+  }
+
+  function computeLayout() {
+    W = p.width; H = p.height;
+    INPUT_W = Math.min(130, W * 0.09);
+    MAP_W   = Math.min(185, W * 0.13);
+    RED_W   = Math.min(305, W * 0.215);
+    SHUF_X  = INPUT_W + MAP_W;
+    SHUF_W  = W - INPUT_W - MAP_W - RED_W;
+    RED_X   = SHUF_X + SHUF_W;
+    LANE_TOP = 52;
+    LANE_BTM = H - 14;
+    LANE_H   = (LANE_BTM - LANE_TOP) / LANES;
+    MAUK_Y   = H * 0.30;
+    ABACI_Y  = H * 0.70;
+  }
+
+  // ── Particle class ─────────────────────────────────────────────────────────
+  class Particle {
+    constructor(word, src, mauk_count, abaci_count) {
+      this.word       = word.length > 13 ? word.slice(0, 12) + '…' : word;
+      this.fullWord   = word;
+      this.src        = src; // 'mauk' or 'abaci'
+      this.srcFull    = src === 'mauk' ? 'mauk_only' : 'abaci_only'; // for shared fallback
+      this.mauk_count = mauk_count;
+      this.abaci_count= abaci_count;
+      this.col        = srcColor(src);
+
+      // Start at mapper output edge (right side of mapper zone)
+      this.x  = SHUF_X;
+      this.y  = src === 'mauk' ? MAUK_Y : ABACI_Y;
+      this.sy = this.y;            // start Y
+      this.ty = laneY(word[0]);   // target lane Y
+
+      this.state    = 'emit';
+      this.progress = 0;
+      this.alpha    = 0;
+
+      // X milestones
+      this.xEmitEnd   = SHUF_X + SHUF_W * 0.12;
+      this.xShufEnd   = SHUF_X + SHUF_W * 0.38;
+      this.xLaneEnd   = RED_X  - 4;
+
+      // Bucket-mode parking
+      this.slot  = 0;   // horizontal stacking index within the lane
+      this.parkX = this.xShufEnd + SHUF_W * 0.10; // base park X
+    }
+
+    update(dt) {
+      const spd = 0.00095 * dt;
+      switch (this.state) {
+        case 'emit':
+          this.progress += spd * 3.2;
+          this.x     = lerp(SHUF_X, this.xEmitEnd, smoothstep(Math.min(this.progress, 1)));
+          this.alpha = Math.min(255, this.progress * 900);
+          if (this.progress >= 1) { this.state = 'shuffle'; this.progress = 0; }
+          break;
+
+        case 'shuffle':
+          this.progress += spd * 1.6;
+          this.x = lerp(this.xEmitEnd, this.xShufEnd, this.progress);
+          this.y = lerp(this.sy, this.ty, smoothstep(Math.min(this.progress, 1)));
+          if (this.progress >= 1) { this.state = 'lane'; this.progress = 0; }
+          break;
+
+        case 'lane':
+          this.progress += spd * 1.1;
+          this.x = lerp(this.xShufEnd, this.xLaneEnd, smoothstep(Math.min(this.progress, 1)));
+          // Enter bucket if mode is active and we've crossed the park threshold
+          if (bucketMode && this.progress >= 0.22 && this.state === 'lane') {
+            this.state = 'parked';
+            const letter = this.fullWord[0];
+            if (!laneParkedCounts[letter]) laneParkedCounts[letter] = 0;
+            this.slot  = laneParkedCounts[letter]++;
+            this.parkX = this.xShufEnd + SHUF_W * 0.10;
+            this.progress = 0;
+          } else if (this.progress >= 1) {
+            this.state = 'reduce'; this.progress = 0;
+          }
+          break;
+
+        case 'parked': {
+          // Drift to stacked X position
+          const targetX = this.parkX + Math.min(this.slot * 4, SHUF_W * 0.45);
+          this.x = lerp(this.x, targetX, 0.08);
+          // Release if bucket mode was turned off
+          if (!bucketMode) {
+            this.state    = 'lane';
+            this.progress = Math.max(0, (this.x - this.xShufEnd) / (this.xLaneEnd - this.xShufEnd));
+          }
+          break;
+        }
+
+        case 'reduce':
+          this.progress += spd * 6;
+          this.alpha = lerp(255, 0, this.progress);
+          if (this.progress >= 1) {
+            this.state = 'done';
+            this._onReduce();
+          }
+          break;
+      }
+    }
+
+    _onReduce() {
+      const w = this.fullWord;
+      const isFirstArrival = !simReducer[w];
+      if (isFirstArrival) {
+        simReducer[w] = { mauk: 0, abaci: 0, source: this.src, flash: 60 };
+      }
+      if (this.src === 'mauk')  simReducer[w].mauk  += this.mauk_count;
+      else                      simReducer[w].abaci += this.abaci_count;
+      simReducer[w].flash = 60;
+
+      // Prepend to recent list (dedup — refresh entry if second particle arrives)
+      simRecent = simRecent.filter(r => r.word !== w);
+      simRecent.unshift({ word: w, flash: 1.0, ...simReducer[w] });
+      if (simRecent.length > 28) simRecent.pop();
+
+      // Count unique words only (first arrival per word)
+      if (isFirstArrival) simReduced++;
+      updateStats();
+    }
+
+    draw() {
+      if (this.alpha <= 0) return;
+      p.push();
+      const [r, g, b] = this.col;
+      const label = `${this.word} (1)`;
+      p.textFont('monospace');
+      p.textSize(9.5);
+      const tw = p.textWidth(label);
+      const pw = tw + 14, ph = 18;
+
+      // Capsule background
+      p.noStroke();
+      p.fill(r, g, b, this.alpha * 0.22);
+      p.rect(this.x - pw / 2, this.y - ph / 2, pw, ph, 9);
+
+      // Border
+      p.noFill();
+      p.stroke(r, g, b, this.alpha * 0.7);
+      p.strokeWeight(1);
+      p.rect(this.x - pw / 2, this.y - ph / 2, pw, ph, 9);
+
+      // Text
+      p.noStroke();
+      p.fill(r, g, b, this.alpha);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text(label, this.x, this.y);
+      p.pop();
+    }
+  }
+
+  // ── emit logic ─────────────────────────────────────────────────────────────
+  function emitWord(entry) {
+    const { word, mauk_count, abaci_count, source } = entry;
+    if (source === 'shared') {
+      simParticles.push(new Particle(word, 'mauk',  mauk_count,  abaci_count));
+      simParticles.push(new Particle(word, 'abaci', mauk_count,  abaci_count));
+      simMapped += 2; // two (word,1) pairs emitted — one from each mapper
+    } else if (source === 'mauk_only') {
+      simParticles.push(new Particle(word, 'mauk',  mauk_count,  0));
+      simMapped += 1;
+    } else {
+      simParticles.push(new Particle(word, 'abaci', 0, abaci_count));
+      simMapped += 1;
+    }
+    updateStats();
+  }
+
+  // ── draw helpers ───────────────────────────────────────────────────────────
+  function drawZoneBackground() {
+    p.noStroke();
+
+    // Input zone
+    p.fill(15, 19, 28);
+    p.rect(0, 0, INPUT_W, H);
+
+    // Mapper zone (slightly lighter)
+    p.fill(...C_ZONE);
+    p.rect(INPUT_W, 0, MAP_W, H);
+
+    // Shuffle zone
+    p.fill(...C_BG);
+    p.rect(SHUF_X, 0, SHUF_W, H);
+
+    // Reducer zone
+    p.fill(...C_ZONE);
+    p.rect(RED_X, 0, RED_W, H);
+
+    // Dividers
+    p.stroke(...C_DIVIDER);
+    p.strokeWeight(1);
+    p.line(INPUT_W, 0, INPUT_W, H);
+    p.line(SHUF_X,  0, SHUF_X,  H);
+    p.line(RED_X,   0, RED_X,   H);
+  }
+
+  function drawZoneLabels() {
+    p.noStroke();
+    p.textFont('monospace');
+    p.textSize(9);
+    p.textAlign(p.CENTER, p.TOP);
+    p.fill(...C_TEXT_DIM);
+
+    const labels = ['INPUT', 'MAP', 'SHUFFLE', 'REDUCE'];
+    const xs     = [INPUT_W / 2, INPUT_W + MAP_W / 2, SHUF_X + SHUF_W / 2, RED_X + RED_W / 2];
+    labels.forEach((lbl, i) => p.text(lbl, xs[i], 8));
+  }
+
+  function drawLanes() {
+    for (let i = 0; i < LANES; i++) {
+      const letter = String.fromCharCode(65 + i); // A-Z
+      const y      = LANE_TOP + i * LANE_H;
+
+      // Alternating subtle band
+      if (i % 2 === 0) {
+        p.noStroke();
+        p.fill(255, 255, 255, 5);
+        p.rect(SHUF_X, y, SHUF_W, LANE_H);
+      }
+
+      // Lane separator
+      p.stroke(...C_LANE);
+      p.strokeWeight(0.5);
+      p.line(SHUF_X, y, RED_X, y);
+
+      // Letter label at left edge of shuffle zone
+      p.noStroke();
+      p.fill(...C_TEXT_DIM);
+      p.textFont('monospace');
+      p.textSize(8.5);
+      p.textAlign(p.LEFT, p.CENTER);
+      p.text(letter, SHUF_X + 5, y + LANE_H / 2);
+    }
+  }
+
+  function drawMappers() {
+    const bots = [
+      { label: 'MAUK',  y: MAUK_Y,  col: C_MAUK  },
+      { label: 'ABACI', y: ABACI_Y, col: C_ABACI },
+    ];
+
+    bots.forEach(({ label, y, col }) => {
+      const [r, g, b] = col;
+      const bw = MAP_W - 22, bh = 44;
+      const bx = INPUT_W + 6, by = y - bh / 2;
+
+      // Pulsing glow
+      const pulse = 0.5 + 0.5 * Math.sin(p.millis() * 0.002);
+      p.noStroke();
+      p.fill(r, g, b, 18 + pulse * 14);
+      p.rect(bx - 4, by - 4, bw + 8, bh + 8, 12);
+
+      // Box fill
+      p.fill(r, g, b, 30);
+      p.rect(bx, by, bw, bh, 8);
+
+      // Box border
+      p.stroke(r, g, b, 160);
+      p.strokeWeight(1.2);
+      p.noFill();
+      p.rect(bx, by, bw, bh, 8);
+
+      // Label
+      p.noStroke();
+      p.fill(r, g, b);
+      p.textFont('monospace');
+      p.textSize(11);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text(`[ ${label} ]`, bx + bw / 2, y - 5);
+
+      p.textSize(8.5);
+      p.fill(r, g, b, 160);
+      p.text('mapper', bx + bw / 2, y + 9);
+
+      // Arrow pointing right toward shuffle zone
+      p.stroke(r, g, b, 120);
+      p.strokeWeight(1.5);
+      const ax = bx + bw, ay = y;
+      p.line(ax, ay, SHUF_X - 2, ay);
+      p.fill(r, g, b, 120);
+      p.noStroke();
+      p.triangle(SHUF_X - 2, ay - 4, SHUF_X - 2, ay + 4, SHUF_X + 6, ay);
+    });
+  }
+
+  // ── Input zone (Supabase DB source node) ───────────────────────────────────
+  function drawInputZone() {
+    const [r, g, b] = C_EQUAL; // terminal green — matches site palette
+    const cx = INPUT_W / 2;
+    const cy = H / 2;
+    const bw = INPUT_W - 20, bh = 72;
+    const bx = cx - bw / 2;
+    const by = cy - bh / 2;
+    const pulse = 0.5 + 0.5 * Math.sin(p.millis() * 0.0014);
+
+    // Outer glow
+    p.noStroke();
+    p.fill(r, g, b, 14 + pulse * 10);
+    p.rect(bx - 6, by - 6, bw + 12, bh + 12, 14);
+
+    // Box fill
+    p.fill(r, g, b, 22);
+    p.rect(bx, by, bw, bh, 9);
+
+    // Box border (pulsing)
+    p.stroke(r, g, b, 130 + pulse * 60);
+    p.strokeWeight(1.2);
+    p.noFill();
+    p.rect(bx, by, bw, bh, 9);
+
+    // DB cylinder top oval decoration
+    p.noStroke();
+    p.fill(r, g, b, 50 + pulse * 30);
+    p.ellipse(cx, by + 10, bw * 0.75, 10);
+    p.fill(r, g, b, 25);
+    p.rect(cx - bw * 0.375, by + 10, bw * 0.75, 12);
+
+    // Labels
+    p.noStroke();
+    p.fill(r, g, b);
+    p.textFont('monospace');
+    p.textSize(10);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text('Supabase', cx, cy - 4);
+    p.textSize(7.5);
+    p.fill(r, g, b, 160);
+    p.text('messages', cx, cy + 9);
+    p.textSize(7);
+    p.fill(r, g, b, 90);
+    p.text('[ source ]', cx, cy + 20);
+
+    // Fan arrows to MAUK and ABACI mappers
+    const fanSrcX = bx + bw;   // right edge of DB box
+    const fanSrcY = cy;
+    const targets = [
+      { y: MAUK_Y,  col: C_MAUK  },
+      { y: ABACI_Y, col: C_ABACI },
+    ];
+    targets.forEach(({ y: ty, col }) => {
+      const [cr, cg, cb] = col;
+      const alpha = 75 + pulse * 50;
+      const destX = INPUT_W + 6; // left edge of mapper boxes
+
+      p.noFill();
+      p.stroke(cr, cg, cb, alpha);
+      p.strokeWeight(1.2);
+      p.beginShape();
+      p.vertex(fanSrcX, fanSrcY);
+      p.bezierVertex(
+        fanSrcX + (destX - fanSrcX) * 0.5, fanSrcY,
+        fanSrcX + (destX - fanSrcX) * 0.5, ty,
+        destX, ty
+      );
+      p.endShape();
+
+      // Arrowhead at mapper left edge
+      p.noStroke();
+      p.fill(cr, cg, cb, alpha);
+      p.triangle(destX, ty - 4, destX, ty + 4, destX + 7, ty);
+    });
+  }
+
+  function drawReducerZone() {
+    const PAD = 10;
+    const lineH = (H - 52) / 28;
+
+    // Header
+    p.noStroke();
+    p.textFont('monospace');
+    p.textSize(8.5);
+    p.textAlign(p.LEFT, p.TOP);
+    p.fill(...C_TEXT_DIM);
+    p.text('word', RED_X + PAD, 28);
+    p.textAlign(p.RIGHT, p.TOP);
+    p.text('M   A', RED_X + RED_W - PAD, 28);
+
+    // Divider under header
+    p.stroke(...C_DIVIDER);
+    p.strokeWeight(0.5);
+    p.line(RED_X + PAD, 42, RED_X + RED_W - PAD, 42);
+
+    simRecent.forEach((entry, idx) => {
+      const y   = 44 + idx * lineH;
+      // Color by dominant bot in the reducer (green if tied, each bot's color if one leads)
+      const col = dominantColor(entry.mauk || 0, entry.abaci || 0);
+      const [r, g, b] = col;
+      const flash  = Math.min(1, entry.flash || 0);
+      entry.flash  = Math.max(0, (entry.flash || 0) - 0.04);
+
+      // Flash highlight
+      if (flash > 0) {
+        p.noStroke();
+        p.fill(r, g, b, flash * 30);
+        p.rect(RED_X + 3, y - 1, RED_W - 6, lineH - 1, 3);
+      }
+
+      // Dot
+      p.noStroke();
+      p.fill(r, g, b, 180 + flash * 75);
+      p.ellipse(RED_X + PAD + 4, y + lineH / 2, 5, 5);
+
+      // Word
+      p.fill(r, g, b, 200 + flash * 55);
+      p.textFont('monospace');
+      p.textSize(9);
+      p.textAlign(p.LEFT, p.CENTER);
+      const display = entry.word.length > 14 ? entry.word.slice(0, 13) + '…' : entry.word;
+      p.text(display, RED_X + PAD + 12, y + lineH / 2);
+
+      // Counts
+      p.textAlign(p.RIGHT, p.CENTER);
+      p.fill(...C_TEXT_DIM);
+      const mc = entry.mauk  > 0 ? String(entry.mauk).padStart(4)  : '   —';
+      const ac = entry.abaci > 0 ? String(entry.abaci).padStart(4) : '   —';
+      p.text(`${mc} ${ac}`, RED_X + RED_W - PAD, y + lineH / 2);
+    });
+  }
+
+  // ── p5 lifecycle ───────────────────────────────────────────────────────────
+  p.setup = () => {
+    const container = document.getElementById('canvas-container');
+    const cnv = p.createCanvas(container.offsetWidth, container.offsetHeight);
+    cnv.parent('canvas-container');
+    computeLayout();
+    p.frameRate(60);
+  };
+
+  p.windowResized = () => {
+    const container = document.getElementById('canvas-container');
+    p.resizeCanvas(container.offsetWidth, container.offsetHeight);
+    computeLayout();
+  };
+
+  p.draw = () => {
+    p.background(...C_BG);
+
+    if (!paused) {
+      // Emit
+      emitTimer += p.deltaTime * speedMult;
+      const interval = EMIT_MS;
+      while (emitTimer >= interval && simQueue.length > 0) {
+        emitTimer -= interval;
+        emitWord(simQueue.shift());
+      }
+      if (simQueue.length === 0) emitTimer = 0;
+
+      // Update particles
+      for (const pt of simParticles) pt.update(p.deltaTime * speedMult);
+      simParticles = simParticles.filter(pt => pt.state !== 'done');
+    }
+
+    drawZoneBackground();
+    drawLanes();
+    drawInputZone();
+    drawMappers();
+
+    // Draw particles (back to front: reducing ones on top)
+    const nonReducing = simParticles.filter(pt => pt.state !== 'reduce');
+    const reducing    = simParticles.filter(pt => pt.state === 'reduce');
+    nonReducing.forEach(pt => pt.draw());
+    reducing.forEach(pt => pt.draw());
+
+    drawReducerZone();
+    drawZoneLabels();
+
+    // Done banner
+    if (simQueue.length === 0 && simParticles.length === 0 && simReduced > 0) {
+      p.noStroke();
+      p.fill(13, 17, 23, 200);
+      p.rect(SHUF_X + SHUF_W / 2 - 120, H / 2 - 28, 240, 56, 12);
+      p.stroke(58, 166, 161, 180);
+      p.strokeWeight(1);
+      p.noFill();
+      p.rect(SHUF_X + SHUF_W / 2 - 120, H / 2 - 28, 240, 56, 12);
+      p.noStroke();
+      p.fill(3, 166, 161);
+      p.textFont('monospace');
+      p.textSize(13);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text('✓ All words reduced', SHUF_X + SHUF_W / 2, H / 2 - 8);
+      p.textSize(9.5);
+      p.fill(...C_TEXT_DIM);
+      p.text(`${simReduced} unique words processed`, SHUF_X + SHUF_W / 2, H / 2 + 12);
+    }
+  };
+};
+
+new p5(sketch, 'canvas-container');
+</script>
+</body>
+</html>

@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapReduce Visualizer — MAUK × ABACI</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0D1117;
+      color: #C8CBD8;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    #header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      background: #161B22;
+      border-bottom: 1px solid #21262D;
+      flex-shrink: 0;
+      gap: 16px;
+    }
+    #header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #E6EDF3;
+      white-space: nowrap;
+    }
+    #header h1 span.mauk  { color: #03A6A1; }
+    #header h1 span.abaci { color: #FF9D23; }
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: #21262D;
+      border: 1px solid #30363D;
+      color: #C8CBD8;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn:hover { background: #2D333B; border-color: #444C56; }
+    .btn.active { background: #00E67822; border-color: #00E678; color: #00E678; }
+    .btn#btn-play { min-width: 72px; }
+    .filter-group { display: flex; gap: 4px; }
+    .filter-btn {
+      background: #21262D;
+      border: 1px solid #30363D;
+      color: #8B949E;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .filter-btn:hover { color: #C8CBD8; border-color: #444C56; }
+    .filter-btn.active-all   { background:#00E67822; border-color:#00E678; color:#00E678; }
+    .filter-btn.active-mauk  { background:#03A6A122; border-color:#03A6A1; color:#03A6A1; }
+    .filter-btn.active-abaci { background:#FF9D2322; border-color:#FF9D23; color:#FF9D23; }
+    .filter-btn.active-shared{ background:#E6394622; border-color:#E63946; color:#E63946; }
+    .speed-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #8B949E;
+    }
+    #speed-slider {
+      -webkit-appearance: none;
+      width: 80px; height: 4px;
+      border-radius: 2px;
+      background: #30363D;
+      outline: none;
+    }
+    #speed-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #00E678;
+      cursor: pointer;
+    }
+    .stats {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: #8B949E;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stats span { white-space: nowrap; }
+    .stats span b { color: #C8CBD8; }
+    #canvas-container { flex: 1; overflow: hidden; }
+    #canvas-container canvas { display: block; }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <h1>MapReduce — <span class="mauk">MAUK</span> × <span class="abaci">ABACI</span> Word Count</h1>
+  <div class="controls">
+    <button class="btn" id="btn-play">⏸ Pause</button>
+    <button class="btn" id="btn-reset">↺ Reset</button>
+    <button class="btn" id="btn-bucket">⬡ Bucket Mode</button>
+    <div class="filter-group">
+      <button class="filter-btn active-all" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="shared">Shared</button>
+      <button class="filter-btn" data-filter="mauk_only">MAUK</button>
+      <button class="filter-btn" data-filter="abaci_only">ABACI</button>
+    </div>
+    <div class="speed-wrap">
+      <span>Speed</span>
+      <input type="range" id="speed-slider" min="0.3" max="5" step="0.1" value="1.5">
+      <span id="speed-label">1.5×</span>
+    </div>
+    <div class="stats">
+      <span>Map outputs: <b id="stat-mapped">0</b></span>
+      <span>Unique keys reduced: <b id="stat-reduced">0</b></span>
+      <span>Queue: <b id="stat-queue">0</b></span>
+    </div>
+  </div>
+</div>
+
+<div id="canvas-container"></div>
+
+<script>
+// ── Injected word data ────────────────────────────────────────────────────────
+const ALL_WORDS = [{"word": "ab", "mauk_count": 361, "abaci_count": 1442, "source": "shared"}, {"word": "about", "mauk_count": 973, "abaci_count": 1014, "source": "shared"}, {"word": "above", "mauk_count": 388, "abaci_count": 988, "source": "shared"}, {"word": "abraham", "mauk_count": 0, "abaci_count": 75, "source": "abaci_only"}, {"word": "abruptly", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "admits", "mauk_count": 0, "abaci_count": 106, "source": "abaci_only"}, {"word": "aerial", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "after", "mauk_count": 461, "abaci_count": 1262, "source": "shared"}, {"word": "again", "mauk_count": 1157, "abaci_count": 772, "source": "shared"}, {"word": "againe", "mauk_count": 0, "abaci_count": 290, "source": "abaci_only"}, {"word": "agile", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "agreed", "mauk_count": 49, "abaci_count": 0, "source": "mauk_only"}, {"word": "airport", "mauk_count": 75, "abaci_count": 0, "source": "mauk_only"}, {"word": "aken", "mauk_count": 0, "abaci_count": 124, "source": "abaci_only"}, {"word": "aleph", "mauk_count": 0, "abaci_count": 335, "source": "abaci_only"}, {"word": "alephs", "mauk_count": 0, "abaci_count": 70, "source": "abaci_only"}, {"word": "algebra", "mauk_count": 375, "abaci_count": 504, "source": "shared"}, {"word": "all", "mauk_count": 1089, "abaci_count": 4144, "source": "shared"}, {"word": "also", "mauk_count": 391, "abaci_count": 1661, "source": "shared"}, {"word": "always", "mauk_count": 322, "abaci_count": 928, "source": "shared"}, {"word": "amidst", "mauk_count": 0, "abaci_count": 94, "source": "abaci_only"}, {"word": "among", "mauk_count": 90, "abaci_count": 1237, "source": "shared"}, {"word": "an", "mauk_count": 1213, "abaci_count": 3444, "source": "shared"}, {"word": "and", "mauk_count": 3238, "abaci_count": 7372, "source": "shared"}, {"word": "anthony", "mauk_count": 31, "abaci_count": 0, "source": "mauk_only"}, {"word": "antiquities", "mauk_count": 0, "abaci_count": 159, "source": "abaci_only"}, {"word": "any", "mauk_count": 807, "abaci_count": 3002, "source": "shared"}, {"word": "are", "mauk_count": 1889, "abaci_count": 3680, "source": "shared"}, {"word": "arid", "mauk_count": 25, "abaci_count": 0, "source": "mauk_only"}, {"word": "aright", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "armed", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "arzel", "mauk_count": 0, "abaci_count": 93, "source": "abaci_only"}, {"word": "as", "mauk_count": 1448, "abaci_count": 5267, "source": "shared"}, {"word": "assigning", "mauk_count": 0, "abaci_count": 116, "source": "abaci_only"}, {"word": "at", "mauk_count": 2393, "abaci_count": 2635, "source": "shared"}, {"word": "axiom", "mauk_count": 17, "abaci_count": 1684, "source": "shared"}, {"word": "axiomatized", "mauk_count": 0, "abaci_count": 89, "source": "abaci_only"}, {"word": "axioms", "mauk_count": 83, "abaci_count": 1099, "source": "shared"}, {"word": "back", "mauk_count": 643, "abaci_count": 299, "source": "shared"}, {"word": "banach", "mauk_count": 0, "abaci_count": 180, "source": "abaci_only"}, {"word": "bayes", "mauk_count": 34, "abaci_count": 0, "source": "mauk_only"}, {"word": "be", "mauk_count": 1173, "abaci_count": 4388, "source": "shared"}, {"word": "because", "mauk_count": 210, "abaci_count": 1769, "source": "shared"}, {"word": "been", "mauk_count": 485, "abaci_count": 1063, "source": "shared"}, {"word": "before", "mauk_count": 405, "abaci_count": 556, "source": "shared"}, {"word": "behave", "mauk_count": 0, "abaci_count": 229, "source": "abaci_only"}, {"word": "below", "mauk_count": 335, "abaci_count": 973, "source": "shared"}, {"word": "bernays", "mauk_count": 0, "abaci_count": 322, "source": "abaci_only"}, {"word": "between", "mauk_count": 353, "abaci_count": 1332, "source": "shared"}, {"word": "bigcap", "mauk_count": 0, "abaci_count": 135, "source": "abaci_only"}, {"word": "bigcup", "mauk_count": 0, "abaci_count": 443, "source": "abaci_only"}, {"word": "bijective", "mauk_count": 0, "abaci_count": 106, "source": "abaci_only"}, {"word": "biting", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "bolzano", "mauk_count": 0, "abaci_count": 180, "source": "abaci_only"}, {"word": "both", "mauk_count": 323, "abaci_count": 1344, "source": "shared"}, {"word": "builder", "mauk_count": 0, "abaci_count": 81, "source": "abaci_only"}, {"word": "but", "mauk_count": 1509, "abaci_count": 3163, "source": "shared"}, {"word": "by", "mauk_count": 1925, "abaci_count": 5589, "source": "shared"}, {"word": "calculate", "mauk_count": 50, "abaci_count": 0, "source": "mauk_only"}, {"word": "called", "mauk_count": 161, "abaci_count": 944, "source": "shared"}, {"word": "can", "mauk_count": 848, "abaci_count": 3593, "source": "shared"}, {"word": "cannot", "mauk_count": 94, "abaci_count": 1556, "source": "shared"}, {"word": "cantor", "mauk_count": 53, "abaci_count": 1670, "source": "shared"}, {"word": "cardinal", "mauk_count": 7, "abaci_count": 1796, "source": "shared"}, {"word": "cardinalities", "mauk_count": 0, "abaci_count": 308, "source": "abaci_only"}, {"word": "cardinality", "mauk_count": 4, "abaci_count": 1142, "source": "shared"}, {"word": "cartesian", "mauk_count": 0, "abaci_count": 184, "source": "abaci_only"}, {"word": "ceu", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "ceux", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "characterization", "mauk_count": 0, "abaci_count": 103, "source": "abaci_only"}, {"word": "chateau", "mauk_count": 39, "abaci_count": 978, "source": "shared"}, {"word": "chemists", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "chubby", "mauk_count": 42, "abaci_count": 0, "source": "mauk_only"}, {"word": "classes", "mauk_count": 87, "abaci_count": 848, "source": "shared"}, {"word": "collection", "mauk_count": 0, "abaci_count": 782, "source": "abaci_only"}, {"word": "comparing", "mauk_count": 0, "abaci_count": 126, "source": "abaci_only"}, {"word": "concepts", "mauk_count": 0, "abaci_count": 268, "source": "abaci_only"}, {"word": "confirms", "mauk_count": 30, "abaci_count": 0, "source": "mauk_only"}, {"word": "considering", "mauk_count": 0, "abaci_count": 198, "source": "abaci_only"}, {"word": "constructible", "mauk_count": 0, "abaci_count": 128, "source": "abaci_only"}, {"word": "consulting", "mauk_count": 26, "abaci_count": 0, "source": "mauk_only"}, {"word": "coordination", "mauk_count": 41, "abaci_count": 0, "source": "mauk_only"}, {"word": "copies", "mauk_count": 0, "abaci_count": 104, "source": "abaci_only"}, {"word": "cor", "mauk_count": 0, "abaci_count": 72, "source": "abaci_only"}, {"word": "cosby", "mauk_count": 29, "abaci_count": 0, "source": "mauk_only"}, {"word": "could", "mauk_count": 201, "abaci_count": 1346, "source": "shared"}, {"word": "countability", "mauk_count": 0, "abaci_count": 179, "source": "abaci_only"}, {"word": "countable", "mauk_count": 0, "abaci_count": 892, "source": "abaci_only"}, {"word": "countably", "mauk_count": 0, "abaci_count": 824, "source": "abaci_only"}, {"word": "coupole", "mauk_count": 61, "abaci_count": 0, "source": "mauk_only"}, {"word": "creek", "mauk_count": 25, "abaci_count": 0, "source": "mauk_only"}, {"word": "crockery", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "cunt", "mauk_count": 23, "abaci_count": 0, "source": "mauk_only"}, {"word": "decimal", "mauk_count": 0, "abaci_count": 100, "source": "abaci_only"}, {"word": "decreasing", "mauk_count": 0, "abaci_count": 158, "source": "abaci_only"}, {"word": "dedekind", "mauk_count": 0, "abaci_count": 303, "source": "abaci_only"}, {"word": "deduction", "mauk_count": 0, "abaci_count": 73, "source": "abaci_only"}, {"word": "defined", "mauk_count": 323, "abaci_count": 1267, "source": "shared"}, {"word": "definition", "mauk_count": 156, "abaci_count": 923, "source": "shared"}, {"word": "dels", "mauk_count": 0, "abaci_count": 129, "source": "abaci_only"}, {"word": "did", "mauk_count": 614, "abaci_count": 426, "source": "shared"}, {"word": "different", "mauk_count": 49, "abaci_count": 867, "source": "shared"}, {"word": "dirac", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "do", "mauk_count": 1020, "abaci_count": 1555, "source": "shared"}, {"word": "does", "mauk_count": 464, "abaci_count": 1234, "source": "shared"}, {"word": "down", "mauk_count": 438, "abaci_count": 733, "source": "shared"}, {"word": "dreaming", "mauk_count": 46, "abaci_count": 0, "source": "mauk_only"}, {"word": "dressed", "mauk_count": 30, "abaci_count": 0, "source": "mauk_only"}, {"word": "drowns", "mauk_count": 0, "abaci_count": 192, "source": "abaci_only"}, {"word": "dryer", "mauk_count": 26, "abaci_count": 0, "source": "mauk_only"}, {"word": "drying", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "each", "mauk_count": 473, "abaci_count": 1970, "source": "shared"}, {"word": "easier", "mauk_count": 0, "abaci_count": 157, "source": "abaci_only"}, {"word": "eastern", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "ebullutions", "mauk_count": 0, "abaci_count": 119, "source": "abaci_only"}, {"word": "efforts", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "einstein", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "element", "mauk_count": 11, "abaci_count": 1064, "source": "shared"}, {"word": "elementary", "mauk_count": 0, "abaci_count": 119, "source": "abaci_only"}, {"word": "elements", "mauk_count": 231, "abaci_count": 1604, "source": "shared"}, {"word": "encountered", "mauk_count": 0, "abaci_count": 78, "source": "abaci_only"}, {"word": "encouraging", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "endowed", "mauk_count": 0, "abaci_count": 95, "source": "abaci_only"}, {"word": "enough", "mauk_count": 406, "abaci_count": 459, "source": "shared"}, {"word": "enumerable", "mauk_count": 0, "abaci_count": 78, "source": "abaci_only"}, {"word": "enumerated", "mauk_count": 0, "abaci_count": 112, "source": "abaci_only"}, {"word": "enumeration", "mauk_count": 0, "abaci_count": 106, "source": "abaci_only"}, {"word": "eqn", "mauk_count": 37, "abaci_count": 0, "source": "mauk_only"}, {"word": "equal", "mauk_count": 287, "abaci_count": 1032, "source": "shared"}, {"word": "equinumerous", "mauk_count": 0, "abaci_count": 71, "source": "abaci_only"}, {"word": "equipment", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "equipped", "mauk_count": 0, "abaci_count": 149, "source": "abaci_only"}, {"word": "ernst", "mauk_count": 0, "abaci_count": 69, "source": "abaci_only"}, {"word": "even", "mauk_count": 202, "abaci_count": 1523, "source": "shared"}, {"word": "every", "mauk_count": 313, "abaci_count": 3019, "source": "shared"}, {"word": "evidently", "mauk_count": 0, "abaci_count": 91, "source": "abaci_only"}, {"word": "exactly", "mauk_count": 233, "abaci_count": 991, "source": "shared"}, {"word": "example", "mauk_count": 76, "abaci_count": 1035, "source": "shared"}, {"word": "exceeds", "mauk_count": 0, "abaci_count": 82, "source": "abaci_only"}, {"word": "excellent", "mauk_count": 87, "abaci_count": 0, "source": "mauk_only"}, {"word": "exist", "mauk_count": 188, "abaci_count": 954, "source": "shared"}, {"word": "exists", "mauk_count": 195, "abaci_count": 1501, "source": "shared"}, {"word": "explicitly", "mauk_count": 0, "abaci_count": 173, "source": "abaci_only"}, {"word": "extensionality", "mauk_count": 0, "abaci_count": 104, "source": "abaci_only"}, {"word": "facility", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "facing", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "fantastic", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "favourite", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "finer", "mauk_count": 0, "abaci_count": 95, "source": "abaci_only"}, {"word": "fingering", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "fingernails", "mauk_count": 81, "abaci_count": 0, "source": "mauk_only"}, {"word": "finite", "mauk_count": 37, "abaci_count": 2704, "source": "shared"}, {"word": "finitely", "mauk_count": 0, "abaci_count": 244, "source": "abaci_only"}, {"word": "first", "mauk_count": 252, "abaci_count": 1374, "source": "shared"}, {"word": "fishing", "mauk_count": 58, "abaci_count": 0, "source": "mauk_only"}, {"word": "fluttered", "mauk_count": 0, "abaci_count": 88, "source": "abaci_only"}, {"word": "folks", "mauk_count": 45, "abaci_count": 0, "source": "mauk_only"}, {"word": "footsteps", "mauk_count": 27, "abaci_count": 0, "source": "mauk_only"}, {"word": "for", "mauk_count": 2739, "abaci_count": 5601, "source": "shared"}, {"word": "forcing", "mauk_count": 0, "abaci_count": 218, "source": "abaci_only"}, {"word": "forgiveness", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "form", "mauk_count": 174, "abaci_count": 697, "source": "shared"}, {"word": "formalized", "mauk_count": 0, "abaci_count": 107, "source": "abaci_only"}, {"word": "formally", "mauk_count": 0, "abaci_count": 332, "source": "abaci_only"}, {"word": "founded", "mauk_count": 0, "abaci_count": 95, "source": "abaci_only"}, {"word": "fractions", "mauk_count": 0, "abaci_count": 101, "source": "abaci_only"}, {"word": "fraenkel", "mauk_count": 0, "abaci_count": 732, "source": "abaci_only"}, {"word": "fresh", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "fri", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "from", "mauk_count": 1486, "abaci_count": 4693, "source": "shared"}, {"word": "function", "mauk_count": 264, "abaci_count": 1253, "source": "shared"}, {"word": "functions", "mauk_count": 46, "abaci_count": 956, "source": "shared"}, {"word": "furthermore", "mauk_count": 0, "abaci_count": 98, "source": "abaci_only"}, {"word": "generalizations", "mauk_count": 0, "abaci_count": 111, "source": "abaci_only"}, {"word": "georg", "mauk_count": 0, "abaci_count": 125, "source": "abaci_only"}, {"word": "george", "mauk_count": 27, "abaci_count": 0, "source": "mauk_only"}, {"word": "get", "mauk_count": 603, "abaci_count": 550, "source": "shared"}, {"word": "given", "mauk_count": 323, "abaci_count": 2168, "source": "shared"}, {"word": "go", "mauk_count": 699, "abaci_count": 457, "source": "shared"}, {"word": "goonight", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "grass", "mauk_count": 40, "abaci_count": 0, "source": "mauk_only"}, {"word": "greenwich", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "guidelines", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "gun", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "had", "mauk_count": 318, "abaci_count": 1158, "source": "shared"}, {"word": "hamiltonian", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "handy", "mauk_count": 50, "abaci_count": 0, "source": "mauk_only"}, {"word": "has", "mauk_count": 889, "abaci_count": 2539, "source": "shared"}, {"word": "have", "mauk_count": 1188, "abaci_count": 3015, "source": "shared"}, {"word": "he", "mauk_count": 482, "abaci_count": 898, "source": "shared"}, {"word": "henri", "mauk_count": 0, "abaci_count": 75, "source": "abaci_only"}, {"word": "here", "mauk_count": 833, "abaci_count": 1780, "source": "shared"}, {"word": "hieronymos", "mauk_count": 0, "abaci_count": 281, "source": "abaci_only"}, {"word": "his", "mauk_count": 307, "abaci_count": 1102, "source": "shared"}, {"word": "hofmann", "mauk_count": 31, "abaci_count": 0, "source": "mauk_only"}, {"word": "hofstadter", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "homeomorphism", "mauk_count": 0, "abaci_count": 70, "source": "abaci_only"}, {"word": "hook", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "how", "mauk_count": 563, "abaci_count": 1144, "source": "shared"}, {"word": "however", "mauk_count": 111, "abaci_count": 802, "source": "shared"}, {"word": "hume", "mauk_count": 0, "abaci_count": 86, "source": "abaci_only"}, {"word": "identities", "mauk_count": 0, "abaci_count": 121, "source": "abaci_only"}, {"word": "if", "mauk_count": 2085, "abaci_count": 5726, "source": "shared"}, {"word": "implies", "mauk_count": 222, "abaci_count": 659, "source": "shared"}, {"word": "impossible", "mauk_count": 45, "abaci_count": 2485, "source": "shared"}, {"word": "in", "mauk_count": 3241, "abaci_count": 8492, "source": "shared"}, {"word": "inclusion", "mauk_count": 0, "abaci_count": 202, "source": "abaci_only"}, {"word": "inconsistent", "mauk_count": 0, "abaci_count": 84, "source": "abaci_only"}, {"word": "increasing", "mauk_count": 0, "abaci_count": 274, "source": "abaci_only"}, {"word": "inexpressible", "mauk_count": 0, "abaci_count": 1558, "source": "abaci_only"}, {"word": "infinite", "mauk_count": 86, "abaci_count": 4220, "source": "shared"}, {"word": "infinitely", "mauk_count": 20, "abaci_count": 1156, "source": "shared"}, {"word": "infinity", "mauk_count": 107, "abaci_count": 1136, "source": "shared"}, {"word": "informally", "mauk_count": 0, "abaci_count": 82, "source": "abaci_only"}, {"word": "inhibition", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "injective", "mauk_count": 0, "abaci_count": 75, "source": "abaci_only"}, {"word": "instead", "mauk_count": 99, "abaci_count": 805, "source": "shared"}, {"word": "integers", "mauk_count": 21, "abaci_count": 914, "source": "shared"}, {"word": "into", "mauk_count": 441, "abaci_count": 1794, "source": "shared"}, {"word": "intuitively", "mauk_count": 0, "abaci_count": 261, "source": "abaci_only"}, {"word": "intwine", "mauk_count": 0, "abaci_count": 96, "source": "abaci_only"}, {"word": "irrational", "mauk_count": 0, "abaci_count": 282, "source": "abaci_only"}, {"word": "is", "mauk_count": 2688, "abaci_count": 6140, "source": "shared"}, {"word": "it", "mauk_count": 2469, "abaci_count": 5154, "source": "shared"}, {"word": "its", "mauk_count": 826, "abaci_count": 1953, "source": "shared"}, {"word": "itself", "mauk_count": 73, "abaci_count": 1120, "source": "shared"}, {"word": "jason", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "juncture", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "kants", "mauk_count": 0, "abaci_count": 132, "source": "abaci_only"}, {"word": "kisses", "mauk_count": 26, "abaci_count": 0, "source": "mauk_only"}, {"word": "lake", "mauk_count": 37, "abaci_count": 0, "source": "mauk_only"}, {"word": "lamentably", "mauk_count": 0, "abaci_count": 270, "source": "abaci_only"}, {"word": "landing", "mauk_count": 32, "abaci_count": 0, "source": "mauk_only"}, {"word": "langue", "mauk_count": 37, "abaci_count": 0, "source": "mauk_only"}, {"word": "large", "mauk_count": 66, "abaci_count": 1114, "source": "shared"}, {"word": "last", "mauk_count": 411, "abaci_count": 971, "source": "shared"}, {"word": "leash", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "least", "mauk_count": 239, "abaci_count": 616, "source": "shared"}, {"word": "lebesgue", "mauk_count": 0, "abaci_count": 120, "source": "abaci_only"}, {"word": "len", "mauk_count": 26, "abaci_count": 0, "source": "mauk_only"}, {"word": "lengths", "mauk_count": 0, "abaci_count": 144, "source": "abaci_only"}, {"word": "less", "mauk_count": 276, "abaci_count": 730, "source": "shared"}, {"word": "let", "mauk_count": 558, "abaci_count": 1132, "source": "shared"}, {"word": "like", "mauk_count": 766, "abaci_count": 1109, "source": "shared"}, {"word": "linvitation", "mauk_count": 0, "abaci_count": 78, "source": "abaci_only"}, {"word": "lipschitz", "mauk_count": 0, "abaci_count": 97, "source": "abaci_only"}, {"word": "loudly", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "loves", "mauk_count": 22, "abaci_count": 936, "source": "shared"}, {"word": "lui", "mauk_count": 35, "abaci_count": 0, "source": "mauk_only"}, {"word": "mai", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "managed", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "manager", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "many", "mauk_count": 197, "abaci_count": 2281, "source": "shared"}, {"word": "marie", "mauk_count": 41, "abaci_count": 0, "source": "mauk_only"}, {"word": "mates", "mauk_count": 32, "abaci_count": 0, "source": "mauk_only"}, {"word": "mathematics", "mauk_count": 65, "abaci_count": 892, "source": "shared"}, {"word": "may", "mauk_count": 310, "abaci_count": 1449, "source": "shared"}, {"word": "me", "mauk_count": 1346, "abaci_count": 2263, "source": "shared"}, {"word": "membership", "mauk_count": 0, "abaci_count": 187, "source": "abaci_only"}, {"word": "metric", "mauk_count": 152, "abaci_count": 924, "source": "shared"}, {"word": "mister", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "ml", "mauk_count": 71, "abaci_count": 0, "source": "mauk_only"}, {"word": "modulo", "mauk_count": 0, "abaci_count": 197, "source": "abaci_only"}, {"word": "moi", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "moins", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "more", "mauk_count": 704, "abaci_count": 2377, "source": "shared"}, {"word": "morgan", "mauk_count": 0, "abaci_count": 86, "source": "abaci_only"}, {"word": "morphisms", "mauk_count": 0, "abaci_count": 157, "source": "abaci_only"}, {"word": "mosquito", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "mrs", "mauk_count": 55, "abaci_count": 0, "source": "mauk_only"}, {"word": "much", "mauk_count": 389, "abaci_count": 728, "source": "shared"}, {"word": "multiplication", "mauk_count": 0, "abaci_count": 207, "source": "abaci_only"}, {"word": "must", "mauk_count": 241, "abaci_count": 1034, "source": "shared"}, {"word": "my", "mauk_count": 2224, "abaci_count": 3464, "source": "shared"}, {"word": "myself", "mauk_count": 179, "abaci_count": 803, "source": "shared"}, {"word": "nad", "mauk_count": 85, "abaci_count": 0, "source": "mauk_only"}, {"word": "nadal", "mauk_count": 28, "abaci_count": 0, "source": "mauk_only"}, {"word": "natural", "mauk_count": 30, "abaci_count": 1999, "source": "shared"}, {"word": "need", "mauk_count": 346, "abaci_count": 728, "source": "shared"}, {"word": "neer", "mauk_count": 0, "abaci_count": 260, "source": "abaci_only"}, {"word": "neighbourhoods", "mauk_count": 0, "abaci_count": 78, "source": "abaci_only"}, {"word": "neumann", "mauk_count": 0, "abaci_count": 304, "source": "abaci_only"}, {"word": "never", "mauk_count": 226, "abaci_count": 1204, "source": "shared"}, {"word": "night", "mauk_count": 447, "abaci_count": 514, "source": "shared"}, {"word": "no", "mauk_count": 2010, "abaci_count": 1880, "source": "shared"}, {"word": "nocturnal", "mauk_count": 26, "abaci_count": 0, "source": "mauk_only"}, {"word": "normally", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "norway", "mauk_count": 37, "abaci_count": 0, "source": "mauk_only"}, {"word": "not", "mauk_count": 1173, "abaci_count": 3470, "source": "shared"}, {"word": "notions", "mauk_count": 0, "abaci_count": 312, "source": "abaci_only"}, {"word": "now", "mauk_count": 1597, "abaci_count": 1999, "source": "shared"}, {"word": "number", "mauk_count": 181, "abaci_count": 2218, "source": "shared"}, {"word": "numbers", "mauk_count": 86, "abaci_count": 3149, "source": "shared"}, {"word": "numerous", "mauk_count": 0, "abaci_count": 83, "source": "abaci_only"}, {"word": "oars", "mauk_count": 0, "abaci_count": 144, "source": "abaci_only"}, {"word": "of", "mauk_count": 2178, "abaci_count": 9361, "source": "shared"}, {"word": "oh", "mauk_count": 711, "abaci_count": 226, "source": "shared"}, {"word": "omgggggggg", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "on", "mauk_count": 2387, "abaci_count": 4308, "source": "shared"}, {"word": "one", "mauk_count": 949, "abaci_count": 3696, "source": "shared"}, {"word": "only", "mauk_count": 970, "abaci_count": 2237, "source": "shared"}, {"word": "open", "mauk_count": 249, "abaci_count": 649, "source": "shared"}, {"word": "opened", "mauk_count": 32, "abaci_count": 0, "source": "mauk_only"}, {"word": "or", "mauk_count": 1127, "abaci_count": 3712, "source": "shared"}, {"word": "orange", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "order", "mauk_count": 80, "abaci_count": 1154, "source": "shared"}, {"word": "orgies", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "originally", "mauk_count": 0, "abaci_count": 176, "source": "abaci_only"}, {"word": "other", "mauk_count": 322, "abaci_count": 1049, "source": "shared"}, {"word": "ou", "mauk_count": 35, "abaci_count": 0, "source": "mauk_only"}, {"word": "our", "mauk_count": 434, "abaci_count": 689, "source": "shared"}, {"word": "out", "mauk_count": 796, "abaci_count": 757, "source": "shared"}, {"word": "outta", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "over", "mauk_count": 339, "abaci_count": 1756, "source": "shared"}, {"word": "owls", "mauk_count": 29, "abaci_count": 0, "source": "mauk_only"}, {"word": "pairing", "mauk_count": 0, "abaci_count": 103, "source": "abaci_only"}, {"word": "panels", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "paradoxes", "mauk_count": 0, "abaci_count": 230, "source": "abaci_only"}, {"word": "partitions", "mauk_count": 0, "abaci_count": 150, "source": "abaci_only"}, {"word": "peano", "mauk_count": 0, "abaci_count": 199, "source": "abaci_only"}, {"word": "pernicious", "mauk_count": 0, "abaci_count": 120, "source": "abaci_only"}, {"word": "pink", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "plucking", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "pocket", "mauk_count": 50, "abaci_count": 0, "source": "mauk_only"}, {"word": "point", "mauk_count": 366, "abaci_count": 539, "source": "shared"}, {"word": "possible", "mauk_count": 211, "abaci_count": 848, "source": "shared"}, {"word": "power", "mauk_count": 75, "abaci_count": 1039, "source": "shared"}, {"word": "powersets", "mauk_count": 0, "abaci_count": 186, "source": "abaci_only"}, {"word": "preorder", "mauk_count": 0, "abaci_count": 117, "source": "abaci_only"}, {"word": "primeval", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "product", "mauk_count": 0, "abaci_count": 332, "source": "abaci_only"}, {"word": "profile", "mauk_count": 37, "abaci_count": 0, "source": "mauk_only"}, {"word": "proof", "mauk_count": 305, "abaci_count": 1118, "source": "shared"}, {"word": "properties", "mauk_count": 143, "abaci_count": 726, "source": "shared"}, {"word": "proposes", "mauk_count": 29, "abaci_count": 0, "source": "mauk_only"}, {"word": "prove", "mauk_count": 99, "abaci_count": 928, "source": "shared"}, {"word": "psychic", "mauk_count": 21, "abaci_count": 0, "source": "mauk_only"}, {"word": "pub", "mauk_count": 39, "abaci_count": 0, "source": "mauk_only"}, {"word": "pulling", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "quantifier", "mauk_count": 0, "abaci_count": 84, "source": "abaci_only"}, {"word": "quasimetric", "mauk_count": 0, "abaci_count": 72, "source": "abaci_only"}, {"word": "quotient", "mauk_count": 0, "abaci_count": 291, "source": "abaci_only"}, {"word": "rationals", "mauk_count": 0, "abaci_count": 157, "source": "abaci_only"}, {"word": "real", "mauk_count": 163, "abaci_count": 1056, "source": "shared"}, {"word": "recording", "mauk_count": 105, "abaci_count": 0, "source": "mauk_only"}, {"word": "refer", "mauk_count": 0, "abaci_count": 134, "source": "abaci_only"}, {"word": "region", "mauk_count": 38, "abaci_count": 0, "source": "mauk_only"}, {"word": "relied", "mauk_count": 0, "abaci_count": 98, "source": "abaci_only"}, {"word": "restrictions", "mauk_count": 29, "abaci_count": 0, "source": "mauk_only"}, {"word": "reviews", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "richard", "mauk_count": 0, "abaci_count": 109, "source": "abaci_only"}, {"word": "riding", "mauk_count": 34, "abaci_count": 0, "source": "mauk_only"}, {"word": "right", "mauk_count": 443, "abaci_count": 798, "source": "shared"}, {"word": "rigorous", "mauk_count": 0, "abaci_count": 99, "source": "abaci_only"}, {"word": "roughly", "mauk_count": 0, "abaci_count": 456, "source": "abaci_only"}, {"word": "see", "mauk_count": 798, "abaci_count": 690, "source": "shared"}, {"word": "semi", "mauk_count": 0, "abaci_count": 97, "source": "abaci_only"}, {"word": "separately", "mauk_count": 0, "abaci_count": 115, "source": "abaci_only"}, {"word": "sequentially", "mauk_count": 0, "abaci_count": 104, "source": "abaci_only"}, {"word": "sermon", "mauk_count": 27, "abaci_count": 0, "source": "mauk_only"}, {"word": "set", "mauk_count": 593, "abaci_count": 7026, "source": "shared"}, {"word": "sets", "mauk_count": 280, "abaci_count": 5389, "source": "shared"}, {"word": "shall", "mauk_count": 202, "abaci_count": 1006, "source": "shared"}, {"word": "sheet", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "shirt", "mauk_count": 25, "abaci_count": 0, "source": "mauk_only"}, {"word": "should", "mauk_count": 315, "abaci_count": 537, "source": "shared"}, {"word": "show", "mauk_count": 84, "abaci_count": 1033, "source": "shared"}, {"word": "showers", "mauk_count": 51, "abaci_count": 0, "source": "mauk_only"}, {"word": "sigmoidal", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "simpler", "mauk_count": 0, "abaci_count": 156, "source": "abaci_only"}, {"word": "simplicial", "mauk_count": 0, "abaci_count": 80, "source": "abaci_only"}, {"word": "since", "mauk_count": 519, "abaci_count": 2181, "source": "shared"}, {"word": "singleton", "mauk_count": 0, "abaci_count": 80, "source": "abaci_only"}, {"word": "sirens", "mauk_count": 22, "abaci_count": 0, "source": "mauk_only"}, {"word": "skirt", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "skolem", "mauk_count": 0, "abaci_count": 166, "source": "abaci_only"}, {"word": "slumberous", "mauk_count": 0, "abaci_count": 76, "source": "abaci_only"}, {"word": "smoking", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "so", "mauk_count": 1624, "abaci_count": 2932, "source": "shared"}, {"word": "some", "mauk_count": 1045, "abaci_count": 2568, "source": "shared"}, {"word": "sosostris", "mauk_count": 0, "abaci_count": 152, "source": "abaci_only"}, {"word": "sovereign", "mauk_count": 0, "abaci_count": 193, "source": "abaci_only"}, {"word": "space", "mauk_count": 518, "abaci_count": 1032, "source": "shared"}, {"word": "spaces", "mauk_count": 233, "abaci_count": 888, "source": "shared"}, {"word": "specification", "mauk_count": 0, "abaci_count": 82, "source": "abaci_only"}, {"word": "specifying", "mauk_count": 0, "abaci_count": 69, "source": "abaci_only"}, {"word": "spin", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "stairs", "mauk_count": 56, "abaci_count": 0, "source": "mauk_only"}, {"word": "stated", "mauk_count": 0, "abaci_count": 174, "source": "abaci_only"}, {"word": "stems", "mauk_count": 26, "abaci_count": 0, "source": "mauk_only"}, {"word": "still", "mauk_count": 329, "abaci_count": 531, "source": "shared"}, {"word": "stove", "mauk_count": 19, "abaci_count": 0, "source": "mauk_only"}, {"word": "strategies", "mauk_count": 0, "abaci_count": 75, "source": "abaci_only"}, {"word": "subset", "mauk_count": 353, "abaci_count": 2159, "source": "shared"}, {"word": "subsets", "mauk_count": 72, "abaci_count": 1944, "source": "shared"}, {"word": "such", "mauk_count": 466, "abaci_count": 3068, "source": "shared"}, {"word": "supremum", "mauk_count": 0, "abaci_count": 84, "source": "abaci_only"}, {"word": "surjective", "mauk_count": 0, "abaci_count": 80, "source": "abaci_only"}, {"word": "swear", "mauk_count": 26, "abaci_count": 0, "source": "mauk_only"}, {"word": "take", "mauk_count": 190, "abaci_count": 685, "source": "shared"}, {"word": "tamarind", "mauk_count": 0, "abaci_count": 101, "source": "abaci_only"}, {"word": "taxi", "mauk_count": 65, "abaci_count": 0, "source": "mauk_only"}, {"word": "temps", "mauk_count": 40, "abaci_count": 0, "source": "mauk_only"}, {"word": "tendencies", "mauk_count": 0, "abaci_count": 288, "source": "abaci_only"}, {"word": "tennis", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "terrain", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "textstyle", "mauk_count": 0, "abaci_count": 1161, "source": "abaci_only"}, {"word": "than", "mauk_count": 445, "abaci_count": 2436, "source": "shared"}, {"word": "thanks", "mauk_count": 975, "abaci_count": 30, "source": "shared"}, {"word": "that", "mauk_count": 2101, "abaci_count": 6842, "source": "shared"}, {"word": "the", "mauk_count": 4552, "abaci_count": 11392, "source": "shared"}, {"word": "their", "mauk_count": 276, "abaci_count": 1590, "source": "shared"}, {"word": "them", "mauk_count": 306, "abaci_count": 1384, "source": "shared"}, {"word": "then", "mauk_count": 996, "abaci_count": 3804, "source": "shared"}, {"word": "theorem", "mauk_count": 502, "abaci_count": 1239, "source": "shared"}, {"word": "theory", "mauk_count": 98, "abaci_count": 2359, "source": "shared"}, {"word": "there", "mauk_count": 1352, "abaci_count": 4860, "source": "shared"}, {"word": "therefore", "mauk_count": 118, "abaci_count": 808, "source": "shared"}, {"word": "these", "mauk_count": 635, "abaci_count": 2263, "source": "shared"}, {"word": "they", "mauk_count": 571, "abaci_count": 1644, "source": "shared"}, {"word": "thine", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "things", "mauk_count": 73, "abaci_count": 854, "source": "shared"}, {"word": "this", "mauk_count": 2349, "abaci_count": 5198, "source": "shared"}, {"word": "those", "mauk_count": 337, "abaci_count": 840, "source": "shared"}, {"word": "thousand", "mauk_count": 7, "abaci_count": 1306, "source": "shared"}, {"word": "throat", "mauk_count": 35, "abaci_count": 0, "source": "mauk_only"}, {"word": "throng", "mauk_count": 0, "abaci_count": 95, "source": "abaci_only"}, {"word": "through", "mauk_count": 588, "abaci_count": 1462, "source": "shared"}, {"word": "thus", "mauk_count": 181, "abaci_count": 965, "source": "shared"}, {"word": "tickets", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "time", "mauk_count": 815, "abaci_count": 512, "source": "shared"}, {"word": "tiresia", "mauk_count": 0, "abaci_count": 231, "source": "abaci_only"}, {"word": "to", "mauk_count": 3299, "abaci_count": 8158, "source": "shared"}, {"word": "tomorrow", "mauk_count": 836, "abaci_count": 201, "source": "shared"}, {"word": "trajectories", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "transfinite", "mauk_count": 0, "abaci_count": 110, "source": "abaci_only"}, {"word": "tub", "mauk_count": 30, "abaci_count": 0, "source": "mauk_only"}, {"word": "twitpic", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "two", "mauk_count": 789, "abaci_count": 1572, "source": "shared"}, {"word": "unbounded", "mauk_count": 0, "abaci_count": 190, "source": "abaci_only"}, {"word": "uncountable", "mauk_count": 0, "abaci_count": 692, "source": "abaci_only"}, {"word": "uncountably", "mauk_count": 0, "abaci_count": 230, "source": "abaci_only"}, {"word": "under", "mauk_count": 465, "abaci_count": 1319, "source": "shared"}, {"word": "unfortunately", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "unions", "mauk_count": 0, "abaci_count": 303, "source": "abaci_only"}, {"word": "uniquely", "mauk_count": 0, "abaci_count": 97, "source": "abaci_only"}, {"word": "uniqueness", "mauk_count": 0, "abaci_count": 84, "source": "abaci_only"}, {"word": "universe", "mauk_count": 51, "abaci_count": 930, "source": "shared"}, {"word": "up", "mauk_count": 898, "abaci_count": 1175, "source": "shared"}, {"word": "us", "mauk_count": 468, "abaci_count": 568, "source": "shared"}, {"word": "used", "mauk_count": 312, "abaci_count": 899, "source": "shared"}, {"word": "using", "mauk_count": 392, "abaci_count": 1991, "source": "shared"}, {"word": "valued", "mauk_count": 0, "abaci_count": 70, "source": "abaci_only"}, {"word": "verifying", "mauk_count": 49, "abaci_count": 0, "source": "mauk_only"}, {"word": "versions", "mauk_count": 0, "abaci_count": 91, "source": "abaci_only"}, {"word": "very", "mauk_count": 391, "abaci_count": 471, "source": "shared"}, {"word": "via", "mauk_count": 219, "abaci_count": 1076, "source": "shared"}, {"word": "vibrating", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "vicinity", "mauk_count": 23, "abaci_count": 0, "source": "mauk_only"}, {"word": "victoria", "mauk_count": 23, "abaci_count": 0, "source": "mauk_only"}, {"word": "vienna", "mauk_count": 29, "abaci_count": 0, "source": "mauk_only"}, {"word": "viewing", "mauk_count": 33, "abaci_count": 0, "source": "mauk_only"}, {"word": "viol", "mauk_count": 29, "abaci_count": 0, "source": "mauk_only"}, {"word": "violating", "mauk_count": 0, "abaci_count": 95, "source": "abaci_only"}, {"word": "violet", "mauk_count": 23, "abaci_count": 0, "source": "mauk_only"}, {"word": "voix", "mauk_count": 30, "abaci_count": 0, "source": "mauk_only"}, {"word": "waals", "mauk_count": 30, "abaci_count": 0, "source": "mauk_only"}, {"word": "wade", "mauk_count": 23, "abaci_count": 0, "source": "mauk_only"}, {"word": "waking", "mauk_count": 24, "abaci_count": 0, "source": "mauk_only"}, {"word": "walmart", "mauk_count": 39, "abaci_count": 0, "source": "mauk_only"}, {"word": "walnut", "mauk_count": 27, "abaci_count": 0, "source": "mauk_only"}, {"word": "was", "mauk_count": 931, "abaci_count": 1928, "source": "shared"}, {"word": "wasting", "mauk_count": 29, "abaci_count": 0, "source": "mauk_only"}, {"word": "we", "mauk_count": 1450, "abaci_count": 3262, "source": "shared"}, {"word": "weaker", "mauk_count": 0, "abaci_count": 270, "source": "abaci_only"}, {"word": "weekend", "mauk_count": 27, "abaci_count": 0, "source": "mauk_only"}, {"word": "well", "mauk_count": 1223, "abaci_count": 1308, "source": "shared"}, {"word": "were", "mauk_count": 580, "abaci_count": 1045, "source": "shared"}, {"word": "what", "mauk_count": 1896, "abaci_count": 2274, "source": "shared"}, {"word": "when", "mauk_count": 1718, "abaci_count": 1773, "source": "shared"}, {"word": "where", "mauk_count": 1139, "abaci_count": 1310, "source": "shared"}, {"word": "which", "mauk_count": 880, "abaci_count": 3125, "source": "shared"}, {"word": "while", "mauk_count": 400, "abaci_count": 773, "source": "shared"}, {"word": "whining", "mauk_count": 20, "abaci_count": 0, "source": "mauk_only"}, {"word": "whose", "mauk_count": 189, "abaci_count": 829, "source": "shared"}, {"word": "why", "mauk_count": 626, "abaci_count": 460, "source": "shared"}, {"word": "will", "mauk_count": 885, "abaci_count": 1257, "source": "shared"}, {"word": "willows", "mauk_count": 0, "abaci_count": 95, "source": "abaci_only"}, {"word": "window", "mauk_count": 204, "abaci_count": 655, "source": "shared"}, {"word": "with", "mauk_count": 2790, "abaci_count": 5114, "source": "shared"}, {"word": "within", "mauk_count": 326, "abaci_count": 1154, "source": "shared"}, {"word": "without", "mauk_count": 521, "abaci_count": 1571, "source": "shared"}, {"word": "wittgenstein", "mauk_count": 0, "abaci_count": 71, "source": "abaci_only"}, {"word": "worry", "mauk_count": 27, "abaci_count": 0, "source": "mauk_only"}, {"word": "would", "mauk_count": 364, "abaci_count": 1667, "source": "shared"}, {"word": "yet", "mauk_count": 564, "abaci_count": 415, "source": "shared"}, {"word": "you", "mauk_count": 3277, "abaci_count": 874, "source": "shared"}, {"word": "your", "mauk_count": 1432, "abaci_count": 494, "source": "shared"}, {"word": "zermelo", "mauk_count": 0, "abaci_count": 1076, "source": "abaci_only"}, {"word": "zfc", "mauk_count": 0, "abaci_count": 526, "source": "abaci_only"}];
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── UI controls ───────────────────────────────────────────────────────────────
+let paused     = false;
+let speedMult  = 1.5;
+let filterMode = 'all';
+let bucketMode = false;
+let laneParkedCounts = {}; // letter → count of parked particles at that lane
+
+document.getElementById('btn-play').addEventListener('click', () => {
+  paused = !paused;
+  document.getElementById('btn-play').textContent = paused ? '▶ Play' : '⏸ Pause';
+});
+document.getElementById('btn-reset').addEventListener('click', () => { resetSim(); });
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.className = 'filter-btn');
+    filterMode = btn.dataset.filter;
+    const cls = filterMode === 'all' ? 'active-all'
+              : filterMode === 'shared' ? 'active-shared'
+              : filterMode === 'mauk_only' ? 'active-mauk' : 'active-abaci';
+    btn.classList.add(cls);
+    resetSim();
+  });
+});
+
+document.getElementById('btn-bucket').addEventListener('click', () => {
+  bucketMode = !bucketMode;
+  const btn = document.getElementById('btn-bucket');
+  btn.classList.toggle('active', bucketMode);
+  btn.textContent = bucketMode ? '⬡ Bucketed' : '⬡ Bucket Mode';
+  if (!bucketMode) {
+    // Release all parked particles back into the lane toward the reducer
+    for (const pt of simParticles) {
+      if (pt.state === 'parked') {
+        pt.state    = 'lane';
+        pt.progress = (pt.x - pt.xShufEnd) / (pt.xLaneEnd - pt.xShufEnd);
+        pt.progress = Math.max(0, Math.min(0.99, pt.progress));
+      }
+    }
+    laneParkedCounts = {};
+  }
+});
+
+const speedSlider = document.getElementById('speed-slider');
+speedSlider.addEventListener('input', () => {
+  speedMult = parseFloat(speedSlider.value);
+  document.getElementById('speed-label').textContent = speedMult.toFixed(1) + '×';
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── Simulation state (shared between p5 and UI) ───────────────────────────────
+let simParticles  = [];
+let simQueue      = [];
+let simReducer    = {}; // word → {mauk:n, abaci:n, source}
+let simRecent     = []; // last ~28 reduced entries for display
+let simMapped     = 0;
+let simReduced    = 0;
+let emitTimer     = 0;
+const EMIT_MS     = 320; // base ms between emissions (divided by speedMult)
+
+function resetSim() {
+  simParticles     = [];
+  simReducer       = {};
+  simRecent        = [];
+  simMapped        = 0;
+  simReduced       = 0;
+  emitTimer        = 0;
+  laneParkedCounts = {};
+
+  let pool = ALL_WORDS.filter(w =>
+    filterMode === 'all' ? true : w.source === filterMode
+  );
+  // Fisher-Yates shuffle for random emission order
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  simQueue = pool;
+  updateStats();
+}
+
+function updateStats() {
+  document.getElementById('stat-mapped').textContent  = simMapped;
+  document.getElementById('stat-reduced').textContent = simReduced;
+  document.getElementById('stat-queue').textContent   = simQueue.length;
+}
+
+resetSim(); // init on load
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── p5.js sketch ─────────────────────────────────────────────────────────────
+const sketch = (p) => {
+
+  // Palette
+  const C_BG       = [13,  17,  23 ];
+  const C_ZONE     = [17,  22,  30 ];
+  const C_LANE     = [22,  27,  38 ];
+  const C_DIVIDER  = [33,  38,  55 ];
+  const C_MAUK     = [3,   166, 161];
+  const C_ABACI    = [255, 157, 35 ];
+  const C_SHARED   = [230, 57,  70 ]; // site red — shared / both-bot words
+  const C_EQUAL    = [0,   230, 120]; // terminal green — both bots tied
+  const C_TEXT_DIM = [100, 110, 140];
+  const C_TEXT     = [200, 205, 220];
+
+  // Layout (computed in setup/resize)
+  let W, H;
+  let INPUT_W, MAP_W, SHUF_X, SHUF_W, RED_X, RED_W;
+  let LANE_TOP, LANE_BTM, LANE_H;
+  let MAUK_Y, ABACI_Y;
+  const LANES = 26;
+
+  let monoFont;
+
+  // ── helpers ────────────────────────────────────────────────────────────────
+  const smoothstep = t => t * t * (3 - 2 * t);
+  const lerp       = (a, b, t) => a + (b - a) * t;
+
+  function laneY(letter) {
+    const idx = Math.max(0, Math.min(25, letter.charCodeAt(0) - 97));
+    return LANE_TOP + idx * LANE_H + LANE_H * 0.5;
+  }
+
+  function srcColor(src) {
+    if (src === 'mauk')       return C_MAUK;
+    if (src === 'abaci')      return C_ABACI;
+    if (src === 'mauk_only')  return C_MAUK;
+    if (src === 'abaci_only') return C_ABACI;
+    return C_SHARED;
+  }
+
+  // Color for a fully-reduced entry: dominant bot wins, green if tied.
+  function dominantColor(mauk, abaci) {
+    if (mauk > 0 && abaci > 0) {
+      if (mauk > abaci)  return C_MAUK;
+      if (abaci > mauk)  return C_ABACI;
+      return C_EQUAL;
+    }
+    return mauk > 0 ? C_MAUK : C_ABACI;
+  }
+
+  function computeLayout() {
+    W = p.width; H = p.height;
+    INPUT_W = Math.min(130, W * 0.09);
+    MAP_W   = Math.min(185, W * 0.13);
+    RED_W   = Math.min(305, W * 0.215);
+    SHUF_X  = INPUT_W + MAP_W;
+    SHUF_W  = W - INPUT_W - MAP_W - RED_W;
+    RED_X   = SHUF_X + SHUF_W;
+    LANE_TOP = 52;
+    LANE_BTM = H - 14;
+    LANE_H   = (LANE_BTM - LANE_TOP) / LANES;
+    MAUK_Y   = H * 0.30;
+    ABACI_Y  = H * 0.70;
+  }
+
+  // ── Particle class ─────────────────────────────────────────────────────────
+  class Particle {
+    constructor(word, src, mauk_count, abaci_count) {
+      this.word       = word.length > 13 ? word.slice(0, 12) + '…' : word;
+      this.fullWord   = word;
+      this.src        = src; // 'mauk' or 'abaci'
+      this.srcFull    = src === 'mauk' ? 'mauk_only' : 'abaci_only'; // for shared fallback
+      this.mauk_count = mauk_count;
+      this.abaci_count= abaci_count;
+      this.col        = srcColor(src);
+
+      // Start at mapper output edge (right side of mapper zone)
+      this.x  = SHUF_X;
+      this.y  = src === 'mauk' ? MAUK_Y : ABACI_Y;
+      this.sy = this.y;            // start Y
+      this.ty = laneY(word[0]);   // target lane Y
+
+      this.state    = 'emit';
+      this.progress = 0;
+      this.alpha    = 0;
+
+      // X milestones
+      this.xEmitEnd   = SHUF_X + SHUF_W * 0.12;
+      this.xShufEnd   = SHUF_X + SHUF_W * 0.38;
+      this.xLaneEnd   = RED_X  - 4;
+
+      // Bucket-mode parking
+      this.slot  = 0;   // horizontal stacking index within the lane
+      this.parkX = this.xShufEnd + SHUF_W * 0.10; // base park X
+    }
+
+    update(dt) {
+      const spd = 0.00095 * dt;
+      switch (this.state) {
+        case 'emit':
+          this.progress += spd * 3.2;
+          this.x     = lerp(SHUF_X, this.xEmitEnd, smoothstep(Math.min(this.progress, 1)));
+          this.alpha = Math.min(255, this.progress * 900);
+          if (this.progress >= 1) { this.state = 'shuffle'; this.progress = 0; }
+          break;
+
+        case 'shuffle':
+          this.progress += spd * 1.6;
+          this.x = lerp(this.xEmitEnd, this.xShufEnd, this.progress);
+          this.y = lerp(this.sy, this.ty, smoothstep(Math.min(this.progress, 1)));
+          if (this.progress >= 1) { this.state = 'lane'; this.progress = 0; }
+          break;
+
+        case 'lane':
+          this.progress += spd * 1.1;
+          this.x = lerp(this.xShufEnd, this.xLaneEnd, smoothstep(Math.min(this.progress, 1)));
+          // Enter bucket if mode is active and we've crossed the park threshold
+          if (bucketMode && this.progress >= 0.22 && this.state === 'lane') {
+            this.state = 'parked';
+            const letter = this.fullWord[0];
+            if (!laneParkedCounts[letter]) laneParkedCounts[letter] = 0;
+            this.slot  = laneParkedCounts[letter]++;
+            this.parkX = this.xShufEnd + SHUF_W * 0.10;
+            this.progress = 0;
+          } else if (this.progress >= 1) {
+            this.state = 'reduce'; this.progress = 0;
+          }
+          break;
+
+        case 'parked': {
+          // Drift to stacked X position
+          const targetX = this.parkX + Math.min(this.slot * 4, SHUF_W * 0.45);
+          this.x = lerp(this.x, targetX, 0.08);
+          // Release if bucket mode was turned off
+          if (!bucketMode) {
+            this.state    = 'lane';
+            this.progress = Math.max(0, (this.x - this.xShufEnd) / (this.xLaneEnd - this.xShufEnd));
+          }
+          break;
+        }
+
+        case 'reduce':
+          this.progress += spd * 6;
+          this.alpha = lerp(255, 0, this.progress);
+          if (this.progress >= 1) {
+            this.state = 'done';
+            this._onReduce();
+          }
+          break;
+      }
+    }
+
+    _onReduce() {
+      const w = this.fullWord;
+      const isFirstArrival = !simReducer[w];
+      if (isFirstArrival) {
+        simReducer[w] = { mauk: 0, abaci: 0, source: this.src, flash: 60 };
+      }
+      if (this.src === 'mauk')  simReducer[w].mauk  += this.mauk_count;
+      else                      simReducer[w].abaci += this.abaci_count;
+      simReducer[w].flash = 60;
+
+      // Prepend to recent list (dedup — refresh entry if second particle arrives)
+      simRecent = simRecent.filter(r => r.word !== w);
+      simRecent.unshift({ word: w, flash: 1.0, ...simReducer[w] });
+      if (simRecent.length > 28) simRecent.pop();
+
+      // Count unique words only (first arrival per word)
+      if (isFirstArrival) simReduced++;
+      updateStats();
+    }
+
+    draw() {
+      if (this.alpha <= 0) return;
+      p.push();
+      const [r, g, b] = this.col;
+      const label = `${this.word} (1)`;
+      p.textFont('monospace');
+      p.textSize(9.5);
+      const tw = p.textWidth(label);
+      const pw = tw + 14, ph = 18;
+
+      // Capsule background
+      p.noStroke();
+      p.fill(r, g, b, this.alpha * 0.22);
+      p.rect(this.x - pw / 2, this.y - ph / 2, pw, ph, 9);
+
+      // Border
+      p.noFill();
+      p.stroke(r, g, b, this.alpha * 0.7);
+      p.strokeWeight(1);
+      p.rect(this.x - pw / 2, this.y - ph / 2, pw, ph, 9);
+
+      // Text
+      p.noStroke();
+      p.fill(r, g, b, this.alpha);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text(label, this.x, this.y);
+      p.pop();
+    }
+  }
+
+  // ── emit logic ─────────────────────────────────────────────────────────────
+  function emitWord(entry) {
+    const { word, mauk_count, abaci_count, source } = entry;
+    if (source === 'shared') {
+      simParticles.push(new Particle(word, 'mauk',  mauk_count,  abaci_count));
+      simParticles.push(new Particle(word, 'abaci', mauk_count,  abaci_count));
+      simMapped += 2; // two (word,1) pairs emitted — one from each mapper
+    } else if (source === 'mauk_only') {
+      simParticles.push(new Particle(word, 'mauk',  mauk_count,  0));
+      simMapped += 1;
+    } else {
+      simParticles.push(new Particle(word, 'abaci', 0, abaci_count));
+      simMapped += 1;
+    }
+    updateStats();
+  }
+
+  // ── draw helpers ───────────────────────────────────────────────────────────
+  function drawZoneBackground() {
+    p.noStroke();
+
+    // Input zone
+    p.fill(15, 19, 28);
+    p.rect(0, 0, INPUT_W, H);
+
+    // Mapper zone (slightly lighter)
+    p.fill(...C_ZONE);
+    p.rect(INPUT_W, 0, MAP_W, H);
+
+    // Shuffle zone
+    p.fill(...C_BG);
+    p.rect(SHUF_X, 0, SHUF_W, H);
+
+    // Reducer zone
+    p.fill(...C_ZONE);
+    p.rect(RED_X, 0, RED_W, H);
+
+    // Dividers
+    p.stroke(...C_DIVIDER);
+    p.strokeWeight(1);
+    p.line(INPUT_W, 0, INPUT_W, H);
+    p.line(SHUF_X,  0, SHUF_X,  H);
+    p.line(RED_X,   0, RED_X,   H);
+  }
+
+  function drawZoneLabels() {
+    p.noStroke();
+    p.textFont('monospace');
+    p.textSize(9);
+    p.textAlign(p.CENTER, p.TOP);
+    p.fill(...C_TEXT_DIM);
+
+    const labels = ['INPUT', 'MAP', 'SHUFFLE', 'REDUCE'];
+    const xs     = [INPUT_W / 2, INPUT_W + MAP_W / 2, SHUF_X + SHUF_W / 2, RED_X + RED_W / 2];
+    labels.forEach((lbl, i) => p.text(lbl, xs[i], 8));
+  }
+
+  function drawLanes() {
+    for (let i = 0; i < LANES; i++) {
+      const letter = String.fromCharCode(65 + i); // A-Z
+      const y      = LANE_TOP + i * LANE_H;
+
+      // Alternating subtle band
+      if (i % 2 === 0) {
+        p.noStroke();
+        p.fill(255, 255, 255, 5);
+        p.rect(SHUF_X, y, SHUF_W, LANE_H);
+      }
+
+      // Lane separator
+      p.stroke(...C_LANE);
+      p.strokeWeight(0.5);
+      p.line(SHUF_X, y, RED_X, y);
+
+      // Letter label at left edge of shuffle zone
+      p.noStroke();
+      p.fill(...C_TEXT_DIM);
+      p.textFont('monospace');
+      p.textSize(8.5);
+      p.textAlign(p.LEFT, p.CENTER);
+      p.text(letter, SHUF_X + 5, y + LANE_H / 2);
+    }
+  }
+
+  function drawMappers() {
+    const bots = [
+      { label: 'MAUK',  y: MAUK_Y,  col: C_MAUK  },
+      { label: 'ABACI', y: ABACI_Y, col: C_ABACI },
+    ];
+
+    bots.forEach(({ label, y, col }) => {
+      const [r, g, b] = col;
+      const bw = MAP_W - 22, bh = 44;
+      const bx = INPUT_W + 6, by = y - bh / 2;
+
+      // Pulsing glow
+      const pulse = 0.5 + 0.5 * Math.sin(p.millis() * 0.002);
+      p.noStroke();
+      p.fill(r, g, b, 18 + pulse * 14);
+      p.rect(bx - 4, by - 4, bw + 8, bh + 8, 12);
+
+      // Box fill
+      p.fill(r, g, b, 30);
+      p.rect(bx, by, bw, bh, 8);
+
+      // Box border
+      p.stroke(r, g, b, 160);
+      p.strokeWeight(1.2);
+      p.noFill();
+      p.rect(bx, by, bw, bh, 8);
+
+      // Label
+      p.noStroke();
+      p.fill(r, g, b);
+      p.textFont('monospace');
+      p.textSize(11);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text(`[ ${label} ]`, bx + bw / 2, y - 5);
+
+      p.textSize(8.5);
+      p.fill(r, g, b, 160);
+      p.text('mapper', bx + bw / 2, y + 9);
+
+      // Arrow pointing right toward shuffle zone
+      p.stroke(r, g, b, 120);
+      p.strokeWeight(1.5);
+      const ax = bx + bw, ay = y;
+      p.line(ax, ay, SHUF_X - 2, ay);
+      p.fill(r, g, b, 120);
+      p.noStroke();
+      p.triangle(SHUF_X - 2, ay - 4, SHUF_X - 2, ay + 4, SHUF_X + 6, ay);
+    });
+  }
+
+  // ── Input zone (Supabase DB source node) ───────────────────────────────────
+  function drawInputZone() {
+    const [r, g, b] = C_EQUAL; // terminal green — matches site palette
+    const cx = INPUT_W / 2;
+    const cy = H / 2;
+    const bw = INPUT_W - 20, bh = 72;
+    const bx = cx - bw / 2;
+    const by = cy - bh / 2;
+    const pulse = 0.5 + 0.5 * Math.sin(p.millis() * 0.0014);
+
+    // Outer glow
+    p.noStroke();
+    p.fill(r, g, b, 14 + pulse * 10);
+    p.rect(bx - 6, by - 6, bw + 12, bh + 12, 14);
+
+    // Box fill
+    p.fill(r, g, b, 22);
+    p.rect(bx, by, bw, bh, 9);
+
+    // Box border (pulsing)
+    p.stroke(r, g, b, 130 + pulse * 60);
+    p.strokeWeight(1.2);
+    p.noFill();
+    p.rect(bx, by, bw, bh, 9);
+
+    // DB cylinder top oval decoration
+    p.noStroke();
+    p.fill(r, g, b, 50 + pulse * 30);
+    p.ellipse(cx, by + 10, bw * 0.75, 10);
+    p.fill(r, g, b, 25);
+    p.rect(cx - bw * 0.375, by + 10, bw * 0.75, 12);
+
+    // Labels
+    p.noStroke();
+    p.fill(r, g, b);
+    p.textFont('monospace');
+    p.textSize(10);
+    p.textAlign(p.CENTER, p.CENTER);
+    p.text('Supabase', cx, cy - 4);
+    p.textSize(7.5);
+    p.fill(r, g, b, 160);
+    p.text('messages', cx, cy + 9);
+    p.textSize(7);
+    p.fill(r, g, b, 90);
+    p.text('[ source ]', cx, cy + 20);
+
+    // Fan arrows to MAUK and ABACI mappers
+    const fanSrcX = bx + bw;   // right edge of DB box
+    const fanSrcY = cy;
+    const targets = [
+      { y: MAUK_Y,  col: C_MAUK  },
+      { y: ABACI_Y, col: C_ABACI },
+    ];
+    targets.forEach(({ y: ty, col }) => {
+      const [cr, cg, cb] = col;
+      const alpha = 75 + pulse * 50;
+      const destX = INPUT_W + 6; // left edge of mapper boxes
+
+      p.noFill();
+      p.stroke(cr, cg, cb, alpha);
+      p.strokeWeight(1.2);
+      p.beginShape();
+      p.vertex(fanSrcX, fanSrcY);
+      p.bezierVertex(
+        fanSrcX + (destX - fanSrcX) * 0.5, fanSrcY,
+        fanSrcX + (destX - fanSrcX) * 0.5, ty,
+        destX, ty
+      );
+      p.endShape();
+
+      // Arrowhead at mapper left edge
+      p.noStroke();
+      p.fill(cr, cg, cb, alpha);
+      p.triangle(destX, ty - 4, destX, ty + 4, destX + 7, ty);
+    });
+  }
+
+  function drawReducerZone() {
+    const PAD = 10;
+    const lineH = (H - 52) / 28;
+
+    // Header
+    p.noStroke();
+    p.textFont('monospace');
+    p.textSize(8.5);
+    p.textAlign(p.LEFT, p.TOP);
+    p.fill(...C_TEXT_DIM);
+    p.text('word', RED_X + PAD, 28);
+    p.textAlign(p.RIGHT, p.TOP);
+    p.text('M   A', RED_X + RED_W - PAD, 28);
+
+    // Divider under header
+    p.stroke(...C_DIVIDER);
+    p.strokeWeight(0.5);
+    p.line(RED_X + PAD, 42, RED_X + RED_W - PAD, 42);
+
+    simRecent.forEach((entry, idx) => {
+      const y   = 44 + idx * lineH;
+      // Color by dominant bot in the reducer (green if tied, each bot's color if one leads)
+      const col = dominantColor(entry.mauk || 0, entry.abaci || 0);
+      const [r, g, b] = col;
+      const flash  = Math.min(1, entry.flash || 0);
+      entry.flash  = Math.max(0, (entry.flash || 0) - 0.04);
+
+      // Flash highlight
+      if (flash > 0) {
+        p.noStroke();
+        p.fill(r, g, b, flash * 30);
+        p.rect(RED_X + 3, y - 1, RED_W - 6, lineH - 1, 3);
+      }
+
+      // Dot
+      p.noStroke();
+      p.fill(r, g, b, 180 + flash * 75);
+      p.ellipse(RED_X + PAD + 4, y + lineH / 2, 5, 5);
+
+      // Word
+      p.fill(r, g, b, 200 + flash * 55);
+      p.textFont('monospace');
+      p.textSize(9);
+      p.textAlign(p.LEFT, p.CENTER);
+      const display = entry.word.length > 14 ? entry.word.slice(0, 13) + '…' : entry.word;
+      p.text(display, RED_X + PAD + 12, y + lineH / 2);
+
+      // Counts
+      p.textAlign(p.RIGHT, p.CENTER);
+      p.fill(...C_TEXT_DIM);
+      const mc = entry.mauk  > 0 ? String(entry.mauk).padStart(4)  : '   —';
+      const ac = entry.abaci > 0 ? String(entry.abaci).padStart(4) : '   —';
+      p.text(`${mc} ${ac}`, RED_X + RED_W - PAD, y + lineH / 2);
+    });
+  }
+
+  // ── p5 lifecycle ───────────────────────────────────────────────────────────
+  p.setup = () => {
+    const container = document.getElementById('canvas-container');
+    const cnv = p.createCanvas(container.offsetWidth, container.offsetHeight);
+    cnv.parent('canvas-container');
+    computeLayout();
+    p.frameRate(60);
+  };
+
+  p.windowResized = () => {
+    const container = document.getElementById('canvas-container');
+    p.resizeCanvas(container.offsetWidth, container.offsetHeight);
+    computeLayout();
+  };
+
+  p.draw = () => {
+    p.background(...C_BG);
+
+    if (!paused) {
+      // Emit
+      emitTimer += p.deltaTime * speedMult;
+      const interval = EMIT_MS;
+      while (emitTimer >= interval && simQueue.length > 0) {
+        emitTimer -= interval;
+        emitWord(simQueue.shift());
+      }
+      if (simQueue.length === 0) emitTimer = 0;
+
+      // Update particles
+      for (const pt of simParticles) pt.update(p.deltaTime * speedMult);
+      simParticles = simParticles.filter(pt => pt.state !== 'done');
+    }
+
+    drawZoneBackground();
+    drawLanes();
+    drawInputZone();
+    drawMappers();
+
+    // Draw particles (back to front: reducing ones on top)
+    const nonReducing = simParticles.filter(pt => pt.state !== 'reduce');
+    const reducing    = simParticles.filter(pt => pt.state === 'reduce');
+    nonReducing.forEach(pt => pt.draw());
+    reducing.forEach(pt => pt.draw());
+
+    drawReducerZone();
+    drawZoneLabels();
+
+    // Done banner
+    if (simQueue.length === 0 && simParticles.length === 0 && simReduced > 0) {
+      p.noStroke();
+      p.fill(13, 17, 23, 200);
+      p.rect(SHUF_X + SHUF_W / 2 - 120, H / 2 - 28, 240, 56, 12);
+      p.stroke(58, 166, 161, 180);
+      p.strokeWeight(1);
+      p.noFill();
+      p.rect(SHUF_X + SHUF_W / 2 - 120, H / 2 - 28, 240, 56, 12);
+      p.noStroke();
+      p.fill(3, 166, 161);
+      p.textFont('monospace');
+      p.textSize(13);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text('✓ All words reduced', SHUF_X + SHUF_W / 2, H / 2 - 8);
+      p.textSize(9.5);
+      p.fill(...C_TEXT_DIM);
+      p.text(`${simReduced} unique words processed`, SHUF_X + SHUF_W / 2, H / 2 + 12);
+    }
+  };
+};
+
+new p5(sketch, 'canvas-container');
+</script>
+</body>
+</html>
