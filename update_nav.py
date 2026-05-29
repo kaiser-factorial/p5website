@@ -3,7 +3,7 @@ import re
 
 files = [
     'about.html', 'capstone.html', 'datascience.html', 
-    'p4catchfall.html', 'p5js.html', 'page1contact.html', 
+    'p5js.html', 'page1contact.html', 
     'page2.html', 'project1.html',
     'photography.html', 'bot-lexicon-portal.html', 'index.html'
 ]

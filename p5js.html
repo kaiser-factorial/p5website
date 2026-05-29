@@ -1,109 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>p5.js</title>
+     
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch-Fall Game</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
-        rel="stylesheet">
-    <style>
-        .p5-list {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 16px;
-        }
-
-        .p5-item {
-            display: flex;
-            gap: 24px;
-            align-items: flex-start;
-            margin: 32px 0;
-            padding: 24px;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .p5-item img {
-            width: 320px;
-            height: auto;
-            object-fit: cover;
-            border-radius: 6px;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
-        }
-
-        .p5-item .meta {
-            flex: 1;
-        }
-
-        .p5-item h2 {
-            margin: 0 0 12px 0;
-            font-family: 'Russo One', sans-serif;
-            font-size: 1.5rem;
-        }
-
-        .p5-item h2 a {
-            color: #111;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .p5-item h2 a:hover {
-            color: #FFD600;
-        }
-
-        .p5-item p {
-            margin: 0 0 12px 0;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        /* Ensure strong tags are visible */
-        .p5-item .meta strong {
-            font-weight: 700;
-            color: #000;
-        }
-
-        .p5-links {
-            margin-top: 16px;
-            display: flex;
-            gap: 12px;
-        }
-
-        .p5-links a {
-            background: #222;
-            color: #fff;
-            padding: 10px 18px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background 0.3s ease;
-        }
-
-        .p5-links a:hover {
-            background: #000;
-            color: #fff;
-        }
-
-        @media (max-width: 850px) {
-            .p5-item {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .p5-item img {
-                width: 100%;
-                max-width: 480px;
-            }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.10/lib/addons/p5.sound.min.js"></script>
+    
+    <script src="https://unpkg.com/ml5@1/dist/ml5.min.js"></script>
+    <!-- Includes the p5.collide2D addon library -->
+<script defer src="https://unpkg.com/p5.collide2d"></script>
+    <script src="CatchFall/sketch.js"></script>
+    <script src="CatchFall/guy.js"></script>
+    <script src="CatchFall/catch.js"></script>
+    <script src="CatchFall/fire.js"></script>
+    <script src="CatchFall/hearts.js"></script>
+    <script src="CatchFall/scoreBox.js"></script>
 </head>
-
-<body class="p5-page">
-    <nav>
+<body class="catchfall-game">
+<nav>
         <div class="nav-container">
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
@@ -113,47 +31,18 @@
                     <ul class="dropdown">
                         <li><a href="bot-lexicon-portal.html">Vat Lexicon MapReduce Visualizer</a></li>
                         <li><a href="capstone.html">Rate My Professor Data Analysis & Modeling</a></li>
-                        <li><a href="project1.html">Hypothesis Testing of Movie Ratings Data</a></li>
-                    </ul>
+                        <li><a href="project1.html">Hypothesis Testing of Movie Ratings Data</a></li></ul>
                 </li>
-                <li class="nav-dropdown">
-                    <a href="p5js.html" style="color: #FFD600;">p5.js ▾</a>
-                    <ul class="dropdown">
-                        <li><a href="p4catchfall.html">Catch Fall</a></li>
-                    </ul>
-                </li>
+                <li><a href="p5js.html" style="color: #FFD600;">p5.js</a></li>
                 <li><a href="photography.html">Photography</a></li>
                 <li><a href="page1contact.html">Contact</a></li>
             </ul>
         </div>
     </nav>
 
-    <main class="content">
-        <header>
-            <h1>p5.js</h1>
-        </header>
+   
 
-        <section class="p5-list">
-            <!-- Game 1: Catch Fall -->
-            <article class="p5-item">
-                <img src="CatchFallSS.png" alt="CatchFall screenshot">
-                <div class="meta">
-                    <h2><a href="p4catchfall.html">Catch-Fall</a></h2>
-                    <p><strong>Overview: </strong>Move your head left and right to catch the yellow falling items and
-                        avoid red ones. This project utilizes <strong>ml5.js</strong> facial tracking for a unique
-                        hands-free interaction style.</p>
-                    <p>In Catch-Fall, you control a blue character by moving your head. The tracking focuses on your
-                        forehead to determine movement. Catch yellow pieces to level up, but be careful—the speed and
-                        frequency increase quickly!</p>
-                    <div class="p5-links">
-                        <a href="p4catchfall.html">Play Catch-Fall</a>
-                    </div>
-                </div>
-            </article>
-        </section>
-    </main>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+   
     <script src="magnetic_headers.js"></script>
     <script src="global_transition.js"></script>
 </body>
