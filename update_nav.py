@@ -3,8 +3,8 @@ import re
 
 files = [
     'about.html', 'capstone.html', 'datascience.html', 
-    'p4catchfall.html', 'p5js.html', 'p5spikes.html', 'page1contact.html', 
-    'page2.html', 'page3sketchpad.html', 'project1.html', 'sketchpadNoML.html',
+    'p4catchfall.html', 'p5js.html', 'page1contact.html', 
+    'page2.html', 'project1.html',
     'photography.html', 'bot-lexicon-portal.html', 'index.html'
 ]
 
