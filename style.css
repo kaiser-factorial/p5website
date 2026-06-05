@@ -181,7 +181,6 @@ nav {
 .nav-dropdown .dropdown:hover { display: block; }
 
 /* ── Dark Theme Overrides for Games/Apps/Photos ── */
-body.catchfall-game .nav-dropdown .dropdown,
 body.comments-page .nav-dropdown .dropdown,
 body.brickbreaker-page .nav-dropdown .dropdown,
 body.photo-page .nav-dropdown .dropdown {
@@ -190,14 +189,12 @@ body.photo-page .nav-dropdown .dropdown {
     box-shadow: 0 16px 40px rgba(0,0,0,0.5);
 }
 
-body.catchfall-game .nav-dropdown .dropdown li a,
 body.comments-page .nav-dropdown .dropdown li a,
 body.brickbreaker-page .nav-dropdown .dropdown li a,
 body.photo-page .nav-dropdown .dropdown li a {
     color: rgba(255,255,255,0.85); 
 }
 
-body.catchfall-game .nav-dropdown .dropdown li a:hover,
 body.comments-page .nav-dropdown .dropdown li a:hover,
 body.brickbreaker-page .nav-dropdown .dropdown li a:hover,
 body.photo-page .nav-dropdown .dropdown li a:hover {
@@ -369,13 +366,25 @@ body.home a:active {
 
 /* Catch-Fall game page specific styling */
 body.catchfall-game {
-    background-color: #333333;
-      background-color: #fcfcfc;
-    color: white;
+    background-color: #fcfcfc;
+    color: #333333;
 }
 
 body.catchfall-game nav {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: #fafafa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.catchfall-game nav .nav-links a.active {
+    color: #111111;
+    text-decoration: underline;
+    text-decoration-color: #FFD600;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 2px;
+}
+
+body.catchfall-game nav .nav-links a:hover {
+    color: #111111;
 }
 
 /* Comments page specific styling */
