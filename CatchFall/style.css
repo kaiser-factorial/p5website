@@ -1,6 +1,9 @@
 html, body {
   margin: 0;
   padding: 0;
+  background: #fafafa;
+  overflow: hidden;
+  font-family: "Courier New", Courier, monospace;
 }
 canvas {
   display: block;
