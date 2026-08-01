@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pixel Chase: an accelerometer-controlled wearable game built with Arduino, Circuit Playground, enclosure iterations, and textile design.">
+    <title>Pixel Chase — Corina Kaiser</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script defer src="../site.js?v=20260801-modal-2"></script>
+</head>
+<body class="site-page" data-page="work" data-root="..">
+    <nav class="site-nav" data-site-nav></nav>
+    <main class="site-shell">
+        <header class="case-hero">
+            <div>
+                <p class="eyebrow">Coursework · creative controller</p>
+                <h1 class="page-heading">Pixel Chase</h1>
+                <p class="page-lede">A wrist-worn game controller that turns tilt into a ten-pixel play field through accelerometer mapping, Arduino game logic, sound, and a fabricated enclosure.</p>
+                <div class="button-row"><a class="button-link" href="../datascience.html#physical-computing">Back to physical computing <span aria-hidden="true">→</span></a></div>
+            </div>
+            <aside class="case-status"><span>Project type</span><strong>Completed wearable-controller course project</strong></aside>
+        </header>
+        <section class="case-grid">
+            <div class="case-copy">
+                <h2>From screen prototype to object</h2>
+                <p>Pixel Chase began as a keyboard-controlled p5.js game, then was rebuilt around the Circuit Playground’s accelerometer and NeoPixel ring. The translation required redesigning the input model, feedback, and game pacing for a handheld, glanceable object rather than a browser window.</p>
+                <h2>How it works</h2>
+                <p>Firmware reads the board’s X/Y acceleration and uses an angle calculation to map wrist orientation into one of ten LED sectors. The player’s blue pixel catches a green target and avoids a red enemy; collision checks, random respawn with player spacing, modular wraparound, level progression, and sound cues keep the small interface legible while the game becomes more demanding.</p>
+                <div class="case-system-map" aria-label="Pixel Chase interaction path">
+                    <span>Wrist tilt: X/Y accelerometer readings</span>
+                    <span>Orientation mapping: ten discrete LED sectors</span>
+                    <span>Game logic: catch, avoid, respawn, pacing, and score state</span>
+                    <span>Feedback: color, sound, two game modes, and an idle light display</span>
+                </div>
+                <h2>Controller and enclosure design</h2>
+                <p>The device was conceived as wearable LED jewelry as much as a game. I iterated through paper and Blender enclosure studies, three 3D-printed cases, a battery compartment, and a denim strap with hook-and-loop closure. A slide switch controls sound, board buttons choose modes, and the idle state uses microphone-reactive light to make the object readable even when not in a game.</p>
+                <h2>Why it belongs here</h2>
+                <p>Pixel Chase is a course project rather than a production game, but it demonstrates an end-to-end physical-computing workflow: translating an interaction concept into sensor math and embedded logic, then tuning the object’s form, controls, feedback, and power enclosure together.</p>
+            </div>
+            <aside>
+                <figure class="case-media case-media--pixel"><img src="../assets/physical-computing/pixel-chase-controller.png" alt="Pixel Chase controller showing the Circuit Playground Bluefruit in a white 3D-printed enclosure with denim wrist strap and active LEDs."><figcaption>The finished wearable controller with a 3D-printed case and textile strap.</figcaption></figure>
+                <figure class="case-media"><img src="../assets/physical-computing/pixel-chase-enclosure-iterations.jpg" alt="Three Pixel Chase enclosure iterations, including an early paper prototype and later white 3D-printed pieces."><figcaption>Paper and 3D-printed enclosure iterations informed the final wrist-worn form.</figcaption></figure>
+                <ul class="case-facts">
+                    <li><strong>Input</strong><span>Accelerometer tilt mapped to ten LED positions</span></li>
+                    <li><strong>Feedback</strong><span>NeoPixels, tones, scoring, modes, and sound-reactive idle display</span></li>
+                    <li><strong>Stack</strong><span>Arduino/C++, Circuit Playground, p5.js prototype, Blender, 3D printing</span></li>
+                    <li><strong>Course</strong><span>DM-GY 9103 Wearables · Spring 2026</span></li>
+                </ul>
+            </aside>
+        </section>
+    </main>
+    <footer class="site-footer"><div class="site-footer__inner"><span>Corina Kaiser · Pixel Chase</span><span><a href="mailto:kaiser.factorial@gmail.com">Discuss the project</a></span></div></footer>
+    <script src="../global_transition.js"></script>
+</body>
+</html>

@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Selected AI systems, research, data interfaces, and other work by Corina Kaiser.">
+    <meta name="description" content="Selected AI systems, research, physical computing, data interfaces, and creative work by Corina Kaiser.">
     <title>Selected Work — Corina Kaiser</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-    <script defer src="site.js"></script>
+    <script defer src="site.js?v=20260801-modal-2"></script>
 </head>
 <body class="datascience-page site-page" data-page="work">
     <nav class="site-nav" data-site-nav></nav>
     <main class="site-shell">
         <header>
             <p class="eyebrow">Selected work</p>
-            <h1 class="page-heading">Systems, research, and interfaces</h1>
-            <p class="page-lede">I work across agent infrastructure, real-time applications, interactive data tools, model behavior, and physical computing. The featured projects below have technical briefings in place now; visual demos and walkthroughs will arrive as the public materials are prepared.</p>
+            <h1 class="page-heading">Systems, research, physical computing, data &amp; creative work</h1>
+            <p class="page-lede">I work across agent infrastructure, real-time applications, interactive data tools, model behavior, physical computing, and creative computation.</p>
         </header>
 
         <section class="work-section" id="ai-systems" aria-labelledby="systems-title">
@@ -53,26 +53,6 @@
                     </div>
                 </article>
                 <article class="work-card">
-                    <div class="work-card__visual work-card__visual--pca"><span class="work-card__mark">PCA</span></div>
-                    <div class="work-card__body">
-                        <span class="work-card__meta">Full-stack data tool</span>
-                        <h3>PCA Workbench</h3>
-                        <p>An interactive workspace for PCA, clustering, comparison views, annotations, workspace state, and exported analysis artifacts.</p>
-                        <ul class="tag-list"><li>Next.js</li><li>FastAPI</li><li>Plotly</li></ul>
-                        <a class="work-card__link" href="case-studies/pca-workbench.html">Read technical briefing <span aria-hidden="true">→</span></a>
-                    </div>
-                </article>
-                <article class="work-card">
-                    <div class="work-card__visual work-card__visual--wearab"><span class="work-card__mark">WLLM</span></div>
-                    <div class="work-card__body">
-                        <span class="work-card__meta">Embodied AI</span>
-                        <h3>WearabLLM</h3>
-                        <p>An embodied LLM interface spanning an ESP32-S3 audio device, physical response language, and a hosted-agent path.</p>
-                        <ul class="tag-list"><li>embedded firmware</li><li>audio</li><li>hardware + cloud</li></ul>
-                        <a class="work-card__link" href="case-studies/wearabllm.html">Read technical briefing <span aria-hidden="true">→</span></a>
-                    </div>
-                </article>
-                <article class="work-card">
                     <div class="work-card__visual work-card__visual--nemoh"><span class="work-card__mark">MoE</span></div>
                     <div class="work-card__body">
                         <span class="work-card__meta">Model research</span>
@@ -83,15 +63,61 @@
                     </div>
                 </article>
             </div>
-            <p class="note-box"><strong>Public-material note.</strong> These pages deliberately distinguish a static portfolio briefing from a public live demo. Private data, credentials, authenticated tooling, and unverified production claims are not represented as public artifacts.</p>
+        </section>
+
+        <section class="work-section" id="physical-computing" aria-labelledby="physical-title">
+            <h2 class="section-heading" id="physical-title">Physical computing &amp; wearable systems</h2>
+            <p class="section-intro">Hardware and software built as one interaction surface: sensing, embedded behavior, feedback, mobile or cloud integration, and the physical form that makes the system usable.</p>
+            <div class="work-grid">
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--photo work-card__visual--jacket"><img src="assets/physical-computing/jacket-link-interior.jpg" alt="Jacket Link garment with a denim front panel, red collar, and three integrated wearable controls."></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Wearable systems · mobile + embedded</span>
+                        <h3>Jacket Link</h3>
+                        <p>A BLE-connected garment that checks phone connection and key presence through embedded lights and sound, with a custom Android companion for two-way locating alerts.</p>
+                        <ul class="tag-list"><li>Circuit Playground Bluefruit</li><li>BLE / GATT</li><li>Kotlin / Android</li></ul>
+                        <a class="work-card__link" href="case-studies/jacket-link.html">Read project briefing <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--wearab"><span class="work-card__mark">WLLM</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Embodied AI · edge + hosted</span>
+                        <h3>WearabLLM</h3>
+                        <p>An ESP32-S3 voice interface whose physical responses, onboard audio, and hosted-agent path turn an LLM interaction into an embodied system.</p>
+                        <ul class="tag-list"><li>ESP-IDF</li><li>audio</li><li>hardware + cloud</li></ul>
+                        <a class="work-card__link" href="case-studies/wearabllm.html">Read technical briefing <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--photo work-card__visual--pixel"><img src="assets/physical-computing/pixel-chase-controller.png" alt="Pixel Chase wearable controller with a Circuit Playground, illuminated LEDs, 3D-printed enclosure, and denim wrist strap."></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Coursework · creative controller</span>
+                        <h3>Pixel Chase</h3>
+                        <p>An accelerometer-controlled wearable game that translates wrist tilt into a ten-pixel play field, built through firmware, enclosure iterations, and textile design.</p>
+                        <ul class="tag-list"><li>Arduino / C++</li><li>accelerometer</li><li>3D printing</li></ul>
+                        <a class="work-card__link" href="case-studies/pixel-chase.html">Read project briefing <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+            </div>
         </section>
 
         <section class="work-section" id="data-interaction" aria-labelledby="interaction-title">
             <h2 class="section-heading" id="interaction-title">Data &amp; interaction</h2>
-            <p class="section-intro">Projects that foreground visual thinking and browser-based interaction. They remain part of the portfolio, but do not carry the primary navigation story.</p>
+            <p class="section-intro">Interactive data systems and analytical work: tools for visual exploration, reproducible analysis, and making assumptions and results inspectable.</p>
             <div class="work-grid">
                 <article class="work-card">
-                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">VAT</span></div>
+                    <div class="work-card__visual work-card__visual--scatter"><span class="work-card__mark">SL</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Browser-only research workbench</span>
+                        <h3>Scatter Lab</h3>
+                        <p>Plot, project, cluster, compare, and export tabular research data in 2D or 3D—entirely in the browser, with no upload or server.</p>
+                        <ul class="tag-list"><li>Next.js + TypeScript</li><li>Plotly WebGL</li><li>IndexedDB</li></ul>
+                        <a class="work-card__link" href="https://scatter-lab.vercel.app/" target="_blank" rel="noopener noreferrer">Open live workbench <span aria-hidden="true">↗</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--photo work-card__visual--vat"><img src="assets/vat-lexicon/mapreduce-in-motion.png" alt="Vat Lexicon visualizer running a MapReduce pipeline with input, map, shuffle, and reduce stages."></div>
                     <div class="work-card__body">
                         <span class="work-card__meta">Linguistic visualization</span>
                         <h3>Vat Lexicon</h3>
@@ -100,6 +126,31 @@
                         <a class="work-card__link" href="bot-lexicon-portal.html">Read project context <span aria-hidden="true">→</span></a>
                     </div>
                 </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">RMP</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Coursework · statistical analysis</span>
+                        <h3>Rate My Professor Analysis</h3>
+                        <p>An analysis of nearly 90,000 student evaluations, using weighted least squares, logistic regression, PCA, and permutation testing to investigate patterns in ratings, qualitative tags, and academic discipline.</p>
+                        <a class="work-card__link" href="capstone.html">View project summary <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">FILM</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Coursework · hypothesis testing</span>
+                        <h3>Movie Ratings Hypothesis Testing</h3>
+                        <p>An exploratory hypothesis-testing project on movie preferences, behavioral measures, and demographic factors.</p>
+                        <a class="work-card__link" href="project1.html">Read summary <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="work-section" id="creative-work" aria-labelledby="creative-title">
+            <h2 class="section-heading" id="creative-title">Creative &amp; artistic work</h2>
+            <p class="section-intro">Creative projects in which language, play, image-making, and computation lead the work.</p>
+            <div class="work-grid">
                 <article class="work-card">
                     <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">PG</span></div>
                     <div class="work-card__body">
@@ -110,13 +161,6 @@
                         <a class="work-card__link" href="https://github.com/kaiser-factorial/poetry_graph" target="_blank" rel="noopener noreferrer">View repository <span aria-hidden="true">↗</span></a>
                     </div>
                 </article>
-            </div>
-        </section>
-
-        <section class="work-section" id="other-work" aria-labelledby="other-title">
-            <h2 class="section-heading" id="other-title">Other work</h2>
-            <p class="section-intro">Creative practice and earlier statistical research remain part of the record. They are intentionally secondary to the systems and research-engineering work above.</p>
-            <div class="work-grid">
                 <article class="work-card">
                     <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">CF</span></div>
                     <div class="work-card__body">
@@ -133,24 +177,6 @@
                         <h3>Photography</h3>
                         <p>35mm, 120mm, and 110mm film photography focused on multiple exposures and light leaks.</p>
                         <a class="work-card__link" href="photography.html">View photography <span aria-hidden="true">→</span></a>
-                    </div>
-                </article>
-                <article class="work-card">
-                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">RMP</span></div>
-                    <div class="work-card__body">
-                        <span class="work-card__meta">Earlier statistical research</span>
-                        <h3>Rate My Professor</h3>
-                        <p>A large-scale academic analysis using regression, PCA, and permutation testing. The public page now summarizes the project before linking to the full report.</p>
-                        <a class="work-card__link" href="capstone.html">Read summary <span aria-hidden="true">→</span></a>
-                    </div>
-                </article>
-                <article class="work-card">
-                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">FILM</span></div>
-                    <div class="work-card__body">
-                        <span class="work-card__meta">Earlier statistical research</span>
-                        <h3>Movie Ratings</h3>
-                        <p>An exploratory hypothesis-testing project on movie preferences, behavioral measures, and demographic factors.</p>
-                        <a class="work-card__link" href="project1.html">Read summary <span aria-hidden="true">→</span></a>
                     </div>
                 </article>
             </div>

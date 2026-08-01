@@ -3,27 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="WearabLLM: an embodied LLM interface spanning audio, embedded hardware, and hosted agent behavior.">
+    <meta name="description" content="WearabLLM: an ESP32-S3 wearable voice interface spanning embedded audio, physical response design, and a protected hosted-agent path.">
     <title>WearabLLM — Corina Kaiser</title>
     <link rel="stylesheet" href="../style.css">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-    <script defer src="../site.js"></script>
+    <script defer src="../site.js?v=20260801-modal-2"></script>
 </head>
 <body class="site-page" data-page="work" data-root="..">
     <nav class="site-nav" data-site-nav></nav>
     <main class="site-shell">
         <header class="case-hero">
-            <div><p class="eyebrow">Embodied AI</p><h1 class="page-heading">WearabLLM</h1><p class="page-lede">An embodied LLM interface that connects audio interaction, embedded hardware, and a visual physical response language.</p><div class="button-row"><a class="button-link" href="../datascience.html">Back to work <span aria-hidden="true">→</span></a></div></div>
-            <aside class="case-status"><span>Public page status</span><strong>Technical briefing — device video pending</strong></aside>
+            <div><p class="eyebrow">Embodied AI · edge + hosted</p><h1 class="page-heading">WearabLLM</h1><p class="page-lede">A wearable voice interface that combines onboard audio, expressive physical feedback, and a protected hosted-agent path—so the interaction is more than another chat window.</p><div class="button-row"><a class="button-link" href="../datascience.html#physical-computing">Back to physical computing <span aria-hidden="true">→</span></a></div></div>
+            <aside class="case-status"><span>Current project state</span><strong>Active ESP32-S3 hardware prototype with distinct, documented verification boundaries</strong></aside>
         </header>
         <section class="case-grid">
             <div class="case-copy">
-                <h2>The question</h2><p>What changes when an AI companion’s primary output is not another chat window, but a physical and expressive presence?</p>
-                <h2>What I built</h2><p>I integrated an ESP32-S3 audio device with wake/audio behavior, RGB response language, and a hosted-agent path with memory/transcript components. The project crosses board bring-up, device interaction, cloud/service integration, and an interaction design in which color and sound are part of the response rather than a status afterthought.</p>
-                <h2>Evidence to add</h2><p>This will become a video-first project page with a short physical demo and a device-to-agent architecture diagram.</p>
-                <h2>Validation boundary</h2><p>The public page will distinguish board/audio stages that have been physically verified from end-to-end hosted speech and transcript paths that still need confirmation. It will not expose a public device-control endpoint or private service credentials.</p>
+                <h2>The question</h2><p>What changes when an AI companion’s primary output is not another chat window, but a physical and expressive presence? WearabLLM treats the device’s audio, color, and timing as part of the response itself.</p>
+                <h2>What I built</h2><p>I built and flashed firmware for a Waveshare ESP32-S3 audio board with microphone capture, speaker output, an RGB response language, BOOT/PTT activation, and a local <em>Hi ESP</em> wake path. The normal design sends audio over Wi-Fi to a protected hosted service; a local bridge remains available for development and richer memory experiments.</p>
+                <div class="case-system-map" aria-label="WearabLLM system path">
+                    <span>Physical initiation: BOOT/PTT or local wake phrase</span>
+                    <span>Onboard interaction: microphone capture, RGB state, speaker output</span>
+                    <span>Protected hosted path: transcription, language response, and text-to-speech</span>
+                    <span>Optional private continuity: bounded session context and transcript logging</span>
+                </div>
+                <h2>Engineering through the abstraction axis</h2><p>The project moves deliberately between board-level constraints and service-level behavior: I2S audio capture, firmware configuration, network requests, response normalization, TTS playback, and a carefully limited memory/logging path. That makes it a useful example of how system-design decisions show up directly in an embodied interface.</p>
+                <h2>What is verified</h2><p>The current hardware project has documented local builds and flashes, observed board boot, wake/PTT capture, non-silent microphone recording, physical speaker tones, valid TTS playback, and session-context recall through the bridge. Firmware, bridge, app, and protocol checks are also maintained separately.</p>
+                <h2>Validation boundary</h2><p>A single end-to-end physical session that combines every hosted step—wake or PTT, microphone capture, remote request, LED response, audible TTS, and transcript persistence—still needs a final focused confirmation. This public page intentionally does not expose device-control endpoints, private logs, or credentials.</p>
             </div>
-            <aside><div class="placeholder-panel"><strong>WLLM</strong><p>Reserved for a device interaction clip and an embedded-to-hosted-agent system diagram.</p></div><ul class="case-facts"><li><strong>Focus</strong><span>Firmware, audio, device interaction, hosted agents</span></li><li><strong>Hardware</strong><span>ESP32-S3 audio board and RGB response language</span></li><li><strong>Public boundary</strong><span>Static case study, not remote device control</span></li></ul></aside>
+            <aside><div class="case-system-map" aria-label="WearabLLM interaction layers"><span>Voice and physical presence</span><span>Embedded audio and response firmware</span><span>Hosted-agent service and guarded memory</span></div><ul class="case-facts"><li><strong>Focus</strong><span>Firmware, audio, device interaction, hosted agents</span></li><li><strong>Hardware</strong><span>Waveshare ESP32-S3 audio board, microphone, speaker, and seven onboard RGB LEDs</span></li><li><strong>Stack</strong><span>C / ESP-IDF, ESP-SR, Python, OpenAI-hosted services, Supabase</span></li><li><strong>Public boundary</strong><span>Static case study, not remote device control or a public transcript viewer</span></li></ul></aside>
         </section>
     </main>
     <footer class="site-footer"><div class="site-footer__inner"><span>Corina Kaiser · WearabLLM</span><span><a href="mailto:kaiser.factorial@gmail.com">Discuss the project</a></span></div></footer>
