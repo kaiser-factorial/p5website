@@ -40,8 +40,16 @@ let song2Loaded=false
 let faceMesh;
 let video;
 let faces = [];
+let controlMode = 'keyboard';
+let cameraControlsEnabled = false;
+let cameraFallbackMessage = '';
+let cameraWaitStartedAt = 0;
+let gamePaused = false;
+let pausedFrame = null;
+let musicEnabled = true;
 let options = { maxFaces: 1, refineLandmarks: false, flipHorizontal: true };
 
+const uiHitAreas = {};
 const statusState = { model: 'idle', webcam: 'init', audio: 'idle', faces: 0 };
 function setStatus(part, value) {
   statusState[part] = value;
@@ -51,6 +59,59 @@ function catchFallAsset(file){
   let path = window.location.pathname
   return (path.endsWith('/CatchFall/index.html') || path.endsWith('/CatchFall/')) ? file : 'CatchFall/'+file
 }
+
+function enableCatchFallCamera(){
+  if (video && video.elt && video.elt.srcObject) {
+    cameraControlsEnabled = true;
+    return true;
+  }
+  try {
+    video = createCapture(VIDEO, { flipped:true });
+    video.size(windowWidth, windowHeight);
+    video.hide();
+    cameraControlsEnabled = true;
+    cameraWaitStartedAt = millis();
+    setStatus('webcam', 'requesting');
+    if (video && video.elt) {
+      video.elt.addEventListener('loadedmetadata', () => setStatus('webcam', 'ready'));
+      video.elt.addEventListener('canplay', () => {
+        setStatus('webcam', 'active');
+        cameraFallbackMessage = '';
+      });
+      video.elt.addEventListener('error', () => handleCameraUnavailable());
+    }
+    return true;
+  } catch (error) {
+    console.warn('Camera controls unavailable:', error);
+    handleCameraUnavailable();
+    return false;
+  }
+}
+
+function disableCatchFallCamera(){
+  if (faceMesh && typeof faceMesh.detectStop === 'function') {
+    try { faceMesh.detectStop(); } catch (error) { console.warn('Could not stop face tracking:', error); }
+  }
+  if (video && video.elt && video.elt.srcObject) {
+    video.elt.srcObject.getTracks().forEach(track => track.stop());
+  }
+  if (video && typeof video.remove === 'function') video.remove();
+  video = null;
+  faceMesh = null;
+  faces = [];
+  cameraControlsEnabled = false;
+  setStatus('webcam', 'off');
+  setStatus('model', 'idle');
+  setStatus('faces', 0);
+}
+
+function handleCameraUnavailable(){
+  setStatus('webcam', 'error');
+  setStatus('model', 'error');
+  cameraFallbackMessage = 'Camera access is unavailable. Play with arrow keys instead.';
+}
+
+window.enableCatchFallCamera = enableCatchFallCamera;
 
 // Avoid heavy loads in preload to prevent hanging on some browsers
 function preload(){
@@ -81,38 +142,35 @@ function setup() {
     hearts.push(new Heart(k, h))
   }
   
-  video = createCapture(VIDEO, { flipped:true });
-  video.size(windowWidth, windowHeight);
-  video.hide();
-  setStatus('webcam', 'requesting');
-  // Webcam readiness events
-  if (video && video.elt) {
-    video.elt.addEventListener('loadedmetadata', () => setStatus('webcam', 'ready'));
-    video.elt.addEventListener('canplay', () => setStatus('webcam', 'active'));
-    video.elt.addEventListener('error', () => setStatus('webcam', 'error'));
-  }
-  
-  // Defer facemesh start until model is created (after user gesture)
+  setStatus('webcam', 'off');
+  // Camera and facemesh stay off until the visitor explicitly enables camera controls.
   // setupLinkFractals()
 }
 
 function draw() {
 
+  if (gamePaused && pausedFrame) {
+    image(pausedFrame, 0, 0, width, height);
+    drawPauseOverlay();
+    noLoop();
+    return;
+  }
+
   let freq1= note
   osc1.freq(freq1)
   
   drawGeometricBackground()
-  drawHudFrame()
-  drawLevelBanner()
   
   if (start){
-
     drawTitleScreen()
     noLoop()
     return
   }
 
-  updateFaceControl()
+  drawHudFrame()
+  drawLevelBanner()
+
+  if (controlMode === 'camera') updateFaceControl()
 
   if (loadingFace || !gameReady){
     drawLoadingScreen()
@@ -120,7 +178,7 @@ function draw() {
     return
   }
 
-  if (gameReady && faces.length === 0){
+  if (gameReady && cameraControlsEnabled && faces.length === 0){
     drawLoadingScreen('TRACKING PAUSED', 'Center your face to continue.')
     g.makeGuy()
     return
@@ -131,9 +189,9 @@ function draw() {
     shake *= 0.82
     if (shake < 0.2) shake = 0
   }
-  
+
   g.makeGuy()
-  g.moveGuy()
+  if (controlMode === 'keyboard') g.moveGuy()
   
 h= hearts.length
 
@@ -216,6 +274,7 @@ if (h==0){
   
   drawProgress()
   updateBursts()
+  drawPauseButton()
   if (prog>= goal){
     drawEndScreen('LEVEL '+level+' CLEARED', 'Goal captured: '+prog+' / '+goal, 'Click for level '+(level+1))
     win =true 
@@ -256,151 +315,261 @@ function windowResized(){
   cnv.style('top', navHeight + 'px');
   initStars()
   if (g) g.y = height-g.s-72
+  loop()
 }
 
-function mousePressed(){
-  userStartAudio();
-  if (song && !song.isPlaying()) {
-    song.setVolume(0.5);
-    song.loop();
-    setStatus('audio','playing');
-    songLoaded = true;
-    playing = true;
-  } else if (!song) {
-    setStatus('audio','error');
+function mouseMoved(){
+  // Title and pause screens deliberately stop the game loop. Redraw them on
+  // pointer movement so their buttons still provide immediate hover feedback.
+  if (start || gamePaused) loop()
+}
+
+function mouseOut(){
+  cursor(ARROW)
+}
+
+function mousePressed(event){
+  if (event && event.target && event.target.closest('.site-nav')) return false;
+
+  if (gamePaused) {
+    handlePauseMenuClick();
+    return false;
   }
-  // Lazy-load audio buffers on first user interaction to satisfy autoplay policies
-  if (!songLoaded){
-    console.log('>> Entering audio loading block')
-    if (!song){
-      console.log('>> Song is null, attempting to load...')
-      setStatus('audio','loading')
-      console.log('Attempting to load:', catchFallAsset('NikomasTheme8BB.mp3'))
-      console.log('Current window location:', window.location.href)
-      // Try loading with correct relative path for catchfallgame folder
-      song = loadSound(catchFallAsset('NikomasTheme8BB.mp3'),
-        () => { 
-          console.log('Theme song loaded successfully!')
-          songLoaded=true
-          playing=true
-          song.setVolume(0.5) // Set volume before looping
-          song.loop()
-          setStatus('audio','playing')
-        }, 
-        (e)=>{ 
-          console.error('Theme load error:', e)
-          console.error('Error details:', e.message || e)
-          console.error('Tried to load from:', catchFallAsset('NikomasTheme8BB.mp3'))
-          setStatus('audio','error') 
-        }
-      );
-      console.log('>> loadSound called, waiting for callback...')
-    } else {
-      console.log('>> Song exists but not loaded yet, waiting...')
-    }
-    if (!song2){ 
-      console.log('Attempting to load:', catchFallAsset('womp.mp3'))
-      song2 = loadSound(catchFallAsset('womp.mp3'),
-        ()=>{ 
-          console.log('SFX loaded successfully!')
-          song2Loaded=true 
-        }, 
-        (e)=>{ 
-          console.error('SFX load error:', e)
-        }
-      )
-    }
-  } else {
-    console.log('>> Song already loaded and playing')
+
+  if (start) {
+    if (pointInUiArea('titleKeyboard')) startNewGame('keyboard');
+    if (pointInUiArea('titleCamera')) startNewGame('camera');
+    return false;
   }
-  
-  if (start){
-    start=false
-    loadingFace=true
-    gameReady=false
-    fires=[]
-    catches=[]
-    // Create the facemesh model after a user gesture to avoid blocking preload/network
-    if (!faceMesh){
-      try{
-        setStatus('model','loading')
-        faceMesh = ml5.faceMesh(options, () => {
-          setStatus('model','ready')
-          try{ faceMesh.detectStart(video, gotFaces); setStatus('model','detecting') }catch(err){ console.warn('detectStart failed', err); setStatus('model','error') }
-        })
-      }catch(e){
-        console.warn('ml5 faceMesh init failed:', e)
-        setStatus('model','error')
-      }
-    } else if (faces.length > 0){
-      loadingFace=false
-      gameReady=true
-      gameplayStartFrame=frameCount
-    }
-    loop()
+
+  if (loadingFace || !gameReady) {
+    if (pointInUiArea('cameraFallback')) switchToKeyboardMode();
+    return false;
   }
-  
-  // If the player has no hearts left, treat the click as a restart command.
-  // Reset the game back to level 1 and rebuild initial state.
+
+  if (pointInUiArea('pause')) {
+    pauseGame();
+    return false;
+  }
+
   if (hearts.length === 0) {
-    // Reset level and progress
-    level = 1;
-    goal = 4;
-    prog = 0;
+    restartGame();
+    return false;
+  }
 
-    // Clear any existing falling objects
-    fires = [];
-    catches = [];
+  if (win) advanceLevel();
+  return false;
+}
 
-    // Rebuild hearts (start with 3)
-    hearts = [];
-    h = 3;
-    for (let k = 0; k < h; k++) {
-      hearts.push(new Heart(k, h));
+function keyPressed(){
+  const pressed = String(key || '').toLowerCase();
+
+  if (gamePaused) {
+    if (pressed === 'p' || keyCode === ENTER || keyCode === RETURN) resumeGame();
+    if (pressed === 'm') toggleMusic();
+    if (pressed === '1') selectKeyboardMode();
+    if (pressed === '2') selectCameraMode();
+    return false;
+  }
+
+  if (loadingFace && (pressed === 'a' || pressed === 'k')) {
+    switchToKeyboardMode();
+    return false;
+  }
+
+  if (!start && gameReady && !win && hearts.length > 0 && pressed === 'p') {
+    pauseGame();
+    return false;
+  }
+
+  if (keyCode === LEFT_ARROW || keyCode === RIGHT_ARROW) return false;
+}
+
+function setUiHitArea(name, x, y, w, h){
+  uiHitAreas[name] = { x, y, w, h };
+}
+
+function pointInUiArea(name){
+  const area = uiHitAreas[name];
+  return Boolean(area && mouseX >= area.x && mouseX <= area.x + area.w && mouseY >= area.y && mouseY <= area.y + area.h);
+}
+
+function startMusic(){
+  userStartAudio();
+  if (!musicEnabled) {
+    setStatus('audio', 'off');
+    return;
+  }
+  if (song) {
+    try {
+      if (!song.isPlaying()) song.loop();
+      song.setVolume(0.5);
+      songLoaded = true;
+      playing = true;
+      setStatus('audio', 'playing');
+      return;
+    } catch (error) {
+      console.warn('Theme playback unavailable:', error);
     }
+  }
+  setStatus('audio', 'error');
+}
 
-    // Reset player position by re-creating the Guy at canvas center
-    g = new Guy(windowWidth/2);
-    shake = 0;
-    bursts = [];
-
-    // Ensure flags are reset and resume draw loop
-    win = false;
-    start = false;
-    loadingFace = faces.length === 0;
-    gameReady = faces.length > 0;
-    gameplayStartFrame = frameCount;
-    levelBannerFrame = frameCount;
+function toggleMusic(){
+  musicEnabled = !musicEnabled;
+  if (!musicEnabled) {
+    if (song && song.isPlaying()) song.pause();
+    playing = false;
+    setStatus('audio', 'off');
+  } else {
+    startMusic();
+  }
+  if (gamePaused) {
     loop();
+  }
+}
 
-    // Stop here so the click doesn't also trigger other branches
+function startNewGame(mode){
+  start = false;
+  win = false;
+  gamePaused = false;
+  pausedFrame = null;
+  fires = [];
+  catches = [];
+  cameraFallbackMessage = '';
+  startMusic();
+  if (mode === 'camera') {
+    startCameraTracking();
+  } else {
+    switchToKeyboardMode();
+  }
+}
+
+function startCameraTracking(){
+  controlMode = 'camera';
+  loadingFace = true;
+  gameReady = false;
+  cameraFallbackMessage = 'Allow camera access to use face tracking, or choose arrow keys instead.';
+
+  if (!enableCatchFallCamera()) {
+    handleCameraUnavailable();
+    loop();
     return;
   }
 
-  if (win){
-    level+=1
-    goal = getLevelGoal(level)
-    prog=0
-    win=false
-    gameplayStartFrame = frameCount
-    levelBannerFrame = frameCount
-    fires = []
-    catches = []
-    loop()
+  if (!faceMesh) {
+    try {
+      setStatus('model', 'loading');
+      faceMesh = ml5.faceMesh(options, () => {
+        setStatus('model', 'ready');
+        try {
+          if (video) {
+            faceMesh.detectStart(video, gotFaces);
+            setStatus('model', 'detecting');
+          }
+        } catch (error) {
+          console.warn('Face tracking could not start:', error);
+          handleCameraUnavailable();
+        }
+      });
+    } catch (error) {
+      console.warn('Face mesh could not load:', error);
+      handleCameraUnavailable();
+    }
+  }
+  loop();
+}
+
+function switchToKeyboardMode(){
+  if (controlMode === 'camera' || cameraControlsEnabled || video) disableCatchFallCamera();
+  controlMode = 'keyboard';
+  loadingFace = false;
+  gameReady = true;
+  cameraFallbackMessage = '';
+  gameplayStartFrame = frameCount;
+  levelBannerFrame = frameCount;
+  loop();
+}
+
+function selectKeyboardMode(){
+  if (controlMode === 'camera' || cameraControlsEnabled || video) disableCatchFallCamera();
+  controlMode = 'keyboard';
+  cameraFallbackMessage = '';
+  loop();
+}
+
+function selectCameraMode(){
+  controlMode = 'camera';
+  cameraFallbackMessage = 'Camera access will be requested when you resume.';
+  loop();
+}
+
+function pauseGame(){
+  if (start || loadingFace || !gameReady || win || hearts.length === 0) return;
+  pausedFrame = get(0, 0, width, height);
+  gamePaused = true;
+  loop();
+}
+
+function resumeGame(){
+  gamePaused = false;
+  pausedFrame = null;
+  if (controlMode === 'camera') {
+    startCameraTracking();
+  } else {
+    loadingFace = false;
+    gameReady = true;
+    loop();
   }
 }
 
+function handlePauseMenuClick(){
+  if (pointInUiArea('pauseKeyboard')) selectKeyboardMode();
+  if (pointInUiArea('pauseCamera')) selectCameraMode();
+  if (pointInUiArea('pauseMusic')) toggleMusic();
+  if (pointInUiArea('pauseResume')) resumeGame();
+}
+
+function restartGame(){
+  level = 1;
+  goal = 4;
+  prog = 0;
+  fires = [];
+  catches = [];
+  hearts = [];
+  h = 3;
+  for (let k = 0; k < h; k++) hearts.push(new Heart(k, h));
+  g = new Guy(windowWidth / 2);
+  shake = 0;
+  bursts = [];
+  win = false;
+  gameplayStartFrame = frameCount;
+  levelBannerFrame = frameCount;
+  if (controlMode === 'camera') startCameraTracking();
+  else switchToKeyboardMode();
+}
+
+function advanceLevel(){
+  level += 1;
+  goal = getLevelGoal(level);
+  prog = 0;
+  win = false;
+  gameplayStartFrame = frameCount;
+  levelBannerFrame = frameCount;
+  fires = [];
+  catches = [];
+  loop();
+}
+
 function gotFaces(results) {
-  // Save the output to the faces variable
   faces = results;
   setStatus('faces', Array.isArray(results) ? results.length : 0)
-  if (loadingFace && Array.isArray(results) && results.length > 0){
+  if (controlMode === 'camera' && loadingFace && Array.isArray(results) && results.length > 0){
     loadingFace = false
     gameReady = true
+    cameraFallbackMessage = ''
     gameplayStartFrame = frameCount
     levelBannerFrame = frameCount
-    fires = []
-    catches = []
   }
 }
 
@@ -654,56 +823,239 @@ function drawLevelBanner(){
 
 function drawTitleScreen(){
   push()
+  const isNarrow = width < 620
+  const panelW = min(width * (isNarrow ? .88 : .78), 760)
+  const panelH = min(height * (isNarrow ? .86 : .72), isNarrow ? 560 : 510)
+  const panelX = (width - panelW) / 2
+  const panelY = max(22, (height - panelH) / 2 - 10)
+  const buttonW = panelW - 64
+  const buttonH = constrain(height * .105, 56, 76)
+  const buttonX = panelX + 32
+  const choiceGap = 16
+  const choiceW = isNarrow ? buttonW : (buttonW - choiceGap) / 2
+  const choiceY = panelY + panelH * (isNarrow ? .54 : .60)
+  const keyboardX = buttonX
+  const keyboardY = choiceY
+  const cameraX = isNarrow ? buttonX : keyboardX + choiceW + choiceGap
+  const cameraY = isNarrow ? keyboardY + buttonH + 14 : choiceY
+  const choicesBottom = isNarrow ? cameraY + buttonH : choiceY + buttonH
+  const footerY = min(panelY + panelH * .92, choicesBottom + 28)
+
+  cursor(ARROW)
   textAlign(CENTER, CENTER)
   stroke(17)
   strokeWeight(3)
   fill(255)
-  rect(width*0.2, height*0.25, width*0.6, height*0.32, 0)
+  rect(panelX, panelY, panelW, panelH, 0)
   noStroke()
   fill(0, 69, 173)
-  rect(width*0.2, height*0.25, width*0.6, 16)
+  rect(panelX, panelY, panelW, 16)
   fill(235, 26, 38)
-  rect(width*0.2, height*0.25, 16, height*0.32)
+  rect(panelX, panelY, 16, panelH)
   fill(255, 214, 0)
-  rect(width*0.8-16, height*0.25, 16, height*0.32)
+  rect(panelX + panelW - 16, panelY, 16, panelH)
   fill(17)
   textStyle(BOLD)
-  textSize(min(width/15, 68))
-  text('CATCHFALL', width/2, height*0.34)
+  textSize(constrain(width / 13, 32, 62))
+  text('CATCH-FALL', width / 2, panelY + panelH * .16)
   fill(17)
   textStyle(NORMAL)
-  textSize(min(width/42, 24))
-  text('Move your head left and right', width/2, height*0.43)
+  textSize(constrain(width / 46, 15, 20))
+  text('Move left and right.', width / 2, panelY + panelH * .31)
+  text('Catch yellow squares. Avoid red circles.', width / 2, panelY + panelH * .40)
   fill(35)
-  textSize(min(width/50, 19))
-  text('Collect yellow squares. Avoid red circles.', width/2, height*0.48)
+  textSize(constrain(width / 58, 13, 16))
+  text('Choose a control mode:', width / 2, choiceY - 30)
+
+  drawTitleControlChoice(keyboardX, keyboardY, choiceW, buttonH, 'ARROW KEYS (L/R)', 'Start instantly', color(0, 69, 173), 'titleKeyboard')
+  drawTitleControlChoice(cameraX, cameraY, choiceW, buttonH, 'FACE TRACKING', 'Camera permission required', color(235, 26, 38), 'titleCamera')
+
   fill(0, 69, 173)
-  textStyle(BOLD)
-  textSize(min(width/44, 22))
-  text('Click to start', width/2, height*0.55)
+  textStyle(NORMAL)
+  textSize(constrain(width / 62, 11, 14))
+  text('You can switch modes later from Pause.', width / 2, footerY)
   pop()
 }
 
-function drawLoadingScreen(){
+function drawTitleControlChoice(x, y, w, h, label, detail, accent, hitArea){
+  setUiHitArea(hitArea, x, y, w, h)
+  const hovered = pointInUiArea(hitArea)
+  const visualY = hovered ? y - 4 : y
+
+  if (hovered) cursor(HAND)
+
+  noStroke()
+  fill(17)
+  rect(x + 5, visualY + 5, w, h, 0)
+  stroke(17)
+  strokeWeight(2)
+  fill(hovered ? color(255, 214, 0) : accent)
+  rect(x, visualY, w, h, 0)
+  noStroke()
+  fill(hovered ? 17 : 255)
+  textAlign(CENTER, CENTER)
+  textStyle(BOLD)
+  textSize(constrain(w / 16, 11, 19))
+  text(label, x + w / 2, visualY + h * .38)
+  textStyle(NORMAL)
+  textSize(constrain(w / 25, 10, 14))
+  text(detail, x + w / 2, visualY + h * .72)
+}
+
+function drawControlChoice(x, y, w, h, label, detail, accent, hitArea){
+  setUiHitArea(hitArea, x, y, w, h)
+  stroke(17)
+  strokeWeight(2)
+  fill(255)
+  rect(x, y, w, h, 0)
+  noStroke()
+  fill(accent)
+  rect(x, y, 12, h)
+  fill(17)
+  textAlign(LEFT, CENTER)
+  textStyle(BOLD)
+  textSize(constrain(width / 44, 13, 21))
+  text(label, x + 28, y + h * .39)
+  textStyle(NORMAL)
+  fill(45)
+  textSize(constrain(width / 62, 11, 14))
+  text(detail, x + 28, y + h * .72)
+  textAlign(CENTER, CENTER)
+}
+
+function drawLoadingScreen(titleOverride, subtitleOverride){
   push()
+  if (statusState.webcam === 'requesting' && millis() - cameraWaitStartedAt > 4500 && !cameraFallbackMessage) {
+    cameraFallbackMessage = 'Still waiting for camera access? Arrow keys are ready now.'
+  }
+  const hasError = statusState.webcam === 'error' || statusState.model === 'error'
+  const title = titleOverride || (hasError ? 'FACE TRACKING UNAVAILABLE' : 'PREPARING FACE TRACKING')
+  const subtitle = subtitleOverride || (hasError
+    ? 'Camera access was not completed.'
+    : 'Allow camera access, then center your face to begin.')
+  const panelW = min(width * .62, 620)
+  const panelH = min(height * .40, 300)
+  const panelX = (width - panelW) / 2
+  const panelY = (height - panelH) / 2
+  const fallbackW = panelW - 48
+  const fallbackH = constrain(height * .075, 42, 56)
+  const fallbackX = panelX + 24
+  const fallbackY = panelY + panelH - fallbackH - 26
+
   textAlign(CENTER, CENTER)
   stroke(17)
   strokeWeight(3)
   fill(255)
-  rect(width*.24, height*.3, width*.52, height*.24, 0)
+  rect(panelX, panelY, panelW, panelH, 0)
   noStroke()
-  fill(primaryColor(floor(frameCount/18), 255))
-  rect(width*.24, height*.3, width*.52 * ((frameCount%120)/120), 14)
+  fill(hasError ? color(235, 26, 38) : primaryColor(floor(frameCount / 18), 255))
+  rect(panelX, panelY, panelW * ((frameCount % 120) / 120), 14)
   fill(17)
   textStyle(BOLD)
-  textSize(min(width/30, 34))
-  let message = statusState.model === 'error' ? 'FACE TRACKING ERROR' : 'LOADING FACEMESH'
-  if (statusState.model === 'detecting' && faces.length === 0) message = 'CENTER YOUR FACE'
-  text(message, width/2, height*.39)
+  textSize(min(width / 30, 34))
+  text(title, width / 2, panelY + panelH * .32)
   textStyle(NORMAL)
-  textSize(min(width/55, 18))
-  text('Gameplay begins when your face is detected.', width/2, height*.46)
+  textSize(constrain(width / 55, 13, 18))
+  text(subtitle, width / 2, panelY + panelH * .49)
+  fill(35)
+  textSize(constrain(width / 65, 11, 15))
+  text(cameraFallbackMessage || 'Prefer keys? You can switch without granting access.', width / 2, panelY + panelH * .62)
+  drawControlChoice(fallbackX, fallbackY, fallbackW, fallbackH, 'PLAY WITH ARROW KEYS', 'Press (A) or click here', color(0, 69, 173), 'cameraFallback')
   pop()
+}
+
+function drawPauseButton(){
+  const x = 18
+  const y = height - 66
+  const w = 110
+  const h = 42
+  setUiHitArea('pause', x, y, w, h)
+  stroke(17)
+  strokeWeight(2)
+  fill(255, 255, 255, 238)
+  rect(x, y, w, h, 0)
+  noStroke()
+  fill(235, 26, 38)
+  rect(x, y, 9, h)
+  fill(17)
+  textAlign(CENTER, CENTER)
+  textStyle(BOLD)
+  textSize(13)
+  text('PAUSE (P)', x + w / 2 + 4, y + h / 2)
+  textStyle(NORMAL)
+  textAlign(LEFT, BASELINE)
+}
+
+function drawPauseOverlay(){
+  push()
+  noStroke()
+  fill(17, 190)
+  rect(0, 0, width, height)
+
+  const panelW = min(width * .72, 650)
+  const panelH = min(height * .75, 490)
+  const panelX = (width - panelW) / 2
+  const panelY = (height - panelH) / 2
+  const buttonGap = 14
+  const buttonW = (panelW - 64 - buttonGap) / 2
+  const buttonH = constrain(height * .09, 48, 66)
+  const controlY = panelY + panelH * .38
+  const musicY = controlY + buttonH + 20
+  const resumeY = musicY + buttonH + 20
+
+  stroke(17)
+  strokeWeight(3)
+  fill(255)
+  rect(panelX, panelY, panelW, panelH, 0)
+  noStroke()
+  fill(0, 69, 173)
+  rect(panelX, panelY, panelW, 16)
+  fill(255, 214, 0)
+  rect(panelX, panelY, 16, panelH)
+
+  textAlign(CENTER, CENTER)
+  fill(17)
+  textStyle(BOLD)
+  textSize(constrain(width / 15, 30, 52))
+  text('PAUSED', width / 2, panelY + panelH * .16)
+  textStyle(NORMAL)
+  fill(45)
+  textSize(constrain(width / 60, 11, 15))
+  text('Choose controls, set the soundtrack, then resume.', width / 2, panelY + panelH * .26)
+  textStyle(BOLD)
+  fill(17)
+  textSize(constrain(width / 58, 12, 16))
+  text('CONTROL MODE', width / 2, panelY + panelH * .32)
+
+  drawPauseChoice(panelX + 24, controlY, buttonW, buttonH, 'ARROW KEYS', controlMode === 'keyboard', 'pauseKeyboard')
+  drawPauseChoice(panelX + 40 + buttonW, controlY, buttonW, buttonH, 'FACE TRACKING', controlMode === 'camera', 'pauseCamera')
+  drawPauseChoice(panelX + 24, musicY, panelW - 48, buttonH, 'MUSIC: ' + (musicEnabled ? 'ON' : 'OFF'), musicEnabled, 'pauseMusic')
+  drawPauseChoice(panelX + 24, resumeY, panelW - 48, buttonH, 'RESUME GAME', true, 'pauseResume')
+
+  textStyle(NORMAL)
+  fill(45)
+  textSize(constrain(width / 72, 10, 13))
+  text('Keyboard: (1) arrow keys · (2) face tracking · (M) music · (P) resume', width / 2, panelY + panelH * .91)
+  pop()
+}
+
+function drawPauseChoice(x, y, w, h, label, selected, hitArea){
+  setUiHitArea(hitArea, x, y, w, h)
+  stroke(17)
+  strokeWeight(2)
+  fill(selected ? color(255, 214, 0) : color(255))
+  rect(x, y, w, h, 0)
+  noStroke()
+  if (selected) {
+    fill(0, 69, 173)
+    rect(x, y, 10, h)
+  }
+  fill(17)
+  textAlign(CENTER, CENTER)
+  textStyle(BOLD)
+  textSize(constrain(width / 52, 12, 17))
+  text(label, x + w / 2, y + h / 2)
+  textStyle(NORMAL)
 }
 
 function drawProgress(){

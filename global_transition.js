@@ -112,7 +112,7 @@
         navLinks.forEach(link => {
             let href = link.getAttribute('href');
             // Intercept local anchors exclusively
-            if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto')) return;
+            if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto') || link.target === '_blank') return;
             
             link.addEventListener('click', function(event) {
                 event.preventDefault();

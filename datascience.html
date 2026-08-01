@@ -3,116 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Science Projects</title>
+    <meta name="description" content="Selected AI systems, research, data interfaces, and other work by Corina Kaiser.">
+    <title>Selected Work — Corina Kaiser</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-
+    <script defer src="site.js"></script>
 </head>
-<body class="datascience-page">
-    <nav>
-        <div class="nav-container">
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li class="nav-dropdown">
-                    <a href="datascience.html">Data Science ▾</a>
-                    <ul class="dropdown">
- <li><a href="bot-lexicon-portal.html">Vat Lexicon MapReduce Visualizer</a></li>
-                        <li><a href="capstone.html">Rate My Professor Data Analysis & Modeling</a></li>
-                        <li><a href="project1.html">Hypothesis Testing of Movie Ratings Data</a></li>
-                    </ul>
-                </li>
-                <li><a href="p5js.html">Catch-Fall</a></li>
-                <!-- Comments link removed -->
-                <li><a href="photography.html">Photography</a></li>
-                <li><a href="page1contact.html">Contact</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <main class="content">
+<body class="datascience-page site-page" data-page="work">
+    <nav class="site-nav" data-site-nav></nav>
+    <main class="site-shell">
         <header>
-            <h1>Data Science Projects</h1>
-
+            <p class="eyebrow">Selected work</p>
+            <h1 class="page-heading">Systems, research, and interfaces</h1>
+            <p class="page-lede">I work across agent infrastructure, real-time applications, interactive data tools, model behavior, and physical computing. The featured projects below have technical briefings in place now; visual demos and walkthroughs will arrive as the public materials are prepared.</p>
         </header>
 
-        <section class="projects-gallery">
-            <!-- Project 1: Vat Lexicon -->
-            <div class="project-card" style="cursor: default;">
-                <div class="thumb-wrap">
-                    <a href="bot-lexicon-portal.html"><img src="bot-lexicon/assets/hapax_morphology.png" alt="Vat Lexicon Morphological Analysis"></a>
-                </div>
-                <div class="card-content">
-                    <span class="course-tag">Linguistic Analysis & MapReduce (Spring 2026)</span>
-                    <a href="bot-lexicon-portal.html" style="text-decoration: none;"><h2>Vat Lexicon MapReduce Visualizer</h2></a>
-                    <p>A real-time MapReduce simulation investigating the vocabulary of synthetic identities (MAUK and ABACI) living at <a href="https://vat.social" target="_blank" style="color: #03A6A1; text-decoration: underline;">vat.social</a>. This project analyzes thousands of messages to compute Jaccard similarity, word frequency distributions, and morphological "nonce" patterns, visualizing the data processing pipeline from raw Supabase logs to final reduced results.</p>
-                    
-                    <div class="method-pills">
-                        <span class="method-pill tech">Javascript</span>
-                        <span class="method-pill tech">p5.js</span>
-                        <span class="method-pill tech">MapReduce</span>
-                        <span class="method-pill tech">Model-Tuning</span>
-                        <span class="method-pill stats">Linguistic Profiling</span>
+        <section class="work-section" id="ai-systems" aria-labelledby="systems-title">
+            <h2 class="section-heading" id="systems-title">AI systems &amp; research</h2>
+            <p class="section-intro">The work I would lead with for applied AI research, research engineering, data/platform, and full-stack roles.</p>
+            <div class="work-grid">
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--memory"><span class="work-card__mark">MEM</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">AI infrastructure</span>
+                        <h3>Unified Memory Hub</h3>
+                        <p>A local-first semantic memory layer for multi-agent workspaces, with hybrid retrieval, incremental synchronization, and a CLI/dashboard operating surface.</p>
+                        <ul class="tag-list"><li>SQLite / FTS</li><li>semantic retrieval</li><li>developer tools</li></ul>
+                        <a class="work-card__link" href="case-studies/memory-hub.html">Read technical briefing <span aria-hidden="true">→</span></a>
                     </div>
-
-                    <div class="card-footer">
-                        <a href="bot-lexicon-portal.html" class="btn-detail" style="text-decoration: none;">Enter Portal <span>→</span></a>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--joint"><span class="work-card__mark">JOIN</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Real-time full stack</span>
+                        <h3>Joint AI Chat</h3>
+                        <p>A deployed multi-user workspace where people and multiple AI agents collaborate with explicit, source-aware memory boundaries.</p>
+                        <ul class="tag-list"><li>React + TypeScript</li><li>Firebase</li><li>agent memory</li></ul>
+                        <a class="work-card__link" href="case-studies/joint-ai-chat.html">Read technical briefing <span aria-hidden="true">→</span></a>
                     </div>
-                </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--ledger"><span class="work-card__mark">L + B</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Applied agent systems</span>
+                        <h3>Ledger + Bulwork</h3>
+                        <p>A cross-device project system paired with browser focus tooling designed around transparent allow, block, and ask decisions.</p>
+                        <ul class="tag-list"><li>desktop + web</li><li>browser extension</li><li>safe failure modes</li></ul>
+                        <a class="work-card__link" href="case-studies/ledger-bulwork.html">Read technical briefing <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--pca"><span class="work-card__mark">PCA</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Full-stack data tool</span>
+                        <h3>PCA Workbench</h3>
+                        <p>An interactive workspace for PCA, clustering, comparison views, annotations, workspace state, and exported analysis artifacts.</p>
+                        <ul class="tag-list"><li>Next.js</li><li>FastAPI</li><li>Plotly</li></ul>
+                        <a class="work-card__link" href="case-studies/pca-workbench.html">Read technical briefing <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--wearab"><span class="work-card__mark">WLLM</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Embodied AI</span>
+                        <h3>WearabLLM</h3>
+                        <p>An embodied LLM interface spanning an ESP32-S3 audio device, physical response language, and a hosted-agent path.</p>
+                        <ul class="tag-list"><li>embedded firmware</li><li>audio</li><li>hardware + cloud</li></ul>
+                        <a class="work-card__link" href="case-studies/wearabllm.html">Read technical briefing <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--nemoh"><span class="work-card__mark">MoE</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Model research</span>
+                        <h3>NemoH Routing Research</h3>
+                        <p>Representation-engineering experiments investigating how activation-level interventions influence expert routing in a hybrid Mamba/MoE model.</p>
+                        <ul class="tag-list"><li>interpretability</li><li>MoE routing</li><li>research pilot</li></ul>
+                        <a class="work-card__link" href="case-studies/nemoh-routing.html">Read technical briefing <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
             </div>
+            <p class="note-box"><strong>Public-material note.</strong> These pages deliberately distinguish a static portfolio briefing from a public live demo. Private data, credentials, authenticated tooling, and unverified production claims are not represented as public artifacts.</p>
+        </section>
 
-            <!-- Project 2: Capstone -->
-            <div class="project-card">
-                <div class="thumb-wrap">
-                    <a href="capstone.html"><img src="Capstone HTML.fld/image008_cropped.png" alt="Capstone Actual vs Predicted Ratings Regression (Model 1)"></a>
-                </div>
-                <div class="card-content">
-                    <span class="course-tag">Capstone Report for DS-GA 1001 (Fall 2025)</span>
-                    <a href="capstone.html" style="text-decoration: none;"><h2>Rate My Professor Data Analysis & Modeling</h2></a>
-                    <p>A large-scale analysis of nearly 90,000 student evaluations from RateMyProfessor.com. This study leverages Weighted Least Squares, Logistic Regression, and PCA to uncover hidden patterns in academic evaluations—investigating gender bias, the predictive power of qualitative tags (e.g., *Inspirational*, *Tough Grader*), and the metrics that correlate with student-assigned descriptors across STEM and humanities disciplines.</p>
-
-                    <div class="method-pills">
-                        <span class="method-pill tech">Python</span>
-                        <span class="method-pill tech">Weighted Least Squares</span>
-                        <span class="method-pill tech">Logistic Regression</span>
-                        <span class="method-pill tech">PCA</span>
-                        <span class="method-pill stats">Permutation Testing</span>
-                        <span class="method-pill focus">90k Records</span>
+        <section class="work-section" id="data-interaction" aria-labelledby="interaction-title">
+            <h2 class="section-heading" id="interaction-title">Data &amp; interaction</h2>
+            <p class="section-intro">Projects that foreground visual thinking and browser-based interaction. They remain part of the portfolio, but do not carry the primary navigation story.</p>
+            <div class="work-grid">
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">VAT</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Linguistic visualization</span>
+                        <h3>Vat Lexicon</h3>
+                        <p>An interactive MapReduce visualization for vocabulary, distribution, similarity, and morphological exploration in a synthetic social world.</p>
+                        <ul class="tag-list"><li>JavaScript</li><li>p5.js</li><li>MapReduce</li></ul>
+                        <a class="work-card__link" href="bot-lexicon-portal.html">Read project context <span aria-hidden="true">→</span></a>
                     </div>
-
-                    <div class="card-footer">
-                        <a href="capstone.html" class="btn-detail" style="text-decoration: none;">View Full Report <span>→</span></a>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">PG</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Creative computational work</span>
+                        <h3>Poetry Graph</h3>
+                        <p>A visual and linguistic workspace for exploring poetic relationships, scansion, word data, and graph-based forms.</p>
+                        <ul class="tag-list"><li>WebGL</li><li>data visualization</li><li>front-end systems</li></ul>
+                        <a class="work-card__link" href="https://github.com/kaiser-factorial/poetry_graph" target="_blank" rel="noopener noreferrer">View repository <span aria-hidden="true">↗</span></a>
                     </div>
-                </div>
+                </article>
             </div>
+        </section>
 
-            <!-- Project 3: Movies -->
-            <div class="project-card">
-                <div class="thumb-wrap">
-                    <a href="project1.html"><img src="Kaiser_DS-GA1001_Project1.fld/image001.jpg" alt="Movie Ratings Analysis Visualization"></a>
-                </div>
-                <div class="card-content">
-                    <span class="course-tag">DS-GA 1001: Internship in Data Science (Fall 2025)</span>
-                    <a href="project1.html" style="text-decoration: none;"><h2>Hypothesis Testing of Movie Ratings Data</h2></a>
-                    <p>An exploratory statistical analysis of movie preferences across 1,097 participants and 400 films. This study investigates the intersection of cinematic ratings with behavioral and demographic factors, such as sensation-seeking traits and social viewing habits. Utilizing rigorous hypothesis testing (α = 0.005), the project identifies significant correlations between viewer identity and the film experience.</p>
-                    
-                    <div class="method-pills">
-                        <span class="method-pill tech">Python</span>
-                        <span class="method-pill stats">Hypothesis Testing</span>
-                        <span class="method-pill stats">Distribution Analysis</span>
-                        <span class="method-pill focus">α = 0.005</span>
+        <section class="work-section" id="other-work" aria-labelledby="other-title">
+            <h2 class="section-heading" id="other-title">Other work</h2>
+            <p class="section-intro">Creative practice and earlier statistical research remain part of the record. They are intentionally secondary to the systems and research-engineering work above.</p>
+            <div class="work-grid">
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">CF</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Creative technology</span>
+                        <h3>Catch-Fall</h3>
+                        <p>A browser game built with p5.js and optional camera controls. Keyboard play works without granting device access.</p>
+                        <a class="work-card__link" href="p5js.html">Play / read notes <span aria-hidden="true">→</span></a>
                     </div>
-
-                    <div class="card-footer">
-                        <a href="project1.html" class="btn-detail" style="text-decoration: none;">View Full Report <span>→</span></a>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">35MM</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Film photography</span>
+                        <h3>Photography</h3>
+                        <p>35mm, 120mm, and 110mm film photography focused on multiple exposures and light leaks.</p>
+                        <a class="work-card__link" href="photography.html">View photography <span aria-hidden="true">→</span></a>
                     </div>
-                </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">RMP</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Earlier statistical research</span>
+                        <h3>Rate My Professor</h3>
+                        <p>A large-scale academic analysis using regression, PCA, and permutation testing. The public page now summarizes the project before linking to the full report.</p>
+                        <a class="work-card__link" href="capstone.html">Read summary <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">FILM</span></div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Earlier statistical research</span>
+                        <h3>Movie Ratings</h3>
+                        <p>An exploratory hypothesis-testing project on movie preferences, behavioral measures, and demographic factors.</p>
+                        <a class="work-card__link" href="project1.html">Read summary <span aria-hidden="true">→</span></a>
+                    </div>
+                </article>
             </div>
         </section>
     </main>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
-    <script src="magnetic_headers.js"></script>
+    <footer class="site-footer">
+        <div class="site-footer__inner"><span>Corina Kaiser · AI systems &amp; research engineering</span><span><a href="mailto:kaiser.factorial@gmail.com">kaiser.factorial@gmail.com</a> · <a href="https://www.linkedin.com/in/kaiser-factorial" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a></span></div>
+    </footer>
     <script src="global_transition.js"></script>
 </body>
 </html>

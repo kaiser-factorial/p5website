@@ -1,244 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaiser:Home</title>
+    <meta name="description" content="Corina Kaiser builds AI systems, research tools, and data-rich interfaces.">
+    <meta property="og:title" content="Corina Kaiser — AI Systems & Research Engineering">
+    <meta property="og:description" content="Selected work in agent memory, real-time AI tools, data interfaces, model research, and embodied computing.">
+    <title>Corina Kaiser — AI Systems & Research Engineering</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
-    <link href="https://fonts.cdnfonts.com/css/rockwell-nova" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
-        rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script defer src="site.js"></script>
 </head>
+<body class="home site-page site-home" data-page="home">
+    <nav class="site-nav" data-site-nav></nav>
+    <canvas id="ising-bg" aria-hidden="true"></canvas>
+    <canvas id="bezier-bg" aria-hidden="true"></canvas>
 
-
-<body class="home">
-
-    <nav>
-        <div class="home-layout">
-            <!-- Left: name -->
-            <div class="home-name">
-                <div class="name-first">Corina</div>
-                <div class="name-last">Kaiser</div>
+    <main class="home-main">
+        <section class="home-hero" aria-labelledby="home-title">
+            <p class="eyebrow">Research engineering · AI systems · data interfaces</p>
+            <h1 class="home-title" id="home-title">Corina Kaiser</h1>
+            <section class="home-proof" aria-label="Areas of practice">
+                <div><strong>Systems</strong><span>Agent memory, real-time collaboration, product infrastructure, and developer tools.</span></div>
+                <div><strong>Research</strong><span>Representation engineering, model behavior, and mechanistic interpretability.</span></div>
+                <div><strong>Interfaces</strong><span>Data visualization, physical computing, and expressive user-facing tools.</span></div>
+                <div><strong>Data analysis</strong><span>Statistical modeling, experimental design, and lab-based data interpretation.</span></div>
+            </section>
+            <div class="button-row">
+                <a class="button-link" href="datascience.html">View selected work <span aria-hidden="true">→</span></a>
+                <a class="button-link button-link--quiet" href="resume/Corina-Kaiser-Resume-May-2026.pdf" target="_blank" rel="noopener noreferrer">Resume PDF <span aria-hidden="true">↗</span></a>
+                <a class="button-link button-link--quiet" href="https://github.com/kaiser-factorial" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
             </div>
+        </section>
 
-            <!-- Yellow vertical divider -->
-            <div class="home-divider"></div>
+    </main>
 
-            <!-- Right: nav links -->
-            <div class="home-links">
-                <ul class="home-nav-list">
-                    <li><a href="about.html">About</a></li>
-                    <li><a href="bot-lexicon-portal.html">Vat Lexicon</a></li>
-                    <li><a href="datascience.html">Data Science</a></li>
-                    <li><a href="p5js.html">Catch-Fall</a></li>
-                    <li><a href="photography.html">Photography</a></li>
-                    <li><a href="page1contact.html">Contact</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <!-- Ising model full-screen background canvas -->
-    <canvas id="ising-bg"></canvas>
-    <!-- Bezier ring overlay canvas -->
-    <canvas id="bezier-bg"></canvas>
-
-    <!-- Minimal floating temperature control -->
-    <div id="ising-ctrl" role="region" aria-label="Ising model temperature control">
-        <label for="ising-temp-home">T = <span id="ising-temp-val">1.5</span></label>
-        <input type="range" id="ising-temp-home" min="0.1" max="5" step="0.1" value="1.5" aria-label="Temperature">
-        <button id="ising-reset-home" title="Reset simulation">↺</button>
+    <div id="ising-ctrl" role="region" aria-label="Interactive background controls">
+        <label for="ising-temp-home">Background: T = <span id="ising-temp-val">1.5</span></label>
+        <input type="range" id="ising-temp-home" min="0.1" max="5" step="0.1" value="1.5" aria-label="Ising model temperature">
+        <button id="ising-reset-home" type="button" title="Reset background simulation">↺</button>
     </div>
-    <div class="content">
 
+    <script>
+        (() => {
+            const canvas = document.getElementById('bezier-bg');
+            const context = canvas.getContext('2d');
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let time = 0;
+            let centerX, centerY, radius;
 
-
-
-        </main>
-
-
-
-        <!-- Elfsight Visitor Counter 
-
-   <script src="https://elfsightcdn.com/platform.js" async></script>
-<div class="elfsight-app-f7284995-04e4-4c52-8e29-116fb0c00b56" data-elfsight-app-lazy>
-</div>
--->
-
-
-
-
-
-
-
-        <script>
-            // ── Bezier ring — vanilla JS canvas (no p5, no global event conflicts) ──
-            (function () {
-                const canvas = document.getElementById('bezier-bg');
-                const ctx = canvas.getContext('2d');
-                const N = 60;   // modulus
-                let t = 0;    // time
-                let CX, CY, RAD;
-
-                function resize() {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                    CX = canvas.width * 0.76;   // centre of right panel, away from divider
-                    CY = canvas.height * 0.50;
-                    RAD = Math.min(canvas.width * 0.30, canvas.height * 0.40);
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                centerX = canvas.width * 0.78;
+                centerY = canvas.height * 0.5;
+                radius = Math.min(canvas.width * 0.28, canvas.height * 0.38);
+            }
+            function interpolateAngle(a, b, fraction) {
+                let difference = b - a;
+                if (difference > Math.PI) difference -= Math.PI * 2;
+                if (difference < -Math.PI) difference += Math.PI * 2;
+                return a + difference * fraction;
+            }
+            function draw() {
+                context.clearRect(0, 0, canvas.width, canvas.height);
+                time += reduceMotion ? 0 : 0.004;
+                const multiplier = 2 + 1.5 * Math.sin(time);
+                for (let index = 0; index < 60; index += 1) {
+                    const target = (multiplier * index) % 60;
+                    const angleA = -Math.PI / 2 + (Math.PI * 2 * index / 60);
+                    const angleB = -Math.PI / 2 + (Math.PI * 2 * target / 60);
+                    const startX = centerX + radius * Math.cos(angleA);
+                    const startY = centerY + radius * Math.sin(angleA);
+                    const endX = centerX + radius * Math.cos(angleB);
+                    const endY = centerY + radius * Math.sin(angleB);
+                    const controlRadius = radius * .5;
+                    const controlA = interpolateAngle(angleA, angleB, .3);
+                    const controlB = interpolateAngle(angleA, angleB, .7);
+                    context.strokeStyle = `hsla(${45 + 13 * Math.sin(index * .42 + time * .6)}, 92%, 66%, .52)`;
+                    context.lineWidth = 1.2;
+                    context.beginPath();
+                    context.moveTo(startX, startY);
+                    context.bezierCurveTo(
+                        centerX + controlRadius * Math.cos(controlA), centerY + controlRadius * Math.sin(controlA),
+                        centerX + controlRadius * Math.cos(controlB), centerY + controlRadius * Math.sin(controlB),
+                        endX, endY
+                    );
+                    context.stroke();
                 }
-                window.addEventListener('resize', resize);
-                resize();
+                if (!reduceMotion) requestAnimationFrame(draw);
+            }
+            window.addEventListener('resize', () => { resize(); draw(); });
+            resize();
+            draw();
+        })();
+    </script>
+    <script>
+        (() => {
+            const canvas = document.getElementById('ising-bg');
+            const context = canvas.getContext('2d');
+            const temperature = document.getElementById('ising-temp-home');
+            const temperatureLabel = document.getElementById('ising-temp-val');
+            const resetButton = document.getElementById('ising-reset-home');
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const cells = 60;
+            let spins = [];
 
-                function lerpAng(a1, a2, frac) {
-                    let d = a2 - a1;
-                    if (d > Math.PI) d -= 2 * Math.PI;
-                    if (d < -Math.PI) d += 2 * Math.PI;
-                    return a1 + d * frac;
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; draw(); }
+            function makeGrid() {
+                spins = Array.from({ length: cells }, () => Int8Array.from({ length: cells }, () => Math.random() < .5 ? 1 : -1));
+            }
+            function sweep(value) {
+                const beta = 1 / value;
+                for (let count = 0; count < cells * cells; count += 1) {
+                    const row = (Math.random() * cells) | 0;
+                    const column = (Math.random() * cells) | 0;
+                    const spin = spins[row][column];
+                    const neighbors = spins[(row - 1 + cells) % cells][column] + spins[(row + 1) % cells][column] + spins[row][(column - 1 + cells) % cells] + spins[row][(column + 1) % cells];
+                    const delta = 2 * spin * neighbors;
+                    if (delta <= 0 || Math.random() < Math.exp(-beta * delta)) spins[row][column] = -spin;
                 }
-
-                function hslStr(h, s, l, a) {
-                    return 'hsla(' + (h % 360).toFixed(1) + ',' + s + '%,' + l + '%,' + a + ')';
-                }
-
-                function bezierFrame() {
-                    ctx.clearRect(0, 0, canvas.width, canvas.height);
-                    t += 0.004;
-                    const mult = 2 + 1.5 * Math.sin(t);
-
-                    for (let k = 0; k < N; k++) {
-                        const target = (mult * k) % N;
-                        const a1 = -Math.PI / 2 + (2 * Math.PI) * (k / N);
-                        const a2 = -Math.PI / 2 + (2 * Math.PI) * (target / N);
-
-                        const x1 = CX + RAD * Math.cos(a1), y1 = CY + RAD * Math.sin(a1);
-                        const x2 = CX + RAD * Math.cos(a2), y2 = CY + RAD * Math.sin(a2);
-
-                        const cr = RAD * 0.5;
-                        const ma1 = lerpAng(a1, a2, 0.3);
-                        const ma2 = lerpAng(a1, a2, 0.7);
-                        const cx1 = CX + cr * Math.cos(ma1), cy1 = CY + cr * Math.sin(ma1);
-                        const cx2 = CX + cr * Math.cos(ma2), cy2 = CY + cr * Math.sin(ma2);
-
-                        const hue = 45 + 13 * Math.sin(k * 0.42 + t * 0.6); // 32–58: amber→yellow
-                        const sat = 85 + 12 * Math.sin(k * 0.3);             // 73–97%
-                        const lit = 58 + 18 * Math.sin(k * 0.25 + t * 0.4); // 40–76%
-                        ctx.strokeStyle = hslStr(hue, sat, lit, 0.5);
-                        ctx.lineWidth = 1.2;
-                        ctx.beginPath();
-                        ctx.moveTo(x1, y1);
-                        ctx.bezierCurveTo(cx1, cy1, cx2, cy2, x2, y2);
-                        ctx.stroke();
-                    }
-                    requestAnimationFrame(bezierFrame);
-                }
-                bezierFrame();
-            })();
-        </script>
-
-        <script>
-            (function () {
-                /* ── Ising model background ── */
-                const canvas = document.getElementById('ising-bg');
-                const ctx = canvas.getContext('2d');
-
-                // Spin colours matching the standalone page
-                const UP_COLOR = '#4195DE';
-                const DN_COLOR = '#D23B72';
-
-                let N = 60;            // grid cells
-                let spin = [];
-                let sweepCount = 0;
-                let animId = null;
-
-                // ── Resize canvas to fill the viewport ──────────────────────────────────
-                function resize() {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                }
-                window.addEventListener('resize', resize);
-                resize();
-
-                // ── Init grid (random) ───────────────────────────────────────────────────
-                function makeGrid() {
-                    spin = [];
-                    for (let i = 0; i < N; i++) {
-                        spin[i] = new Int8Array(N);
-                        for (let j = 0; j < N; j++) {
-                            spin[i][j] = Math.random() < 0.5 ? 1 : -1;
-                        }
-                    }
-                    sweepCount = 0;
-                }
-
-                // ── Metropolis sweep ─────────────────────────────────────────────────────
-                function sweep(T) {
-                    const beta = 1 / T;
-                    const cache = {};
-                    for (let k = 0; k < N * N; k++) {
-                        const i = (Math.random() * N) | 0;
-                        const j = (Math.random() * N) | 0;
-                        const s = spin[i][j];
-                        const nb = spin[(i - 1 + N) % N][j] + spin[(i + 1) % N][j]
-                            + spin[i][(j - 1 + N) % N] + spin[i][(j + 1) % N];
-                        const dE = 2 * s * nb;
-                        if (dE <= 0) {
-                            spin[i][j] = -s;
-                        } else {
-                            if (cache[dE] === undefined) cache[dE] = Math.exp(-beta * dE);
-                            if (Math.random() < cache[dE]) spin[i][j] = -s;
-                        }
+            }
+            function draw() {
+                const width = canvas.width / cells;
+                const height = canvas.height / cells;
+                for (let row = 0; row < cells; row += 1) {
+                    for (let column = 0; column < cells; column += 1) {
+                        context.fillStyle = spins[row]?.[column] === 1 ? '#4195de' : '#d23b72';
+                        context.fillRect(column * width, row * height, width + .5, height + .5);
                     }
                 }
-
-                // ── Draw ─────────────────────────────────────────────────────────────────
-                function isingDraw() {
-                    const W = canvas.width;
-                    const H = canvas.height;
-                    const cw = W / N;
-                    const ch = H / N;
-                    for (let i = 0; i < N; i++) {
-                        for (let j = 0; j < N; j++) {
-                            ctx.fillStyle = spin[i][j] === 1 ? UP_COLOR : DN_COLOR;
-                            ctx.fillRect(j * cw, i * ch, cw + 0.5, ch + 0.5); // +0.5 avoids hairlines
-                        }
-                    }
-                }
-
-                // ── Animation loop ───────────────────────────────────────────────────
-                // 1 sweep per frame ≈ 60 physics steps/sec at 60 fps
-                function isingLoop() {
-                    const T = parseFloat(document.getElementById('ising-temp-home').value);
-                    sweep(T);
-                    sweepCount++;
-                    isingDraw();
-                    animId = requestAnimationFrame(isingLoop);
-                }
-
-                // ── Controls ─────────────────────────────────────────────────────────────
-                const slider = document.getElementById('ising-temp-home');
-                const tempVal = document.getElementById('ising-temp-val');
-                const resetBtn = document.getElementById('ising-reset-home');
-
-                slider.addEventListener('input', function () {
-                    tempVal.textContent = parseFloat(this.value).toFixed(1);
-                });
-
-                resetBtn.addEventListener('click', function () {
-                    makeGrid();
-                });
-
-                // ── Kick off ─────────────────────────────────────────────────────────────
-                makeGrid();
-                isingLoop();
-            })();
-        </script>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
-        <script src="magnetic_headers.js"></script>
-        <script src="global_transition.js"></script>
+            }
+            function loop() { sweep(Number(temperature.value)); draw(); requestAnimationFrame(loop); }
+            temperature.addEventListener('input', () => { temperatureLabel.textContent = Number(temperature.value).toFixed(1); if (reduceMotion) { sweep(Number(temperature.value)); draw(); } });
+            resetButton.addEventListener('click', () => { makeGrid(); draw(); });
+            window.addEventListener('resize', resize);
+            makeGrid();
+            draw();
+            if (!reduceMotion) loop();
+        })();
+    </script>
+    <script src="global_transition.js"></script>
 </body>
-
 </html>
