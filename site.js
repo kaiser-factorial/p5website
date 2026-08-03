@@ -42,7 +42,7 @@
       label: 'Creative & artistic work',
       href: `${href('datascience.html')}#creative-work`,
       items: [
-        { label: 'Poetry Graph', href: 'https://github.com/kaiser-factorial/poetry_graph', external: true },
+        { label: 'Poetry Graph', href: 'https://poetry-graph.vercel.app/workspace.html', external: true },
         { label: 'Catch-Fall', href: href('p5js.html') },
         { label: 'Photography', href: href('photography.html') }
       ]
