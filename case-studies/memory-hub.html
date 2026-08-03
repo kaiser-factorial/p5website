@@ -30,42 +30,52 @@
         </header>
         <section class="case-grid">
             <div class="case-copy">
-                <h2>The continuity problem</h2>
-                <p>How can several agents and projects recover durable context without copying private notes into every
-                    new session or depending on brittle keyword search?</p>
+                <h2>The problem of continuity</h2>
+                <p>How can multiple AI workspaces retrieve durable, inspectable project context across sessions while
+                    keeping private data under local control?</p>
                 <h2>Local-first memory layer</h2>
-                <p>I designed a dual-backend memory layer that pairs portable JSON records with SQLite/FTS search,
-                    hybrid semantic and full-text retrieval, an embedding cache, incremental synchronization, and a
-                    <code>mem</code> command-line interface. A local dashboard and watcher make ingestion and health
-                    visible rather than leaving the system as an opaque vector store.
-                </p>
+                <p>I built a dual-backend memory layer: portable JSON records for durability, with SQLite/FTS5 for fast
+                    local retrieval. Hybrid semantic and full-text search, an embedding cache, incremental ingestion,
+                    and a <code>mem</code> CLI make project context usable across agent sessions. A local dashboard and
+                    file watcher expose ingestion, search, and system health instead of hiding the system behind a
+                    vector-store API.</p>
+                <h2>Cloud backup</h2>
+                <p>The local database remains the source of truth. New, updated, and deleted records enter a durable
+                    outbox, then Firestore receives merge writes after a short debounce. This automatic path is
+                    push-only: it never reads from or imports cloud records, and localOnly memories never leave the
+                    machine.</p>
+                <p>Cloud reconciliation is a separate, explicit action. When requested, mem sync reads only records
+                    changed since its saved watermark and reconciles newer local or remote versions without treating
+                    Firestore as a real-time replica. Locks, deterministic document IDs, retries, and visible provider
+                    health keep that process bounded and inspectable.</p>
                 <h2>Retrieval with provenance</h2>
                 <p>Memory Hub is designed to return context that is both relevant and traceable. Each record keeps its
-                    source, timestamps, tags, and—when it can be established without guessing—its project, contributing
-                    agent, original file path, and document section. That means a result can answer not only “what seems
-                    useful here?” but also “where did this come from?”</p>
+                    source, timestamps, tags, and—when it can be determined—its project, contributing
+                    agent, original file path, and document section. That allows a query to answer both “what seems
+                    useful here?” and “where did this come from?”</p>
                 <p>Retrieval combines embedding-based semantic similarity with SQLite FTS5/BM25 keyword ranking.
                     Semantic search helps surface related ideas; keyword ranking protects exact technical details such
                     as function names, URLs, error messages, and project-specific language. Results can also be narrowed
                     by project, agent, source, or tag.</p>
                 <p>For information that changes over time, the CLI supports keyed upserts. A stable
-                    <code>source + key</code>identifies one logical fact, so a corrected preference, decision, or
+                    <code>source + key</code>identifies one fact, so a corrected preference, decision, or
                     project status replaces its
                     earlier version instead of creating a second, contradictory record. The system keeps the record’s
                     identity, refreshes its content and embedding when needed, merges its tags and metadata, and queues
                     the newest version for backup.
                 </p>
                 <h2>Design constraints</h2>
-                <p>The design needed to balance portable project context with a query path fast and inspectable enough
-                    for ordinary work. Watermark-based incremental sync, deduplication, provenance, and local-only
-                    operation are treated as first-class constraints.</p>
+                <p>The system had to preserve continuity without making personal context dependent on a hosted service
+                    or opaque automation. Retrieved memories needed enough provenance to be checked, not simply trusted,
+                    and routine cloud behavior needed to stay bounded on free-tier infrastructure. Those constraints led
+                    to explicit reconciliation, push-only backup, local control of private data, and visible failure
+                    states rather than silent fallback behavior.</p>
                 <h2>Visual walkthrough</h2>
-                <p>This page will later carry a sanitized architecture diagram and a synthetic query flow. It will not
-                    expose personal memory records, user prompts, credentials, or a live private dashboard.</p>
+                <p>This page will later carry an architecture diagram and a synthetic query flow.</p>
             </div>
             <aside>
                 <div class="placeholder-panel"><strong>MEM</strong>
-                    <p>Reserved for a redacted architecture diagram and synthetic CLI/query flow.</p>
+                    <p>Reserved for an architecture diagram and synthetic CLI/query flow.</p>
                 </div>
                 <ul class="case-facts">
                     <li><strong>Focus</strong><span>Durable context for agentic workflows</span></li>
