@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Joint Session &mdash; How a Playground Stays in Sync</title>
+<script>if (window.location.hash === '#preview') document.documentElement.dataset.presentation = 'preview';</script>
 <style>
   html, body { margin: 0; padding: 0; }
   :root {
@@ -69,6 +70,11 @@
     min-width: 760px;
     height: auto;
   }
+  :root[data-presentation="preview"] .diagram-wrap { padding: 1rem 0.75rem 1.25rem; }
+  :root[data-presentation="preview"] .diagram-head { margin-bottom: 0.8rem; }
+  :root[data-presentation="preview"] .diagram-title { font-size: clamp(1rem, 3.4vw, 1.35rem); margin: 0.2rem 0 0.3rem; }
+  :root[data-presentation="preview"] .diagram-sub { font-size: 0.76rem; }
+  :root[data-presentation="preview"] .diagram-svg-frame svg { min-width: 0; }
   .node-box { fill: var(--surface); stroke: var(--ink); stroke-width: 3; }
   .node-shadow { fill: var(--ink); }
   .node-eyebrow {

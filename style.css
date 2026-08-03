@@ -1803,26 +1803,61 @@ body.site-page .case-media img:hover,
 body.site-page .case-media img:focus-visible { filter: brightness(1.12); outline: none; }
 
 body.site-page .case-diagrams {
-    max-width: 1000px;
+    max-width: 1180px;
     margin: clamp(3.5rem, 8vw, 6.5rem) auto 0;
 }
 
 body.site-page .case-diagrams__intro { max-width: 680px; margin-bottom: 1.5rem; }
 body.site-page .case-diagrams__intro p:last-child { margin-top: .75rem; color: var(--ink); }
+body.site-page .case-diagrams__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1.25rem, 3vw, 2rem);
+}
 body.site-page .case-diagram {
-    margin: 0 0 clamp(2rem, 5vw, 3.5rem);
+    min-width: 0;
+    margin: 0;
     border: 2px solid var(--ink);
     background: #f5f5f1;
     box-shadow: 5px 5px 0 var(--ink);
 }
+body.site-page .case-diagram__preview { position: relative; overflow: hidden; }
 body.site-page .case-diagram iframe {
     display: block;
     width: 100%;
     border: 0;
     background: #f5f5f1;
+    pointer-events: none;
 }
-body.site-page .case-diagram--pipeline iframe { height: 890px; }
-body.site-page .case-diagram--architecture iframe { height: 950px; }
+body.site-page .case-diagram__preview iframe { height: clamp(420px, 45vw, 560px); }
+body.site-page .case-diagram__open {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: .75rem;
+    border: 0;
+    background: transparent;
+    color: var(--ink);
+    cursor: zoom-in;
+}
+body.site-page .case-diagram__open span {
+    padding: .5rem .65rem;
+    border: 2px solid var(--ink);
+    background: var(--yellow);
+    box-shadow: 3px 3px 0 var(--ink);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(.35rem);
+    transition: opacity .2s ease, transform .2s ease, background .2s ease;
+}
+body.site-page .case-diagram__open:hover span,
+body.site-page .case-diagram__open:focus-visible span { opacity: 1; transform: translateY(0); }
+body.site-page .case-diagram__open:focus-visible { outline: 3px solid var(--blue); outline-offset: -5px; }
 body.site-page .case-diagram figcaption {
     padding: .8rem .95rem;
     border-top: 2px solid var(--ink);
@@ -1957,6 +1992,27 @@ body.has-media-modal { overflow: hidden; }
 .media-modal__close:hover,
 .media-modal__close:focus-visible { background: var(--pink); outline: 2px solid var(--yellow); outline-offset: 3px; }
 
+body.has-diagram-modal { overflow: hidden; }
+.diagram-modal {
+    position: fixed;
+    z-index: 3001;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: clamp(.75rem, 2vw, 1.5rem);
+    background: rgba(10, 15, 24, .92);
+}
+.diagram-modal[hidden] { display: none; }
+.diagram-modal__dialog { width: min(1280px, 100%); outline: none; }
+.diagram-modal__frame {
+    display: block;
+    width: 100%;
+    height: min(calc(100vh - 6.75rem), 920px);
+    border: 2px solid #fff;
+    background: #f5f5f1;
+}
+.diagram-modal__caption { margin: .7rem auto 0; color: #fff; font-size: .88rem; line-height: 1.4; text-align: center; }
+
 @media (max-width: 760px) {
     body.site-page .site-nav__inner { width: min(100% - 1.5rem, 1180px); min-height: 3.9rem; }
     body.site-page .site-menu-button { display: inline-flex; align-items: center; }
@@ -1998,9 +2054,11 @@ body.has-media-modal { overflow: hidden; }
     body.site-page .contact-grid,
     body.site-page .case-hero,
     body.site-page .case-grid,
-    body.site-page .portal-evidence-grid { grid-template-columns: 1fr; }
-    body.site-page .case-diagram--pipeline iframe { height: 815px; }
-    body.site-page .case-diagram--architecture iframe { height: 860px; }
+    body.site-page .portal-evidence-grid,
+    body.site-page .case-diagrams__grid { grid-template-columns: 1fr; }
+    body.site-page .case-diagram__preview iframe { height: 440px; }
+    body.site-page .case-diagram__open span { opacity: 1; transform: none; }
+    .diagram-modal__frame { height: calc(100vh - 6.5rem); }
     .media-modal__image { max-height: calc(100vh - 6.5rem); }
     body.site-home .home-main { width: min(100% - 1.5rem, 1180px); padding-top: 5.5rem; }
     body.site-home .home-hero { display: block; }

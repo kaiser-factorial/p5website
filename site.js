@@ -337,4 +337,63 @@
       if (event.key === 'Escape') closeMediaModal();
     });
   }
+
+  const diagramButtons = [...document.querySelectorAll('[data-diagram-src]')];
+
+  if (diagramButtons.length) {
+    const diagramModal = document.createElement('div');
+    diagramModal.className = 'diagram-modal';
+    diagramModal.hidden = true;
+    diagramModal.setAttribute('aria-hidden', 'true');
+    diagramModal.innerHTML = `
+      <div class="diagram-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="diagram-modal-caption" tabindex="-1">
+        <button class="media-modal__close" type="button" aria-label="Close enlarged diagram">Close <span aria-hidden="true">×</span></button>
+        <iframe class="diagram-modal__frame" src="" title=""></iframe>
+        <p id="diagram-modal-caption" class="diagram-modal__caption"></p>
+      </div>`;
+    document.body.append(diagramModal);
+
+    const closeDiagramButton = diagramModal.querySelector('.media-modal__close');
+    const diagramFrame = diagramModal.querySelector('.diagram-modal__frame');
+    const diagramCaption = diagramModal.querySelector('.diagram-modal__caption');
+    let diagramOpener = null;
+
+    const closeDiagramModal = () => {
+      if (diagramModal.hidden) return;
+      diagramModal.hidden = true;
+      diagramModal.setAttribute('aria-hidden', 'true');
+      diagramFrame.src = '';
+      body.classList.remove('has-diagram-modal');
+      if (diagramOpener) diagramOpener.focus();
+    };
+
+    const openDiagramModal = (button) => {
+      diagramOpener = button;
+      const figure = button.closest('figure');
+      diagramFrame.src = button.dataset.diagramSrc;
+      diagramFrame.title = button.getAttribute('aria-label')?.replace('Open the ', '').replace(' in full screen', '') || 'Enlarged diagram';
+      diagramCaption.textContent = figure?.querySelector('figcaption')?.textContent?.trim() || 'Enlarged project diagram';
+      diagramModal.hidden = false;
+      diagramModal.setAttribute('aria-hidden', 'false');
+      body.classList.add('has-diagram-modal');
+      closeDiagramButton.focus();
+    };
+
+    diagramButtons.forEach((button) => {
+      button.addEventListener('click', () => openDiagramModal(button));
+    });
+
+    closeDiagramButton.addEventListener('click', closeDiagramModal);
+    diagramModal.addEventListener('click', (event) => {
+      if (event.target === diagramModal) closeDiagramModal();
+    });
+    diagramModal.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab') return;
+      event.preventDefault();
+      closeDiagramButton.focus();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeDiagramModal();
+    });
+  }
 })();

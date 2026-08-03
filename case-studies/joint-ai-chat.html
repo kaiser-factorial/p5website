@@ -62,18 +62,36 @@
                 <p>Two implementation views: how the panel takes turns, and how the shared playground keeps participants
                     in sync within its sandbox boundary.</p>
             </div>
+            <div class="case-diagrams__grid">
             <figure class="case-diagram case-diagram--pipeline">
-                <iframe src="../assets/joint-session/joint-session-pipeline-diagram.html"
-                    title="Joint Session sequential and parallel panelist pipelines" loading="lazy"></iframe>
+                <div class="case-diagram__preview">
+                    <iframe src="../assets/joint-session/joint-session-pipeline-diagram.html#preview"
+                        title="Preview of Joint Session sequential and parallel panelist pipelines" loading="lazy"
+                        aria-hidden="true" tabindex="-1"></iframe>
+                    <button class="case-diagram__open" type="button"
+                        data-diagram-src="../assets/joint-session/joint-session-pipeline-diagram.html"
+                        aria-label="Open the sequential and parallel panelist pipeline diagram in full screen">
+                        <span>Expand diagram <b aria-hidden="true">↗</b></span>
+                    </button>
+                </div>
                 <figcaption>Panelists can respond in sequence, carrying prior replies into the next turn, or in
                     parallel before a synthesizer reconciles their independent perspectives.</figcaption>
             </figure>
             <figure class="case-diagram case-diagram--architecture">
-                <iframe src="../assets/joint-session/joint-session-architecture-diagram.html"
-                    title="Joint Session playground synchronization architecture" loading="lazy"></iframe>
+                <div class="case-diagram__preview">
+                    <iframe src="../assets/joint-session/joint-session-architecture-diagram.html#preview"
+                        title="Preview of Joint Session playground synchronization architecture" loading="lazy"
+                        aria-hidden="true" tabindex="-1"></iframe>
+                    <button class="case-diagram__open" type="button"
+                        data-diagram-src="../assets/joint-session/joint-session-architecture-diagram.html"
+                        aria-label="Open the playground synchronization architecture diagram in full screen">
+                        <span>Expand diagram <b aria-hidden="true">↗</b></span>
+                    </button>
+                </div>
                 <figcaption>The playground separates shared code from ordered interaction events, then replays them
                     inside a sandboxed iframe for every participant in the room.</figcaption>
             </figure>
+            </div>
         </section>
     </main>
     <footer class="site-footer">
