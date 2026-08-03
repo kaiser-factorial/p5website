@@ -14,7 +14,7 @@
       href: `${href('datascience.html')}#ai-systems`,
         items: [
           { label: 'Unified Memory Hub', href: href('case-studies/memory-hub.html') },
-          { label: 'Joint AI Chat', href: href('case-studies/joint-ai-chat.html') },
+          { label: 'Joint Session', href: href('case-studies/joint-ai-chat.html') },
           { label: 'Ledger + Bulwork', href: href('case-studies/ledger-bulwork.html') },
           { label: 'NemoH Routing Research', href: href('case-studies/nemoh-routing.html') }
         ]
@@ -138,7 +138,7 @@
         skills: ['Python & service design', 'SQLite / FTS retrieval', 'Auth & realtime state'],
         projects: [
           { label: 'Unified Memory Hub', href: href('case-studies/memory-hub.html') },
-          { label: 'Joint AI Chat', href: href('case-studies/joint-ai-chat.html') },
+          { label: 'Joint Session', href: href('case-studies/joint-ai-chat.html') },
           { label: 'Ledger + Bulwork', href: href('case-studies/ledger-bulwork.html') }
         ]
       },

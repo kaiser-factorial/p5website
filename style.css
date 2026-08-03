@@ -1802,6 +1802,36 @@ body.site-page .case-media figcaption { padding: .7rem .85rem; color: #fff; font
 body.site-page .case-media img:hover,
 body.site-page .case-media img:focus-visible { filter: brightness(1.12); outline: none; }
 
+body.site-page .case-diagrams {
+    max-width: 1000px;
+    margin: clamp(3.5rem, 8vw, 6.5rem) auto 0;
+}
+
+body.site-page .case-diagrams__intro { max-width: 680px; margin-bottom: 1.5rem; }
+body.site-page .case-diagrams__intro p:last-child { margin-top: .75rem; color: var(--ink); }
+body.site-page .case-diagram {
+    margin: 0 0 clamp(2rem, 5vw, 3.5rem);
+    border: 2px solid var(--ink);
+    background: #f5f5f1;
+    box-shadow: 5px 5px 0 var(--ink);
+}
+body.site-page .case-diagram iframe {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: #f5f5f1;
+}
+body.site-page .case-diagram--pipeline iframe { height: 890px; }
+body.site-page .case-diagram--architecture iframe { height: 950px; }
+body.site-page .case-diagram figcaption {
+    padding: .8rem .95rem;
+    border-top: 2px solid var(--ink);
+    background: var(--ink);
+    color: #fff;
+    font-size: .86rem;
+    line-height: 1.45;
+}
+
 body.site-page .case-system-map {
     display: grid;
     gap: .65rem;
@@ -1969,6 +1999,8 @@ body.has-media-modal { overflow: hidden; }
     body.site-page .case-hero,
     body.site-page .case-grid,
     body.site-page .portal-evidence-grid { grid-template-columns: 1fr; }
+    body.site-page .case-diagram--pipeline iframe { height: 815px; }
+    body.site-page .case-diagram--architecture iframe { height: 860px; }
     .media-modal__image { max-height: calc(100vh - 6.5rem); }
     body.site-home .home-main { width: min(100% - 1.5rem, 1180px); padding-top: 5.5rem; }
     body.site-home .home-hero { display: block; }

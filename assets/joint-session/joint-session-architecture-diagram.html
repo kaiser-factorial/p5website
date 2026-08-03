@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joint Session &mdash; How a Playground Stays in Sync</title>
+<style>
+  html, body { margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f5f1;
+    --surface: #ffffff;
+    --ink: #0a0a0a;
+    --ink-soft: #57554e;
+    --yellow: #ffd83d;
+    --blue: #1d4ed8;
+    --pink: #db2777;
+    --green: #15803d;
+    --graphite: #52514c;
+  }
+  :root[data-theme="dark"] {
+    --bg: #f5f5f1;
+    --surface: #ffffff;
+    --ink: #0a0a0a;
+    --ink-soft: #57554e;
+  }
+  * { box-sizing: border-box; }
+  .diagram-wrap {
+    background: var(--bg);
+    padding: 2.5rem 1.25rem 3rem;
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+  }
+  .diagram-head {
+    max-width: 720px;
+    margin: 0 auto 1.75rem;
+    text-align: center;
+  }
+  .diagram-eyebrow {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .diagram-title {
+    font-size: clamp(1.4rem, 3.4vw, 1.9rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    margin: 0.35rem 0 0.5rem;
+    text-wrap: balance;
+  }
+  .diagram-sub {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin: 0;
+    text-wrap: balance;
+  }
+  .diagram-svg-frame {
+    max-width: 980px;
+    margin: 0 auto;
+    overflow-x: auto;
+  }
+  .diagram-svg-frame svg {
+    display: block;
+    width: 100%;
+    min-width: 760px;
+    height: auto;
+  }
+  .node-box { fill: var(--surface); stroke: var(--ink); stroke-width: 3; }
+  .node-shadow { fill: var(--ink); }
+  .node-eyebrow {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    fill: var(--ink-soft);
+  }
+  .node-title {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-weight: 800;
+    fill: var(--ink);
+  }
+  .node-sub {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    fill: var(--ink-soft);
+  }
+  .flow-line { stroke: var(--ink); stroke-width: 2.5; fill: none; }
+  .flow-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--ink);
+  }
+  .flow-dot { fill: var(--ink); }
+  .boundary-box { fill: none; stroke: var(--pink); stroke-width: 3; stroke-dasharray: 9 7; }
+  .boundary-tag-bg { fill: var(--pink); }
+  .boundary-tag-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    fill: #fff;
+  }
+  .pill-bg { fill: var(--bg); stroke: var(--ink); stroke-width: 2; }
+  .pill-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11.5px;
+    font-weight: 600;
+    fill: var(--ink);
+  }
+  .js-pill-bg { fill: var(--blue); }
+  .js-pill-text { fill: #fff; font-weight: 700; }
+  .note-text {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    fill: var(--ink-soft);
+  }
+  .caption-strong { font-weight: 800; fill: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="diagram-wrap">
+  <div class="diagram-head">
+    <p class="diagram-eyebrow">Architecture / Active Blocks</p>
+    <h2 class="diagram-title">How a Playground Stays in Sync</h2>
+    <p class="diagram-sub">Two Firestore paths, one sandboxed runtime, zero network egress from generated code.</p>
+  </div>
+
+  <div class="diagram-svg-frame">
+    <svg viewBox="0 0 1000 770" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram of the Joint Session playground sync architecture">
+
+      <!-- Browsers -->
+      <g>
+        <rect class="node-shadow" x="64" y="34" width="260" height="76" />
+        <rect class="node-box" x="60" y="30" width="260" height="76" />
+        <text class="node-eyebrow" x="82" y="56">BROWSER</text>
+        <text class="node-title" x="82" y="80" font-size="17">Your browser</text>
+        <text class="node-sub" x="82" y="98">renders the room, holds the iframe</text>
+      </g>
+      <g>
+        <rect class="node-shadow" x="684" y="34" width="260" height="76" />
+        <rect class="node-box" x="680" y="30" width="260" height="76" />
+        <text class="node-eyebrow" x="702" y="56">BROWSER</text>
+        <text class="node-title" x="702" y="80" font-size="17">A friend's browser</text>
+        <text class="node-sub" x="702" y="98">same room, same event log</text>
+      </g>
+
+      <!-- lines from browsers down to a merge point -->
+      <path class="flow-line" d="M190,106 V150 H500 V150" />
+      <path class="flow-line" d="M810,106 V150 H500" />
+      <circle class="flow-dot" cx="500" cy="150" r="4" />
+      <path class="flow-line" d="M500,150 V182" />
+      <text class="note-text" x="500" y="140" text-anchor="middle">either participant can save code or publish an event</text>
+
+      <!-- split down to the two firestore boxes -->
+      <path class="flow-line" d="M500,182 V206 H300 V228" />
+      <path class="flow-line" d="M500,206 H700 V228" />
+
+      <!-- Firestore A: sandboxes/{id} -->
+      <g>
+        <rect class="node-shadow" x="94" y="234" width="380" height="118" />
+        <rect class="node-box" x="90" y="230" width="380" height="118" />
+        <text class="node-eyebrow" x="114" y="260">FIRESTORE DOCUMENT</text>
+        <text class="node-title" x="114" y="288" font-size="19">sandboxes/{id}</text>
+        <text class="node-sub" x="114" y="312">the code</text>
+        <text class="node-sub" x="114" y="330">one full HTML/JS source string</text>
+      </g>
+
+      <!-- Firestore B: playgrounds/{id}/events -->
+      <g>
+        <rect class="node-shadow" x="534" y="234" width="380" height="118" />
+        <rect class="node-box" x="530" y="230" width="380" height="118" />
+        <text class="node-eyebrow" x="554" y="260">FIRESTORE SUBCOLLECTION</text>
+        <text class="node-title" x="554" y="288" font-size="19">playgrounds/{id}/events</text>
+        <text class="node-sub" x="554" y="312">the actions, ordered</text>
+        <text class="node-sub" x="554" y="330">one doc per completed action</text>
+      </g>
+
+      <!-- arrow labels between the two paths and their effect -->
+      <path class="flow-line" d="M280,352 V392" marker-end="url(#arrow)" />
+      <text class="flow-label" x="30" y="372">code changes reload the</text>
+      <text class="flow-label" x="30" y="386">sandbox from scratch</text>
+
+      <path class="flow-line" d="M720,352 V392" marker-end="url(#arrow)" />
+      <text class="flow-label" x="742" y="372">onSnapshot, capped at</text>
+      <text class="flow-label" x="742" y="386">25/sec, 64KB per event</text>
+
+      <!-- merge both down into the boundary -->
+      <path class="flow-line" d="M280,398 V420 H500 V420" />
+      <path class="flow-line" d="M720,398 V420 H500" />
+      <path class="flow-line" d="M500,420 V444" marker-end="url(#arrow)" />
+
+      <!-- Security boundary -->
+      <rect class="boundary-box" x="150" y="452" width="700" height="300" rx="2" />
+      <rect class="boundary-tag-bg" x="150" y="436" width="176" height="26" />
+      <text class="boundary-tag-text" x="164" y="454">SECURITY BOUNDARY</text>
+
+      <!-- Sandboxed iframe box -->
+      <g>
+        <rect class="node-shadow" x="194" y="490" width="620" height="250" />
+        <rect class="node-box" x="190" y="486" width="620" height="250" />
+        <text class="node-eyebrow" x="214" y="514">RUNTIME</text>
+        <text class="node-title" x="214" y="540" font-size="19">Sandboxed iframe</text>
+
+        <!-- pills, stacked -->
+        <rect class="pill-bg" x="214" y="556" width="204" height="26" />
+        <text class="pill-text" x="226" y="573">sandbox="allow-scripts"</text>
+
+        <rect class="pill-bg" x="214" y="590" width="330" height="28" />
+        <text class="pill-text" x="226" y="608">connect-src disabled: no fetch, XHR, WS</text>
+
+        <rect class="js-pill-bg" x="214" y="626" width="284" height="28" />
+        <text class="js-pill-text" x="226" y="644">jointSession.publish / .subscribe</text>
+
+        <text class="note-text" x="214" y="674">Late joiner: same buffered log flushes on the iframe's</text>
+        <text class="note-text" x="214" y="692">own onLoad, <tspan class="caption-strong">replay: true</tspan> - so a room joined mid-session</text>
+        <text class="note-text" x="214" y="710">reconstructs state through the exact same handlers.</text>
+      </g>
+
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L6,3 L0,6 Z" fill="var(--ink)" />
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+</body>
+</html>

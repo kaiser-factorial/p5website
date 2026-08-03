@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joint Session &mdash; Two Ways to Run the Panel</title>
+<style>
+  html, body { margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f5f1;
+    --surface: #ffffff;
+    --ink: #0a0a0a;
+    --ink-soft: #57554e;
+    --yellow: #ffd83d;
+    --blue: #1d4ed8;
+    --pink: #db2777;
+    --green: #15803d;
+  }
+  * { box-sizing: border-box; }
+  .diagram-wrap {
+    background: var(--bg);
+    padding: 2.5rem 1.25rem 3rem;
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+  }
+  .diagram-head {
+    max-width: 720px;
+    margin: 0 auto 1.75rem;
+    text-align: center;
+  }
+  .diagram-eyebrow {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .diagram-title {
+    font-size: clamp(1.4rem, 3.4vw, 1.9rem);
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    margin: 0.35rem 0 0.5rem;
+    text-wrap: balance;
+  }
+  .diagram-sub {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin: 0;
+    text-wrap: balance;
+  }
+  .diagram-svg-frame {
+    max-width: 1020px;
+    margin: 0 auto;
+    overflow-x: auto;
+  }
+  .diagram-svg-frame svg {
+    display: block;
+    width: 100%;
+    min-width: 760px;
+    height: auto;
+  }
+  .node-box { fill: var(--surface); stroke: var(--ink); stroke-width: 3; }
+  .node-shadow { fill: var(--ink); }
+  .node-title {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-weight: 800;
+    fill: var(--ink);
+  }
+  .node-sub {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-weight: 500;
+    fill: var(--ink-soft);
+  }
+  .mini-box { fill: var(--surface); stroke: var(--ink); stroke-width: 2.5; }
+  .mini-shadow { fill: var(--ink); }
+  .mini-title {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 12.5px;
+    font-weight: 800;
+    fill: var(--ink);
+  }
+  .mini-sub {
+    font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 10.5px;
+    font-weight: 500;
+    fill: var(--ink-soft);
+  }
+  .flow-line { stroke: var(--ink); stroke-width: 2.5; fill: none; }
+  .flow-line-thin { stroke: var(--ink-soft); stroke-width: 1.6; fill: none; }
+  .flow-dot { fill: var(--ink); }
+  .flow-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 10.5px;
+    font-weight: 600;
+    fill: var(--ink);
+  }
+  .code-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    fill: var(--ink-soft);
+  }
+  .tag-bg { }
+  .tag-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    fill: #fff;
+  }
+  .tag-blue { fill: var(--blue); }
+  .tag-green { fill: var(--green); }
+  .divider { stroke: var(--ink-soft); stroke-width: 1.5; stroke-dasharray: 6 6; }
+  .divider-tag-bg { fill: var(--bg); stroke: var(--ink-soft); stroke-width: 1.5; }
+  .divider-tag-text {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<div class="diagram-wrap">
+  <div class="diagram-head">
+    <p class="diagram-eyebrow">Architecture / Pipeline Modes</p>
+    <h2 class="diagram-title">Two Ways to Run the Panel</h2>
+    <p class="diagram-sub">Same posted message, two different paths through the panelists before the synthesizer answers.</p>
+  </div>
+
+  <div class="diagram-svg-frame">
+    <svg viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram comparing sequential and parallel panelist pipelines">
+
+      <!-- shared user message -->
+      <g>
+        <rect class="node-shadow" x="354" y="24" width="300" height="60" />
+        <rect class="node-box" x="350" y="20" width="300" height="60" />
+        <text class="node-title" x="500" y="48" font-size="15" text-anchor="middle">USER MESSAGE</text>
+        <text class="node-sub" x="500" y="66" font-size="11.5" text-anchor="middle">posted to the room</text>
+      </g>
+
+      <!-- split -->
+      <path class="flow-line" d="M420,84 V104 H250 V128" marker-end="url(#arrow2)" />
+      <path class="flow-line" d="M580,84 V104 H750 V128" marker-end="url(#arrow2)" />
+
+      <!-- center divider -->
+      <line class="divider" x1="500" y1="100" x2="500" y2="552" />
+      <rect class="divider-tag-bg" x="478" y="368" width="44" height="24" />
+      <text class="divider-tag-text" x="500" y="384" text-anchor="middle">vs</text>
+
+      <!-- ===================== LEFT: SEQUENTIAL ===================== -->
+      <rect class="tag-bg tag-blue" x="60" y="136" width="240" height="28" />
+      <text class="tag-text" x="180" y="155" text-anchor="middle">SEQUENTIAL (DEFAULT)</text>
+      <text class="code-label" x="60" y="182">for (const bot of panelists) await runPanelistTurn(...)</text>
+
+      <!-- panelist 1 -->
+      <g>
+        <rect class="node-shadow" x="64" y="198" width="392" height="62" />
+        <rect class="node-box" x="60" y="194" width="392" height="62" />
+        <text class="node-title" x="80" y="220" font-size="14">Panelist 1</text>
+        <text class="node-sub" x="80" y="240" font-size="11.5">sees: the original history</text>
+      </g>
+      <path class="flow-line" d="M256,256 V296" marker-end="url(#arrow2)" />
+      <text class="flow-label" x="270" y="272">reply appended &#8594;</text>
+      <text class="flow-label" x="270" y="286">becomes next seat's context</text>
+
+      <!-- panelist 2 -->
+      <g>
+        <rect class="node-shadow" x="64" y="312" width="392" height="62" />
+        <rect class="node-box" x="60" y="308" width="392" height="62" />
+        <text class="node-title" x="80" y="334" font-size="14">Panelist 2</text>
+        <text class="node-sub" x="80" y="354" font-size="11.5">sees: original + Panelist 1's reply</text>
+      </g>
+      <path class="flow-line" d="M256,370 V410" marker-end="url(#arrow2)" />
+      <text class="flow-label" x="270" y="386">reply appended &#8594;</text>
+      <text class="flow-label" x="270" y="400">becomes next seat's context</text>
+
+      <!-- panelist 3 -->
+      <g>
+        <rect class="node-shadow" x="64" y="426" width="392" height="62" />
+        <rect class="node-box" x="60" y="422" width="392" height="62" />
+        <text class="node-title" x="80" y="448" font-size="14">Panelist 3</text>
+        <text class="node-sub" x="80" y="468" font-size="11.5">sees: original + Panelist 1 + Panelist 2</text>
+      </g>
+      <path class="flow-line" d="M256,484 V540 H400 V560" marker-end="url(#arrow2)" />
+      <text class="flow-label" x="60" y="512">bubbles post one at a time,</text>
+      <text class="flow-label" x="60" y="526">in order, as each finishes</text>
+
+      <!-- ===================== RIGHT: PARALLEL ===================== -->
+      <rect class="tag-bg tag-green" x="700" y="136" width="240" height="28" />
+      <text class="tag-text" x="820" y="155" text-anchor="middle">PARALLEL</text>
+      <text class="code-label" x="700" y="182">Promise.allSettled(panelists.map(...))</text>
+      <text class="code-label" x="700" y="199">&#8213; no seat sees another's reply</text>
+
+      <circle class="flow-dot" cx="750" cy="212" r="4" />
+      <path class="flow-line-thin" d="M750,212 H600 V226" marker-end="url(#arrow-thin)" />
+      <path class="flow-line-thin" d="M750,212 V226" marker-end="url(#arrow-thin)" />
+      <path class="flow-line-thin" d="M750,212 H900 V226" marker-end="url(#arrow-thin)" />
+
+      <!-- three parallel panelists, same input, no chaining -->
+      <g>
+        <rect class="mini-shadow" x="534" y="234" width="140" height="86" />
+        <rect class="mini-box" x="530" y="230" width="140" height="86" />
+        <text class="mini-title" x="548" y="256">Panelist A</text>
+        <text class="mini-sub" x="548" y="276">sees: original</text>
+        <text class="mini-sub" x="548" y="290">history only</text>
+      </g>
+      <g>
+        <rect class="mini-shadow" x="684" y="234" width="140" height="86" />
+        <rect class="mini-box" x="680" y="230" width="140" height="86" />
+        <text class="mini-title" x="698" y="256">Panelist B</text>
+        <text class="mini-sub" x="698" y="276">sees: original</text>
+        <text class="mini-sub" x="698" y="290">history only</text>
+      </g>
+      <g>
+        <rect class="mini-shadow" x="834" y="234" width="140" height="86" />
+        <rect class="mini-box" x="830" y="230" width="140" height="86" />
+        <text class="mini-title" x="848" y="256">Panelist C</text>
+        <text class="mini-sub" x="848" y="276">sees: original</text>
+        <text class="mini-sub" x="848" y="290">history only</text>
+      </g>
+
+      <!-- converge -->
+      <path class="flow-line-thin" d="M600,316 V340 H750" />
+      <path class="flow-line-thin" d="M750,316 V340" />
+      <path class="flow-line-thin" d="M900,316 V340 H750" />
+      <circle class="flow-dot" cx="750" cy="340" r="4" />
+      <path class="flow-line" d="M750,340 V540 H600 V560" marker-end="url(#arrow2)" />
+      <text class="flow-label" x="730" y="430" text-anchor="end">[PANELIST RESPONSES]</text>
+      <text class="flow-label" x="730" y="444" text-anchor="end">synthesize these perspectives</text>
+
+      <!-- shared head / synthesizer -->
+      <g>
+        <rect class="node-shadow" x="304" y="576" width="400" height="76" />
+        <rect class="node-box" x="300" y="572" width="400" height="76" />
+        <text class="node-title" x="500" y="600" font-size="16" text-anchor="middle">HEAD / SYNTHESIZER</text>
+        <text class="node-sub" x="500" y="622" font-size="11.5" text-anchor="middle">reviews room history + panelist replies,</text>
+        <text class="node-sub" x="500" y="636" font-size="11.5" text-anchor="middle">writes the final answer</text>
+      </g>
+
+      <defs>
+        <marker id="arrow2" markerWidth="10" markerHeight="10" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L6,3 L0,6 Z" fill="var(--ink)" />
+        </marker>
+        <marker id="arrow-thin" markerWidth="9" markerHeight="9" refX="5" refY="2.5" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L5,2.5 L0,5 Z" fill="var(--ink-soft)" />
+        </marker>
+      </defs>
+    </svg>
+  </div>
+</div>
+
+</body>
+</html>

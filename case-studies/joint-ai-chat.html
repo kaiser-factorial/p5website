@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Joint AI Chat: a real-time multi-user workspace with source-aware agent memory.">
-    <title>Joint AI Chat — Corina Kaiser</title>
+    <meta name="description" content="Joint Session: a real-time multi-user workspace with source-aware agent memory.">
+    <title>Joint Session — Corina Kaiser</title>
     <link rel="stylesheet" href="../style.css">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
         rel="stylesheet">
@@ -26,8 +26,8 @@
                         class="button-link button-link--quiet" href="../datascience.html">Back to work <span
                             aria-hidden="true">→</span></a></div>
             </div>
-            <aside class="case-status"><span>Public page status</span><strong>Deployed application — visual walkthrough
-                    pending</strong></aside>
+            <aside class="case-status"><span>Public page status</span><strong>Deployed application — system diagrams
+                    added</strong></aside>
         </header>
         <section class="case-grid">
             <div class="case-copy">
@@ -42,15 +42,12 @@
                 <h2>The hard part</h2>
                 <p>The central design problem is not only prompting. It is deciding where information belongs, who can
                     read it, and how a user can understand why an agent appears to know something.</p>
-                <h2>What remains</h2>
-                <p>This is a deployed application, not a claim of enterprise security. Public materials will be reviewed
-                    against the current BYOK and security boundaries before a deeper architecture diagram is published.
-                </p>
+                <h2>Public boundary</h2>
+                <p>These diagrams document specific session and sandbox flows in the deployed application. They do not
+                    make a general claim of enterprise security; the current BYOK and security boundaries should be
+                    reviewed before publishing a deeper key or data-path analysis.</p>
             </div>
             <aside>
-                <div class="placeholder-panel"><strong>JOIN</strong>
-                    <p>Reserved for a short session workflow clip and a browser-to-memory architecture diagram.</p>
-                </div>
                 <ul class="case-facts">
                     <li><strong>Focus</strong><span>Concurrent collaboration and agent memory boundaries</span></li>
                     <li><strong>Stack</strong><span>React, Vite, TypeScript, Firebase</span></li>
@@ -58,9 +55,29 @@
                 </ul>
             </aside>
         </section>
+        <section class="case-diagrams" aria-labelledby="joint-session-diagrams-title">
+            <div class="case-diagrams__intro">
+                <p class="eyebrow">System flows</p>
+                <h2 class="section-heading" id="joint-session-diagrams-title">How a Joint Session runs</h2>
+                <p>Two implementation views: how the panel takes turns, and how the shared playground keeps participants
+                    in sync within its sandbox boundary.</p>
+            </div>
+            <figure class="case-diagram case-diagram--pipeline">
+                <iframe src="../assets/joint-session/joint-session-pipeline-diagram.html"
+                    title="Joint Session sequential and parallel panelist pipelines" loading="lazy"></iframe>
+                <figcaption>Panelists can respond in sequence, carrying prior replies into the next turn, or in
+                    parallel before a synthesizer reconciles their independent perspectives.</figcaption>
+            </figure>
+            <figure class="case-diagram case-diagram--architecture">
+                <iframe src="../assets/joint-session/joint-session-architecture-diagram.html"
+                    title="Joint Session playground synchronization architecture" loading="lazy"></iframe>
+                <figcaption>The playground separates shared code from ordered interaction events, then replays them
+                    inside a sandboxed iframe for every participant in the room.</figcaption>
+            </figure>
+        </section>
     </main>
     <footer class="site-footer">
-        <div class="site-footer__inner"><span>Corina Kaiser · Joint AI Chat</span><span><a
+        <div class="site-footer__inner"><span>Corina Kaiser · Joint Session</span><span><a
                     href="mailto:kaiser.factorial@gmail.com">Discuss the system</a></span></div>
     </footer>
     <script src="../global_transition.js"></script>
