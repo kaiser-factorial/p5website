@@ -39,6 +39,22 @@
                     <code>mem</code> command-line interface. A local dashboard and watcher make ingestion and health
                     visible rather than leaving the system as an opaque vector store.
                 </p>
+                <h2>Retrieval with provenance</h2>
+                <p>Memory Hub is designed to return context that is both relevant and traceable. Each record keeps its
+                    source, timestamps, tags, and—when it can be established without guessing—its project, contributing
+                    agent, original file path, and document section. That means a result can answer not only “what seems
+                    useful here?” but also “where did this come from?”</p>
+                <p>Retrieval combines embedding-based semantic similarity with SQLite FTS5/BM25 keyword ranking.
+                    Semantic search helps surface related ideas; keyword ranking protects exact technical details such
+                    as function names, URLs, error messages, and project-specific language. Results can also be narrowed
+                    by project, agent, source, or tag.</p>
+                <p>For information that changes over time, the CLI supports keyed upserts. A stable
+                    <code>source + key</code>identifies one logical fact, so a corrected preference, decision, or
+                    project status replaces its
+                    earlier version instead of creating a second, contradictory record. The system keeps the record’s
+                    identity, refreshes its content and embedding when needed, merges its tags and metadata, and queues
+                    the newest version for backup.
+                </p>
                 <h2>Design constraints</h2>
                 <p>The design needed to balance portable project context with a query path fast and inspectable enough
                     for ordinary work. Watermark-based incremental sync, deduplication, provenance, and local-only
