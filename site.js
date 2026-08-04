@@ -155,7 +155,7 @@
         projects: [
           { label: 'Jacket Link', href: href('case-studies/jacket-link.html') },
           { label: 'WearabLLM', href: href('case-studies/wearabllm.html') },
-          { label: 'Scatter Lab', href: href('case-studies/pca-workbench.html') },
+          { label: 'Ledger + Bulwork', href: href('case-studies/ledger-bulwork.html') },
           { label: 'Vat Lexicon', href: href('bot-lexicon-portal.html') }
         ]
       },
@@ -164,8 +164,8 @@
         skills: ['PCA & clustering', 'Statistical modeling', 'Experimental design'],
         projects: [
           { label: 'Scatter Lab', href: href('case-studies/pca-workbench.html') },
-          { label: 'Vat Lexicon', href: href('bot-lexicon-portal.html') },
-          { label: 'NemoH Routing Research', href: href('case-studies/nemoh-routing.html') }
+          { label: 'Rate My Professor Analysis', href: href('capstone.html') },
+          { label: 'Movie Ratings Hypothesis Testing', href: href('project1.html') }
         ]
       }
     };
