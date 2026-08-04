@@ -2,6 +2,10 @@
 
 First made by Corina Kaiser during Fall 2025 at NYU Tandon for DM-GY 6063. 
 
+## Design credit
+
+The desktop navigation's folder-tab treatment is inspired by the [Puxel Tabs component](https://github.com/lumpenspace/puxel/blob/main/src/components/Tabs.tsx) by lumpenspace. The portfolio uses its own static HTML, CSS, and JavaScript implementation.
+
 
 # Legal
 

@@ -1066,6 +1066,9 @@ a:hover { color: #FFD600; text-decoration: none; }
 html { scroll-behavior: smooth; }
 
 body.site-page {
+    --nav-tab-fill: #e6bd00;
+    --nav-active-fill: var(--paper);
+    --nav-bar-fill: var(--yellow);
     color: var(--ink);
     background: var(--paper);
     font-family: 'Space Grotesk', sans-serif;
@@ -1081,7 +1084,7 @@ body.site-page .site-nav {
     inset: 0 auto auto 0 !important;
     width: 100%;
     padding: 0 !important;
-    background: rgba(247, 245, 239, 0.94);
+    background: var(--nav-bar-fill);
     border-bottom: 2px solid var(--ink);
     backdrop-filter: blur(14px);
     z-index: 1000;
@@ -1093,11 +1096,12 @@ body.site-page .site-nav__inner {
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: stretch;
     gap: 1.2rem;
 }
 
 body.site-page .site-brand {
+    align-self: center;
     color: var(--ink);
     font-family: 'Russo One', sans-serif;
     font-size: 1.2rem;
@@ -1108,9 +1112,11 @@ body.site-page .site-brand {
 body.site-page .site-brand span { color: var(--pink); }
 
 body.site-page .site-menu {
+    align-self: stretch;
     display: flex;
-    align-items: center;
-    gap: .1rem;
+    align-items: flex-end;
+    gap: .38rem;
+    padding-top: .5rem;
 }
 
 body.site-page .site-menu a {
@@ -1119,43 +1125,104 @@ body.site-page .site-menu a {
     font-weight: 700;
     letter-spacing: .01em;
     text-decoration: none;
-    padding: .4rem .58rem;
-    border-bottom: 2px solid transparent;
 }
 
-body.site-page .site-menu a:hover,
-body.site-page .site-menu a:focus-visible,
-body.site-page .site-menu a.is-current {
+body.site-page .site-menu > .site-menu__link,
+body.site-page .site-work-menu {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.7rem;
+    margin: .4rem 0 -2px;
+    color: var(--ink);
+    background: var(--nav-tab-fill);
+    border: 2px solid var(--ink);
+    transition: background .15s ease, color .15s ease;
+}
+
+body.site-page .site-menu > .site-menu__link {
+    padding: .52rem .75rem .62rem;
+}
+
+body.site-page .site-menu > .site-menu__link:hover,
+body.site-page .site-menu > .site-menu__link:focus-visible,
+body.site-page .site-work-menu:hover,
+body.site-page .site-work-menu:focus-within {
     color: var(--blue);
-    border-bottom-color: var(--yellow);
+    background: var(--nav-tab-fill);
+    filter: brightness(1.04);
 }
 
+body.site-page .site-menu > .site-menu__link.is-current,
+body.site-page .site-work-menu.is-current {
+    z-index: 2;
+    color: var(--ink);
+    background: var(--nav-active-fill);
+    border-bottom-color: var(--nav-active-fill);
+}
+
+body.site-page .site-menu > .site-menu__link:focus-visible,
+body.site-page .site-work-menu:focus-within {
+    outline: 3px solid var(--blue);
+    outline-offset: 2px;
+}
+
+body.site-page .site-menu__utility,
 body.site-page .site-menu__github {
+    align-self: center;
     margin-left: .25rem;
+    padding: .4rem .58rem;
+    color: var(--ink) !important;
+    background: #fffefa;
     border: 2px solid var(--ink) !important;
-    box-shadow: 2px 2px 0 var(--yellow);
+}
+
+body.site-page .site-menu__resume { box-shadow: 2px 2px 0 var(--blue); }
+body.site-page .site-menu__github { box-shadow: 2px 2px 0 var(--pink); }
+
+body.site-page .site-menu__utility:hover,
+body.site-page .site-menu__utility:focus-visible,
+body.site-page .site-menu__github:hover,
+body.site-page .site-menu__github:focus-visible {
+    background: var(--paper);
+    color: var(--blue) !important;
+}
+
+body.site-page .site-menu__resume:hover,
+body.site-page .site-menu__resume:focus-visible {
+    background: var(--blue);
+    color: #fff !important;
 }
 
 body.site-page .site-menu__github:hover,
-body.site-page .site-menu__github:focus-visible { background: var(--yellow); }
+body.site-page .site-menu__github:focus-visible {
+    background: var(--pink);
+    color: #fff !important;
+}
 
 body.site-page .site-work-menu {
-    position: relative;
-    display: flex;
+    padding: 0;
+}
+
+body.site-page .site-work-menu__all {
+    display: inline-flex;
     align-items: center;
+    align-self: stretch;
+    padding: .52rem .5rem .62rem .75rem;
 }
 
 body.site-page .site-work-menu__toggle {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 1.45rem;
-    min-height: 1.7rem;
-    margin-left: -.25rem;
-    padding: 0 .1rem .18rem;
-    color: var(--ink);
+    align-self: stretch;
+    min-width: 1.7rem;
+    margin: 0;
+    padding: 0 .42rem .18rem;
+    color: inherit;
     background: transparent;
     border: 0;
+    border-left: 2px solid var(--ink);
     cursor: pointer;
 }
 
@@ -1482,20 +1549,34 @@ body.site-page .site-footer__inner {
 body.site-page .site-footer a { font-weight: 700; }
 
 /* Homepage keeps the mathematical simulation but puts the career pitch in front of it. */
-body.site-home { background: #1f5fc4; }
+body.site-home {
+    --nav-tab-fill: #203252;
+    --nav-active-fill: #1f5fc4;
+    --nav-bar-fill: rgba(23, 35, 59, .78);
+    background: #1f5fc4;
+}
 
 body.site-home .site-nav {
     position: absolute !important;
-    background: rgba(23, 35, 59, .78);
+    background: var(--nav-bar-fill);
     border-bottom-color: rgba(255,255,255,.8);
 }
 
 body.site-home .site-brand,
 body.site-home .site-menu a { color: #fff; }
-body.site-home .site-menu a.is-current,
-body.site-home .site-menu a:hover { color: var(--yellow); }
+body.site-home .site-menu > .site-menu__link,
+body.site-home .site-work-menu { color: #fff; background: var(--nav-tab-fill); border-color: rgba(255,255,255,.8); }
+body.site-home .site-menu > .site-menu__link:hover,
+body.site-home .site-menu > .site-menu__link:focus-visible,
+body.site-home .site-work-menu:hover,
+body.site-home .site-work-menu:focus-within { color: var(--yellow); background: var(--nav-tab-fill); }
+body.site-home .site-work-menu:hover .site-work-menu__all,
+body.site-home .site-work-menu:focus-within .site-work-menu__all { color: var(--yellow); }
+body.site-home .site-menu > .site-menu__link.is-current,
+body.site-home .site-work-menu.is-current { color: #fff; background: var(--nav-active-fill); border-bottom-color: var(--nav-active-fill); }
+body.site-home .site-menu__utility,
 body.site-home .site-menu__github { border-color: #fff !important; }
-body.site-home .site-work-menu__toggle { color: #fff; }
+body.site-home .site-work-menu__toggle { color: #fff; border-left-color: rgba(255,255,255,.8); }
 body.site-home .site-work-dropdown a { color: var(--ink); }
 
 body.site-home #ising-bg,
@@ -1542,6 +1623,14 @@ body.site-home .home-title {
     letter-spacing: -.055em;
     text-transform: uppercase;
     text-shadow: 4px 4px 0 rgba(23, 35, 59, .52);
+    cursor: default;
+    user-select: none;
+}
+
+body.site-home .home-title > span {
+    display: inline-block;
+    transition: transform .15s cubic-bezier(.175, .885, .32, 1.25), color .25s ease;
+    will-change: transform;
 }
 
 body.site-home .home-lede {
@@ -2052,12 +2141,25 @@ body.has-diagram-modal { overflow: hidden; }
         padding: .5rem;
         flex-direction: column;
         align-items: stretch;
-        background: var(--paper);
+        background: var(--nav-bar-fill);
         border: 2px solid var(--ink);
         box-shadow: 5px 5px 0 var(--ink);
     }
     body.site-page .site-nav.is-open .site-menu { display: flex; }
-    body.site-page .site-menu a { padding: .68rem .6rem; }
+    body.site-page .site-menu > .site-menu__link,
+    body.site-page .site-work-menu {
+        min-height: 0;
+        margin: 0;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--line);
+    }
+    body.site-page .site-menu > .site-menu__link { display: block; padding: .68rem .6rem; }
+    body.site-page .site-work-menu__all { padding: .68rem .6rem; }
+    body.site-page .site-work-menu__toggle { border-left: 0; }
+    body.site-page .site-menu > .site-menu__link.is-current,
+    body.site-page .site-work-menu.is-current { border-bottom-color: var(--line); }
+    body.site-page .site-menu__utility,
     body.site-page .site-menu__github { margin: .4rem 0 0; }
     body.site-page .site-work-menu { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
     body.site-page .site-work-menu__all { grid-column: 1; }
@@ -2074,6 +2176,8 @@ body.has-diagram-modal { overflow: hidden; }
     }
     body.site-page .site-work-dropdown__title { padding-bottom: .4rem !important; }
     body.site-home .site-menu { background: rgba(23,35,59,.98); border-color: #fff; box-shadow: 5px 5px 0 var(--yellow); }
+    body.site-home .site-menu > .site-menu__link,
+    body.site-home .site-work-menu { background: transparent; border-bottom-color: rgba(255,255,255,.5); }
     body.site-home .site-menu-button { color: #fff; }
     body.site-page .site-shell { width: min(100% - 1.5rem, 1180px); padding: 3.2rem 0; }
     body.site-page .page-heading { font-size: clamp(2.55rem, 13vw, 4rem); }
@@ -2123,21 +2227,25 @@ body.has-diagram-modal { overflow: hidden; }
 /* ── Branch Specific Background Colors ── */
 /* Data Science - Very Light Pink (derived from #D23B72) */
 body.datascience-page, body.project1-page, body.capstone-page {
+    --nav-active-fill: #fbe6ee;
     background-color: #fbe6ee;
 }
 
 /* Games - Very Light Blue (derived from #4195DE) */
 body.games-page, body.brickbreaker-page, body.catchfall-game {
+    --nav-active-fill: #e5eff8;
     background-color: #e5eff8;
 }
 
 /* p5.js - Very Light Purple (derived from #A288E3) */
 body.p5-page, body.sketchpad-page, body.spikes-page {
+    --nav-active-fill: #f2eef8;
     background-color: #f2eef8;
 }
 
 /* About / Contact - Very Light Blue (matching Games) */
 body.about-page, body.contact-page {
+    --nav-active-fill: #e5eff8;
     background-color: #e5eff8;
 }
 
@@ -2338,6 +2446,9 @@ body.about-page, body.contact-page {
 /* ── Photography Showcase ────────────────────────────────────────── */
 
 body.photo-page {
+    --nav-tab-fill: #151515;
+    --nav-active-fill: #0a0a0a;
+    --nav-bar-fill: rgba(10, 10, 10, .92);
     background-color: #0a0a0a !important; /* Deep dark for contrast */
     color: #f0f0f0;
     overflow-x: hidden;
@@ -2548,12 +2659,19 @@ body.photo-page {
 body.site-page .site-nav { pointer-events: auto; }
 
 body.photo-page.site-page .site-nav {
-    background: rgba(10, 10, 10, .92);
+    background: var(--nav-bar-fill);
     border-bottom-color: rgba(255,255,255,.72);
 }
 
 body.photo-page.site-page .site-brand,
 body.photo-page.site-page .site-menu a { color: #f0f0f0; }
+
+body.photo-page.site-page .site-menu > .site-menu__link,
+body.photo-page.site-page .site-work-menu {
+    color: #f0f0f0;
+    background: var(--nav-tab-fill);
+    border-color: rgba(255,255,255,.72);
+}
 
 body.photo-page.site-page .site-work-menu__toggle { color: #f0f0f0; }
 
@@ -2561,6 +2679,7 @@ body.photo-page.site-page .site-menu a:hover,
 body.photo-page.site-page .site-menu a:focus-visible,
 body.photo-page.site-page .site-menu a.is-current { color: var(--yellow); }
 
+body.photo-page.site-page .site-menu__utility,
 body.photo-page.site-page .site-menu__github { border-color: #f0f0f0 !important; }
 
 body.site-page .page-lede,

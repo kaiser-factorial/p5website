@@ -51,7 +51,6 @@
 
   const navItems = [
     { key: 'about', label: 'About', href: href('about.html') },
-    { key: 'resume', label: 'Resume', href: href('resume/Corina-Kaiser-Resume-May-2026.pdf'), external: true },
     { key: 'contact', label: 'Contact', href: href('page1contact.html') }
   ];
 
@@ -63,6 +62,9 @@
         <span class="site-menu-button__bars" aria-hidden="true"><i></i><i></i></span>
       </button>
       <div class="site-menu" id="site-menu">
+        ${navItems.slice(0, 1).map((item) => `
+          <a class="site-menu__link${current === item.key ? ' is-current' : ''}" href="${item.href}"${current === item.key ? ' aria-current="page"' : ''}>${item.label}</a>
+        `).join('')}
         <div class="site-work-menu${current === 'work' ? ' is-current' : ''}">
           <a class="site-menu__link site-work-menu__all${current === 'work' ? ' is-current' : ''}" href="${href('datascience.html')}"${current === 'work' ? ' aria-current="page"' : ''}>Selected work</a>
           <button class="site-work-menu__toggle" type="button" aria-expanded="false" aria-controls="site-work-dropdown" aria-label="Show selected work projects">
@@ -79,13 +81,28 @@
             `).join('')}
           </div>
         </div>
-        ${navItems.map((item) => `
-          <a class="site-menu__link${current === item.key ? ' is-current' : ''}" href="${item.href}"${item.external ? ' target="_blank" rel="noopener noreferrer"' : ''}${current === item.key ? ' aria-current="page"' : ''}>${item.label}${item.external ? '<span aria-hidden="true"> ↗</span>' : ''}</a>
+        ${navItems.slice(1).map((item) => `
+          <a class="site-menu__link${current === item.key ? ' is-current' : ''}" href="${item.href}"${current === item.key ? ' aria-current="page"' : ''}>${item.label}</a>
         `).join('')}
+        <a class="site-menu__utility site-menu__resume" href="${href('resume/Corina-Kaiser-Resume-May-2026.pdf')}" target="_blank" rel="noopener noreferrer">Resume <span aria-hidden="true">↗</span></a>
         <a class="site-menu__github" href="https://github.com/kaiser-factorial" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   `;
+
+  // Keep visitors anchored in the portfolio: internal pages navigate in place,
+  // while external destinations and downloadable documents open separately.
+  document.querySelectorAll('a[href]').forEach((link) => {
+    const rawHref = link.getAttribute('href');
+    if (!rawHref || rawHref.startsWith('#') || /^(mailto:|tel:|javascript:)/i.test(rawHref)) return;
+
+    const destination = new URL(rawHref, document.baseURI);
+    const isDocument = /\.pdf$/i.test(destination.pathname);
+    if (destination.origin === window.location.origin && !isDocument) return;
+
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+  });
 
   const menuButton = nav.querySelector('.site-menu-button');
   const menu = nav.querySelector('.site-menu');
@@ -125,6 +142,53 @@
   window.addEventListener('resize', () => {
     if (window.innerWidth > 760) closeMenu();
   });
+
+  const homeTitle = document.querySelector('.home-title');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (homeTitle && !reduceMotion) {
+    const titleText = homeTitle.textContent.trim();
+    homeTitle.setAttribute('aria-label', titleText);
+    homeTitle.textContent = '';
+
+    const letters = [...titleText].map((character) => {
+      const letter = document.createElement('span');
+      letter.setAttribute('aria-hidden', 'true');
+      letter.textContent = character === ' ' ? '\u00a0' : character;
+      homeTitle.appendChild(letter);
+      return letter;
+    });
+
+    const resetLetters = () => {
+      letters.forEach((letter) => {
+        letter.style.transform = '';
+        letter.style.color = '';
+      });
+    };
+
+    homeTitle.addEventListener('pointermove', (event) => {
+      const radius = 150;
+      letters.forEach((letter) => {
+        const bounds = letter.getBoundingClientRect();
+        const x = bounds.left + bounds.width / 2;
+        const y = bounds.top + bounds.height / 2;
+        const distance = Math.hypot(event.clientX - x, event.clientY - y);
+
+        if (distance >= radius) {
+          letter.style.transform = '';
+          letter.style.color = '';
+          return;
+        }
+
+        const angle = Math.atan2(event.clientY - y, event.clientX - x);
+        const push = (radius - distance) * .2;
+        letter.style.transform = `translate(${-Math.cos(angle) * push}px, ${-Math.sin(angle) * push}px)`;
+        letter.style.color = '#fff';
+      });
+    });
+
+    homeTitle.addEventListener('pointerleave', resetLetters);
+  }
 
   const practiceSelector = document.querySelector('[data-practice-selector]');
   const desktopEvidence = document.querySelector('[data-home-evidence]');
