@@ -1424,6 +1424,7 @@ body.site-page .work-grid {
 
 body.site-page .work-card {
     display: flex;
+    min-width: 0;
     min-height: 100%;
     flex-direction: column;
     border: 2px solid var(--ink);
@@ -1444,8 +1445,8 @@ body.site-page .work-card__visual {
 body.site-page .work-card__visual--memory { background: linear-gradient(135deg, #f8e66b, #f8e66b 31%, #1f5fc4 31% 62%, #ed6b9b 62%); }
 body.site-page .work-card__visual--joint { background: linear-gradient(135deg, #dfeaf7, #dfeaf7 43%, #1f5fc4 43% 47%, #fff 47%); }
 body.site-page .work-card__visual--ledger { background: linear-gradient(135deg, #19243c, #19243c 50%, #00c840 50% 54%, #f7f5ef 54%); color: #fff; }
-body.site-page .work-card__visual--scatter { min-height: 0; padding: 0; aspect-ratio: 24 / 11; overflow: hidden; background: #fff; }
-body.site-page .work-card__visual--scatter img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+body.site-page .work-card__visual--scatter { display: block; min-width: 0; min-height: 0; padding: 0; overflow: hidden; background: #fff; }
+body.site-page .work-card__visual--scatter img { display: block; width: 100%; max-width: 100%; height: auto; min-width: 0; }
 body.site-page .work-card__visual--wearab { background: linear-gradient(135deg, #2d1948, #2d1948 53%, #ffd600 53% 57%, #e86f9a 57%); color: #fff; }
 body.site-page .work-card__visual--nemoh { background: radial-gradient(circle, #ffd600 0 6%, transparent 7%) 0 0 / 44px 44px, #1d4a8d; color: #fff; }
 body.site-page .work-card__visual--other { background: linear-gradient(135deg, #d23b72, #d23b72 33%, #ffd600 33% 66%, #4195de 66%); }
