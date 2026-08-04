@@ -1444,7 +1444,8 @@ body.site-page .work-card__visual {
 body.site-page .work-card__visual--memory { background: linear-gradient(135deg, #f8e66b, #f8e66b 31%, #1f5fc4 31% 62%, #ed6b9b 62%); }
 body.site-page .work-card__visual--joint { background: linear-gradient(135deg, #dfeaf7, #dfeaf7 43%, #1f5fc4 43% 47%, #fff 47%); }
 body.site-page .work-card__visual--ledger { background: linear-gradient(135deg, #19243c, #19243c 50%, #00c840 50% 54%, #f7f5ef 54%); color: #fff; }
-body.site-page .work-card__visual--scatter { background: radial-gradient(circle at 25% 70%, #d23b72 0 12%, transparent 13%), radial-gradient(circle at 70% 32%, #ffd600 0 9%, transparent 10%), linear-gradient(135deg, #e7f2fa, #4195de); }
+body.site-page .work-card__visual--scatter { min-height: 0; padding: 0; aspect-ratio: 24 / 11; overflow: hidden; background: #fff; }
+body.site-page .work-card__visual--scatter img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 body.site-page .work-card__visual--wearab { background: linear-gradient(135deg, #2d1948, #2d1948 53%, #ffd600 53% 57%, #e86f9a 57%); color: #fff; }
 body.site-page .work-card__visual--nemoh { background: radial-gradient(circle, #ffd600 0 6%, transparent 7%) 0 0 / 44px 44px, #1d4a8d; color: #fff; }
 body.site-page .work-card__visual--other { background: linear-gradient(135deg, #d23b72, #d23b72 33%, #ffd600 33% 66%, #4195de 66%); }
@@ -1517,6 +1518,15 @@ body.site-page .work-card__link {
     font-weight: 700;
     text-decoration: none;
 }
+
+body.site-page .work-card__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem 1.1rem;
+    margin-top: auto;
+}
+
+body.site-page .work-card__links .work-card__link { margin-top: 0; }
 
 body.site-page .work-card__link:hover { color: var(--pink); }
 
@@ -1884,6 +1894,8 @@ body.site-page .case-media {
 body.site-page .case-media img { display: block; width: 100%; max-height: 500px; object-fit: cover; object-position: center; cursor: zoom-in; transition: filter .2s ease; }
 body.site-page .case-media--app { background: #080d0c; }
 body.site-page .case-media--app img { max-height: 460px; object-fit: contain; }
+body.site-page .case-media--scatter { background: #fff; }
+body.site-page .case-media--scatter img { object-fit: contain; }
 body.site-page .case-media--pixel img { background: #181717; object-fit: contain; }
 body.site-page .case-media--vat { background: #080c0a; }
 body.site-page .case-media--vat img { max-height: none; object-fit: contain; }
