@@ -1,32 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ledger and Bulwork: cross-device project state and browser focus tooling designed for safe intervention.">
-    <title>Ledger + Bulwork — Corina Kaiser</title>
+    <meta name="description"
+        content="The Ledger + BULWORK MODE: Integrated project state hub, AI focus adjudicator, and Manifest V3 Chrome extension.">
+    <title>The Ledger + BULWORK MODE — Corina Kaiser</title>
     <link rel="stylesheet" href="../style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <script defer src="../site.js?v=20260801-modal-2"></script>
 </head>
+
 <body class="site-page" data-page="work" data-root="..">
     <nav class="site-nav" data-site-nav></nav>
     <main class="site-shell">
         <header class="case-hero">
-            <div><p class="eyebrow">Applied agent systems</p><h1 class="page-heading">Ledger + Bulwork</h1><p class="page-lede">Cross-device project state and browser focus tooling built around safe, explainable intervention.</p><div class="button-row"><a class="button-link" href="../datascience.html">Back to work <span aria-hidden="true">→</span></a></div></div>
-            <aside class="case-status"><span>Public page status</span><strong>Technical briefing — demo media pending</strong></aside>
+            <div>
+                <p class="eyebrow">ADHD PROJECT-OS INFRASTRUCTURE</p>
+                <h1 class="page-heading">The Ledger + BULWORK MODE</h1>
+                <p class="page-lede">An integrated system pairing a multi-platform project health hub with an
+                    AI-adjudicated Chrome extension &amp; daemon to eliminate work-session drift and keep creative projects active.</p>
+                <div class="button-row"><a class="button-link" href="../datascience.html">Back to work <span
+                            aria-hidden="true">→</span></a></div>
+            </div>
+            <aside class="case-status"><span>PUBLIC CASE STUDY</span><strong>Architecture overview — visual walkthrough
+                    pending</strong></aside>
         </header>
         <section class="case-grid">
             <div class="case-copy">
-                <h2>The question</h2><p>How can a personal operating system connect project history, health/status signals, and attention support without turning automation into a brittle or punitive layer?</p>
-                <h2>What I built</h2><p>Ledger spans desktop, web, and mobile-oriented surfaces with authenticated state and realtime synchronization. Bulwork adds a local service and browser extension that can allow, block, or ask about distracting destinations; it also supports plans, focus sessions, and learned decisions without placing provider secrets in the extension.</p>
-                <h2>The hard part</h2><p>The enforcement policy treats an incorrect block as more costly than an incorrect allow. That produces an explicit “ask” path and fail-open behavior when confidence is insufficient—a small product decision with large consequences for trust.</p>
-                <h2>Evidence to add</h2><p>This case study will later show the system diagram and a short walkthrough of a safe “Ask” decision. A full authenticated desktop/service/extension stack will not be embedded into GitHub Pages.</p>
+                <h2>The problem: project decay and session drift</h2>
+                <p>Creative projects rarely die with a dramatic failure; they quietly fade away when un-touched ideas sit in forgotten repositories. Even when a creator decides to re-engage, secondary friction takes over: opening the workspace requires manual setup, and focus during a work session easily drifts into passive web browsing.</p>
+                <p>To solve this dual challenge, I designed an integrated two-pillar ADHD Project-OS: <strong>The Ledger</strong> (a multi-platform hub that makes project neglect visible through touch tracking) and <strong>BULWORK MODE</strong> (a Manifest V3 Chrome extension and background daemon that enforces active focus using local context and AI adjudication).</p>
+
+                <h2>The Ledger: Visible project health &amp; touch tracking</h2>
+                <p>The Ledger serves as the central state hub. Built as a cross-platform application spanning macOS desktop (Tauri 2), web (Vite SPA), and mobile (Capacitor 6), it provides frictionless project tracking with zero fluff.</p>
+                <p>A project’s health is evaluated continuously using a smooth Red-Yellow-Green (<code>RdYlGn</code>) status dot gradient calculated from days since its <code>lastTouched</code> timestamp (green for 0–4 days, yellow for 5–9 days, and red for 10+ days). Each project maintains a rolling 8-entry touch history with categorized reasons (such as <code>progress</code>, <code>research</code>, <code>blocked</code>, or automated GitHub <code>push</code> events), alongside explicit <code>nextAction</code> fields with review flagging.</p>
+                <p>To support desktop environments without relying on broken webview popup dialogs, the app incorporates a native Rust TCP loopback server (<code>127.0.0.1:53682</code>) to capture Google and GitHub OAuth redirects safely. It also features an embedded AI side panel (powered by OpenRouter) equipped with 11 security-confined tools for searching local files, querying project state, and launching focus sessions.</p>
+
+                <h2>BULWORK MODE: Contextual focus enforcement</h2>
+                <p>While The Ledger manages project state, BULWORK MODE acts as the focus enforcement pillar. Architected as a decoupled background daemon (running at <code>http://localhost:7373</code>), it enforces focus without polluting client UI bundles or requiring intrusive macOS Accessibility API permissions.</p>
+                <p>At the core of BULWORK is an AI Adjudicator Engine powered by Claude Haiku 4.5. When a user navigates the web or switches applications during a focus session, target destinations are evaluated against the session’s focus task using a two-phase guard: an instant URL pattern check at <code>document_start</code>, followed by a deeper re-check of the page’s <code>&lt;title&gt;</code> and meta tags once loaded.</p>
+                <p>The policy operates on a charitable stance: adjacent professional tools and documentation (e.g. StackOverflow or technical RFCs) are allowed, while clear distractors are blocked. On low-confidence evaluations, the system safely defaults to a conservative-allow to preserve user trust. Frontmost application telemetry is captured every 5 seconds via native macOS <code>lsappinfo</code> polling, and workspace app layouts are automated via Bunches (<code>x-bunch://open</code>).</p>
+
+                <h2>The Chrome Extension: Frontline browser enforcement</h2>
+                <p>The primary surface used during day-to-day work is the <strong>BULWORK Chrome Extension</strong> (Manifest V3). Serving as the frontline enforcement layer, the extension contains zero API keys or LLM prompt logic; instead, it delegates all intelligence to the local daemon (<code>localhost:7373</code>).</p>
+                <p>The extension organizes web traffic into a three-tiered domain architecture:</p>
+                <p><strong>Tier 1 (Hard Block):</strong> High-distraction domains (e.g. Reddit, TikTok, Netflix) are intercepted at the network level using Chrome’s <code>declarativeNetRequest</code> API. Navigations are instantly redirected to a local block page without incurring network latency or API costs.</p>
+                <p><strong>Tier 2 (AI Adjudicated):**</strong> Ambiguous sites (news, YouTube, Twitter) trigger a background IPC request to the local daemon. Content scripts monitor SPA navigation events—evaluating individual YouTube videos rather than blocking the domain wholesale. If a site is deemed off-task, a soft overlay (“Back to BULWORK MODE”) appears with a <em>“Just 1 more minute”</em> grace button that pauses the work clock with a subtle vignette cue.</p>
+                <p><strong>Tier 3 (Whitelist):**</strong> Developer documentation, GitHub, StackOverflow, and localhost endpoints pass through completely untouched.</p>
+                <p>Beyond domain blocking, the extension includes a <strong>Pomodoro timer engine</strong> with real-time toolbar badge indicators (red for work blocks, green for breaks), day-plan block queues with automated stop triggers (advancing when a git push or Ledger touch is detected), and a <strong>Floating AI Chat Pill</strong>. When visiting AI tools like Claude.ai, ChatGPT, or Gemini, a bottom-right pill allows inserting a soft-nudge focus header directly into the prompt composer with a single click (<code>“↳ prepend focus”</code>).</p>
+
+                <h2>System synthesis: The focused work loop</h2>
+                <p>The Ledger, BULWORK daemon, and Chrome Extension operate independently but lock together during active work sessions to create a complete feedback loop:</p>
+                <p><strong>1. Selection &amp; Launch:</strong> The user picks a project in The Ledger (or selects a project directly from the Chrome Extension popup). Starting a session sends the project’s defined <code>nextAction</code> as the focus task to BULWORK via <code>POST /session/start</code>, automatically deploying Chrome’s <code>declarativeNetRequest</code> rules and opening the project’s <code>.bunch</code> workspace layout.</p>
+                <p><strong>2. Active Enforcement &amp; State Mirroring:</strong> While a session is active, The Ledger polls BULWORK’s status endpoint (<code>GET /session</code> every 5 seconds) and renders a glowing yellow ambient border (<code>#FFD60A</code>) across the application shell. The Chrome Extension badge displays a live minute-by-minute countdown, while BULWORK queries a local vector Memory Hub (<code>mem query</code>) to semantically ground what counts as on-topic research for that specific project’s technical docs.</p>
+                <p><strong>3. Session Completion &amp; Admin Sync:</strong> When the session ends or a Pomodoro break begins, Tier 1 block rules dynamically lift. Completed focus metrics, grace pauses, and adjudication logs are written directly to Cloud Firestore (<code>focus_sessions</code>) using the Firebase Admin SDK stamped with <code>BULWORK_USER_ID</code>, automatically populating timeline views inside The Ledger UI via real-time <code>onSnapshot</code> listeners.</p>
+
+                <h2>Design constraints &amp; trade-offs</h2>
+                <p>Architecting this constellation required balancing system capability against security and user experience:</p>
+                <p><strong>Zero-secret extension architecture:</strong> Moving all AI keys and rule compilation into the local daemon ensures the browser extension context holds no sensitive credentials and cannot be exploited by malicious scripts.</p>
+                <p><strong>Decoupled daemon vs. monolithic app:</strong> Keeping BULWORK as a separate background process ensures enforcement survives when the UI window is closed, while keeping OS-level process management code out of cross-platform React web builds.</p>
+                <p><strong>Friction vs. fortress philosophy:</strong> The threat model targets outlasting short-term impulse browsing rather than stopping a malicious user. Permissive fallback rules, grace pauses, and soft-nudge headers prioritize habit building over punitive locking.</p>
+
+                <h2>Visual walkthrough</h2>
+                <p>This page will later carry an interactive system topology diagram, a two-phase adjudication decision flow, and a video walkthrough of the Chrome Extension and focused work session loop.</p>
             </div>
-            <aside><div class="placeholder-panel"><strong>L + B</strong><p>Reserved for the Ledger ↔ local service ↔ browser extension flow and a concise workflow clip.</p></div><ul class="case-facts"><li><strong>Focus</strong><span>Product systems, safe intervention, browser tooling</span></li><li><strong>Surfaces</strong><span>Desktop, web, service, extension</span></li><li><strong>Public boundary</strong><span>Case study and redacted demo, not a public control surface</span></li></ul></aside>
+            <aside>
+                <div class="placeholder-panel"><strong>LEDGER + BULWORK</strong>
+                    <p>Reserved for system topology diagrams, adjudication flowcharts, Chrome extension previews, and workspace session clips.</p>
+                </div>
+                <ul class="case-facts">
+                    <li><strong>Focus</strong><span>Project health tracking &amp; AI focus enforcement</span></li>
+                    <li><strong>Surfaces</strong><span>Tauri Desktop (macOS), Web SPA, Capacitor (iOS/Android), REST Daemon, Chrome Extension (Manifest V3)</span></li>
+                    <li><strong>Stack</strong><span>React 19, TypeScript, Rust, Node.js, Cloud Firestore, Claude Haiku 4.5, Chrome Extension API (DNR)</span></li>
+                </ul>
+            </aside>
         </section>
     </main>
-    <footer class="site-footer"><div class="site-footer__inner"><span>Corina Kaiser · Ledger + Bulwork</span><span><a href="mailto:kaiser.factorial@gmail.com">Discuss the system</a></span></div></footer>
+    <footer class="site-footer">
+        <div class="site-footer__inner"><span>Corina Kaiser · The Ledger + BULWORK MODE</span><span><a
+                    href="mailto:kaiser.factorial@gmail.com">Discuss the system</a></span></div>
+    </footer>
     <script src="../global_transition.js"></script>
 </body>
+
 </html>

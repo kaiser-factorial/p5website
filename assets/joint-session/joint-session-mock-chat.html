@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joint-Session Demo Chat</title>
+<style>
+  html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+  :root {
+    --bg: #f5f5f1;
+    --surface: #ffffff;
+    --ink: #0a0a0a;
+    --ink-soft: #57554e;
+    --yellow: #ffd83d;
+    --c-user: #e5484d;
+    --c-qwen: #615ced;
+    --c-luna: #111111;
+    --c-claude: #da7756;
+    --c-gemini: #68d053;
+    --border-soft: rgba(0, 0, 0, 0.12);
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  .mock-wrap {
+    height: 100%;
+    background: var(--bg);
+    padding: 0 6px 6px 0;
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    color: var(--ink);
+  }
+  .chat-frame {
+    height: 100%;
+    max-width: 1040px;
+    margin: 0 auto;
+    border: 3px solid var(--ink);
+    box-shadow: 6px 6px 0 var(--ink);
+    background: var(--surface);
+    position: relative;
+    overflow: visible;
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.95rem;
+    border-bottom: 3px solid var(--ink);
+    background: var(--yellow);
+  }
+  .chat-titlebar span {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .chat-dots { display: flex; gap: 0.35rem; }
+  .chat-dots i {
+    width: 10px; height: 10px;
+    border: 2px solid var(--ink);
+    border-radius: 50%;
+    display: block;
+    background: var(--surface);
+  }
+
+  .chat-body {
+    position: relative;
+    display: flex;
+    overflow: visible;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .chat-scroll {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    padding: 1.35rem 1.35rem 0.6rem 1.15rem;
+    scroll-behavior: smooth;
+  }
+
+  /* minimap — fixed flyouts escape overflow clipping */
+  .minimap {
+    flex: 0 0 40px;
+    position: relative;
+    border-left: 1px solid var(--border-soft);
+    background: color-mix(in srgb, var(--bg) 70%, var(--surface));
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+    z-index: 30;
+    overflow: visible;
+  }
+  .minimap-rail {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0.75rem 0.35rem;
+    min-height: 0;
+    /* no overflow-y here — clipping is what killed flyouts */
+  }
+  .mm-label {
+    font-size: 0.52rem;
+    font-family: ui-monospace, monospace;
+    color: var(--ink-soft);
+    opacity: 0.65;
+    letter-spacing: 0.06em;
+    user-select: none;
+    margin-bottom: 0.45rem;
+    /* one vertical line (read bottom → top along the rail) */
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .mm-sq {
+    width: 10px;
+    height: 10px;
+    border: 1px solid color-mix(in srgb, var(--ink) 45%, transparent);
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--ink) 28%, transparent);
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.12s ease, box-shadow 0.12s ease, width 0.12s ease, height 0.12s ease;
+  }
+  /* scroll-spy: turn currently under the probe line */
+  .mm-sq.is-active {
+    width: 11px;
+    height: 11px;
+    background: color-mix(in srgb, var(--c-user) 75%, transparent);
+    border: 1.5px solid var(--c-user);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--c-user) 35%, transparent);
+  }
+  /* hover / flyout open wins over active */
+  .mm-sq:hover, .mm-sq:focus-visible, .mm-sq.is-open {
+    width: 11px;
+    height: 11px;
+    background: var(--c-user);
+    border: 1.5px solid var(--c-user);
+    box-shadow: none;
+    outline: none;
+  }
+  /* FIXED flyout — portaled-style, above chat surface */
+  .mm-flyout-fixed {
+    position: fixed;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.6rem;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.18);
+    white-space: nowrap;
+    max-width: min(320px, 70vw);
+    pointer-events: auto;
+  }
+  .mm-flyout-fixed.is-open { display: flex; }
+  .mm-flyout-fixed[hidden] { display: none !important; }
+  .mm-flyout-text {
+    font-size: 0.68rem;
+    color: var(--ink);
+    opacity: 0.78;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+  .mm-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.35);
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .mm-dot.a-qwen { background: var(--c-qwen); }
+  .mm-dot.a-luna { background: var(--c-luna); }
+  .mm-dot.a-claude { background: var(--c-claude); }
+  .mm-dot.a-gemini { background: var(--c-gemini); }
+  .mm-dot:hover { transform: scale(1.18); }
+
+  .msg-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    margin-bottom: 1.55rem;
+    --entity: var(--ink-soft);
+  }
+  .msg-row[data-role="user"] { --entity: var(--c-user); }
+  .msg-row[data-role="qwen"] { --entity: var(--c-qwen); }
+  .msg-row[data-role="luna"] { --entity: var(--c-luna); }
+  .msg-row[data-role="claude"] { --entity: var(--c-claude); }
+  .msg-row[data-role="gemini"] { --entity: var(--c-gemini); }
+  .msg-row.self { flex-direction: row-reverse; }
+  .msg-row.is-synthesis .msg-bubble {
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--c-gemini) 35%, transparent);
+  }
+
+  .msg-avatar {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.05rem;
+    border-radius: 50%;
+    border: 2px solid var(--entity);
+    background: var(--entity);
+    color: #fff;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--entity) 35%, transparent);
+    margin-top: 1.35rem;
+  }
+  .msg-avatar.a-luna { background: #1a1a1a; }
+
+  .msg-content { flex: 1; min-width: 0; }
+  .msg-row.self .msg-content { text-align: right; }
+  .msg-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin-bottom: 0.28rem;
+    flex-wrap: wrap;
+  }
+  .msg-row.self .msg-meta { justify-content: flex-end; }
+  .msg-name {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--entity);
+  }
+  .msg-time {
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    opacity: 0.75;
+  }
+  .msg-rates {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.05rem;
+    margin-left: 0.15rem;
+  }
+  .rate-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.82rem;
+    padding: 0 0.12rem;
+    line-height: 1;
+    opacity: 0.55;
+    transition: opacity 0.12s ease, transform 0.12s ease;
+  }
+  .rate-btn:hover { opacity: 1; transform: scale(1.12); }
+  .rate-btn.is-on { opacity: 1; }
+  .rate-count {
+    font-size: 0.62rem;
+    color: var(--ink-soft);
+    min-width: 0.55em;
+    opacity: 0.7;
+  }
+
+  .msg-bubble {
+    display: inline-block;
+    text-align: left;
+    max-width: 100%;
+    width: 100%;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius);
+    border-style: solid;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    border-left-width: 4px;
+    border-right-width: 1px;
+    border-top-color: color-mix(in srgb, var(--entity) 35%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--entity) 35%, transparent);
+    border-left-color: var(--entity);
+    border-right-color: color-mix(in srgb, var(--entity) 35%, transparent);
+    background: color-mix(in srgb, var(--entity) 10%, var(--surface));
+    font-size: 0.9rem;
+    line-height: 1.58;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+  .msg-row.self .msg-bubble {
+    border-left-width: 1px;
+    border-right-width: 4px;
+    border-left-color: color-mix(in srgb, var(--entity) 35%, transparent);
+    border-right-color: var(--entity);
+  }
+  .msg-bubble > *:first-child { margin-top: 0; }
+  .msg-bubble > *:last-child { margin-bottom: 0; }
+  .msg-bubble p { margin: 0 0 0.55em; }
+  .msg-bubble p:last-child { margin-bottom: 0; }
+  .msg-bubble h2, .msg-bubble h3 {
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin: 0.85em 0 0.4em;
+  }
+  .msg-bubble h2:first-child, .msg-bubble h3:first-child { margin-top: 0; }
+  .msg-bubble ul, .msg-bubble ol { margin: 0.35em 0 0.55em; padding-left: 1.25em; }
+  .msg-bubble li { margin-bottom: 0.25em; }
+  .msg-bubble blockquote {
+    margin: 0.5em 0;
+    padding: 0.4em 0.75em;
+    border-left: 3px solid color-mix(in srgb, var(--entity) 55%, transparent);
+    background: color-mix(in srgb, var(--entity) 6%, var(--surface));
+    border-radius: 0 6px 6px 0;
+    font-weight: 500;
+  }
+  .msg-bubble code {
+    background: color-mix(in srgb, var(--ink) 6%, var(--surface));
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85em;
+  }
+  .msg-bubble pre {
+    background: #1a1a1a;
+    color: #e8e8e8;
+    border-radius: 8px;
+    padding: 0.7rem 0.85rem;
+    overflow-x: auto;
+    font-family: ui-monospace, monospace;
+    font-size: 0.78rem;
+    line-height: 1.45;
+    margin: 0.55em 0;
+  }
+  .msg-bubble pre code { background: none; border: none; padding: 0; color: inherit; }
+  .msg-bubble strong { font-weight: 750; }
+  .msg-bubble hr {
+    border: none;
+    border-top: 1px dashed color-mix(in srgb, var(--entity) 40%, transparent);
+    margin: 0.85em 0;
+  }
+
+  .trace {
+    margin-bottom: 0.35rem;
+    border: 1px dashed color-mix(in srgb, var(--entity) 40%, transparent);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--entity) 6%, var(--surface));
+    text-align: left;
+  }
+  .trace summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.35rem 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: color-mix(in srgb, var(--entity) 55%, var(--ink));
+  }
+  .trace summary::-webkit-details-marker { display: none; }
+  .trace summary .arrow { font-size: 0.7rem; transition: transform 0.12s ease; }
+  .trace[open] summary .arrow { transform: rotate(90deg); }
+  .trace-tag { font-weight: 700; }
+  .trace-preview {
+    flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    opacity: 0.85; font-weight: 500;
+  }
+  .trace-body {
+    padding: 0.45rem 0.65rem 0.65rem;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: color-mix(in srgb, var(--entity) 45%, var(--ink));
+    margin: 0;
+    white-space: pre-wrap;
+  }
+
+  .tool-group {
+    margin: 0.45rem auto 1.25rem;
+    max-width: 90%;
+    border: 1px dashed color-mix(in srgb, var(--ink) 28%, transparent);
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
+    padding: 0.4rem 1rem;
+    font-size: 0.82rem;
+    color: var(--ink);
+    opacity: 0.85;
+    font-style: italic;
+    font-weight: 600;
+  }
+  .tool-group.is-single {
+    text-align: center;
+    font-style: italic;
+  }
+  .tool-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font: inherit;
+    color: inherit;
+    text-align: left;
+    padding: 0;
+    font-weight: 600;
+  }
+  .tool-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    margin-top: 0.4rem;
+    font-family: ui-monospace, monospace;
+    font-size: 0.72rem;
+    font-style: normal;
+    line-height: 1.45;
+  }
+  .tool-list[hidden] { display: none; }
+
+  .playground-frame {
+    margin-top: 0.7rem;
+    border: 1px solid var(--border-soft);
+    border-radius: 8px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+  .playground-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid var(--border-soft);
+    background: color-mix(in srgb, var(--entity) 6%, var(--surface));
+    font-family: ui-monospace, monospace;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+  }
+  .playground-head .tag {
+    background: color-mix(in srgb, var(--entity) 85%, #000);
+    color: #fff;
+    padding: 0.05rem 0.35rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    font-size: 0.62rem;
+  }
+  .playground-frame iframe {
+    width: 100%;
+    height: 280px;
+    border: 0;
+    display: block;
+    background: var(--bg);
+  }
+
+  .rate-why {
+    margin-top: 0.3rem;
+    margin-bottom: 0.15rem;
+    display: none;
+    max-width: 340px;
+  }
+  .msg-row.self .rate-why { margin-left: auto; }
+  .rate-why.is-open { display: block; }
+  .rate-why input {
+    width: 100%;
+    border: 1px solid var(--border-soft);
+    border-radius: 6px;
+    padding: 0.3em 0.55em;
+    font-size: 0.72rem;
+    font-family: inherit;
+    background: var(--surface);
+  }
+
+  .chat-footer {
+    border-top: 1px solid var(--border-soft);
+    padding: 0.55rem 0.95rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    background: color-mix(in srgb, var(--bg) 65%, var(--surface));
+  }
+  .chat-caption {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin: 0;
+  }
+  .jump-synth {
+    font-family: ui-monospace, monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border: 2px solid var(--ink);
+    background: var(--surface);
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  .jump-synth:hover { background: var(--bg); }
+  .jump-synth:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--ink); }
+
+  .toast {
+    position: fixed;
+    bottom: 1.25rem;
+    right: 1.25rem;
+    background: var(--ink);
+    color: #fff;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    box-shadow: 4px 4px 0 var(--yellow);
+    border: 2px solid var(--yellow);
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    max-width: 280px;
+  }
+  .toast.is-on { opacity: 1; }
+
+  @media (max-width: 560px) {
+    .minimap { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="mock-wrap">
+  <div class="chat-frame" id="chat-frame">
+    <div class="chat-titlebar">
+      <span>joint-session · demo</span>
+      <div class="chat-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+    </div>
+
+    <div class="chat-body">
+      <div class="chat-scroll" id="chat-scroll" tabindex="0" aria-label="Session transcript"></div>
+      <nav class="minimap" id="minimap" aria-label="Jump to user turn">
+        <div class="minimap-rail" id="minimap-rail"></div>
+      </nav>
+    </div>
+
+    <div class="chat-footer">
+      <p class="chat-caption">Excerpt from a real panelist conversation</p>
+      <button type="button" class="jump-synth" id="btn-synth" title="Scroll to Gemini&rsquo;s final draft">Jump to final synthesis</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fixed flyout host (outside overflow contexts) -->
+<div class="mm-flyout-fixed" id="mm-flyout" role="tooltip" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script id="session-data" type="application/json">
+{"meta": {"room": "n9xjWgg9Fj9LwerpGuCa", "roomLabel": "portfolio", "date": "2026-08-02", "panelists": ["Qwen 3.7 Plus", "GPT-5.6 Luna", "Claude Sonnet 4.6", "Gemini 3.1 Pro"], "title": "Joint-Session Demo Chat", "caption": "excerpt from a real conversation with the panel", "tidyNotes": ["Starts at session top; includes user meta closer after synthesis (no panel replies after).", "Claude open stress-test restores word-count punch so user '500-750' lands.", "Minimap: 1 square per human turn; flyouts use fixed positioning (overflow-y:auto clips overflow-x:visible)."]}, "messages": [{"id": "msg-001", "role": "user", "name": "kaiser.factorial", "modelId": null, "initial": "K", "time": "21:17:57", "timeDisplay": "21:17", "kind": "chat", "markdown": "hello everyone! i'm starting this session so we can work together to draft out a nice portfolio page about this Joint Session project. Tone: technically rigorous yet friendly. Medium-length — enough to capture the goings-on, not so long people bounce.\n\n> design problem: no real \"multiplayer ai\" — how can we share live ai chats with friends? evolution: multi-user → multi-model. Then technicalities + design constraints.\n\n> uploaded a pic of the current portfolio page (meh). format: case study? technical brief? app spec? thoughts??", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-002", "role": "qwen", "name": "Qwen 3.7 Plus", "modelId": "Qwen 3.7 Plus (`qwen/qwen3.7-plus`)", "initial": "Q", "time": "21:18:27", "timeDisplay": "21:18", "kind": "chat", "markdown": "Hey! Love this — let's brainstorm. 🧠\n\n**Format instincts:** technical essay as backbone + annotated architecture middle. Wild card: embed a *mini Joint Session* (or mock chat) on the page itself — show, don't tell.\n\n**Skeleton:** Hook → Problem (share AI chats) → Evolution (multi-user → multi-model → skill routing) → Architecture → Realtime (Firestore, event bus, replay) → Active blocks → Skill routing → Tradeoffs → Lessons / next.\n\n~5–7 min read. What resonates?", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-003", "role": "luna", "name": "GPT-5.6 Luna", "modelId": "GPT-5.6 Luna (`openai/gpt-5.6-luna`)", "initial": "L", "time": "21:18:52", "timeDisplay": "21:18", "kind": "chat", "markdown": "I'd recommend a **hybrid technical case study** — narrative with architecture clarity. Not a pure app spec, not a sterile UX case study.\n\nFraming:\n\n> **How do you share a live AI conversation with friends—and what changes when the conversation itself becomes collaborative?**\n\n~1,000–1,500 words, diagrams, short code, maybe one small interactive demo. Structure: problem → evolution (people *and* intelligence) → interaction model → architecture layers → coarse realtime events + late-joiner replay → model routing → active blocks → real tradeoffs → lessons.\n\n**Tone:** mechanism, then *why it matters*. Prioritize a stronger opening and an architecture visual near the top.", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-004", "role": "claude", "name": "Claude Sonnet 4.6", "modelId": "Claude Sonnet 4.6 (`anthropic/claude-sonnet-4.6`)", "initial": "C", "time": "21:19:19", "timeDisplay": "21:19", "kind": "chat", "markdown": "Good framing — before we lock structure, stress-test:\n\n1. **Audience?** Recruiters (15s) vs technical peers vs users conflict. Primary audience drives hierarchy.\n2. **Word count is probably wrong.** Luna's 1k–1.5k sounds fine until you add diagrams, code snippets, a demo, headers, tradeoff tables — the *readable-prose* budget collapses to maybe **600–800 words**. Either commit to a genuinely tight piece *or* a longer reference doc. The middle ground is neither scannable nor deep. **Pick one.**\n3. **Live demo risk:** real backend = infra SPOF, empty-room cold start, security surface. Prefer self-contained/faked.\n4. **Evolution needs forcing functions** — what broke at each pivot, not a changelog.\n5. **Container:** prose-first with diagrams, or structured template with prose filling slots?\n\n**Constraints:** prose-first; diagrams that exist; demo offline/solo; every \"we built X\" needs \"because Y broke\"; tradeoffs must be specific. What's already on the page? Diagnose \"meh,\" don't guess.", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-005", "role": "system", "name": "System", "initial": "·", "time": "21:19:28", "timeDisplay": "21:19", "kind": "tool-group", "tools": [{"text": "📁 Gemini 3.1 Pro listed . (1 entries)"}, {"text": "🌍 Gemini 3.1 Pro saved to global memory (Joint Session stack: React, Vite, TypeScript, Firebase; multi-user/multi-agent, sandboxes…)"}, {"text": "💾 Gemini 3.1 Pro saved to kaiser.factorial's memory: “User is building a portfolio page for the Joint Session project.”"}], "markdown": null, "htmlPlaygrounds": [], "trace": null}, {"id": "msg-006", "role": "gemini", "name": "Gemini 3.1 Pro", "modelId": "Gemini 3.1 Pro (`google/gemini-3.1-pro-preview-customtools`)", "initial": "G", "time": "21:20:05", "timeDisplay": "21:20", "kind": "chat", "markdown": "I can see the screenshot. Cool almost-brutalist aesthetic (bold sans, yellow/blue accents, dotted borders) — but copy reads like a README, not a story.\n\n**Current sections:** The Question (context flattening / model identity) → What I Built → The Hard Part (where info belongs) → What Remains (security).\n\n**Opportunity:** the page already focuses on **memory boundaries** (three namespaces, source-aware retrieval) — none of us guessed that. Audience: **T-shaped** — headers/hero for the 15s skim; body for peers.\n\n**Draft skeleton:** hero (\"collaborate without losing track of who knows what\") → multiplayer memory mess → three namespaces → coarse event bus / idempotent late-joiner replay → OpenRouter multi-model shift.\n\n**Interactive:** Sonnet's right — no live backend. Mocked active-block chat on-page instead. I can build an HTML playground mock matching the brutalist language if you want.", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-007", "role": "user", "name": "kaiser.factorial", "modelId": null, "initial": "K", "time": "21:31:38", "timeDisplay": "21:31", "kind": "chat", "markdown": "the audience for this writeup: technical peers >= recruiters > users. & i agree the word count is too high -- 500-750 should do it. plus, yes, no live demo. but a recreation of the chat interface is a great idea! Qwen-- could you please sketch out how we might recreate a small chat log for users to scroll through on the page? [reminder you can take a look at component code if that's helpful!] then Gemini, could you please take Qwen's code ideas & create a full iteration? meanwhile, gpt/luna, could you please look into the source code to ground yourself, then try your hand at writing out some of the more technical sections which the code covers? claude, you know the drill.", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-008", "role": "system", "name": "System", "initial": "·", "time": "21:31:46", "timeDisplay": "21:31", "kind": "tool-group", "tools": [{"text": "🧩 Qwen 3.7 Plus read components: MessageBubble, ChatInput, Playground"}], "markdown": null, "htmlPlaygrounds": [], "trace": null}, {"id": "msg-009", "role": "qwen", "name": "Qwen 3.7 Plus", "modelId": "Qwen 3.7 Plus (`qwen/qwen3.7-plus`)", "initial": "Q", "time": "21:33:17", "timeDisplay": "21:33", "kind": "chat", "markdown": "Now I have a thorough understanding of the components. Let me sketch out the mock chat interface — a self-contained HTML playground that recreates the look and feel of a Joint Session conversation:\n\n«HTML_PLAYGROUND_0»\n\nThis recreates the key visual elements from the `MessageBubble` component:\n\n- **Colored avatars** with border rings per entity (Gemini green, Claude orange, Qwen blue, user pink)\n- **Left-border accent** on message bubbles matching the sender's color\n- **Reasoning strip** (collapsed chain-of-thought, dashed border)\n- **Active block** (the embedded playground with a mini animated visualization)\n- **System message** (centered pill)\n- **Self messages** (right-aligned, user's own messages)\n- **Code blocks** with monospace styling\n\nThe conversation itself is a realistic debugging scenario that demonstrates the multiplayer/event-replay mechanics — exactly the kind of technical depth that makes a portfolio page compelling.\n\n**Gemini** — take this and iterate: adjust the brutalist styling to match the screenshot's aesthetic more closely, tweak the conversation content, add any missing elements.\n\n**Luna** — now that you've seen the actual component code, you can write the technical sections with real specifics (the `eventLogRef` replay mechanism, the `iframeReadyRef` gating, the coarse event limits at 25/sec and 64KB, the Firestore `onSnapshot` pattern, etc.).\n\n**Claude** — your critiques stand. What should we cut or tighten?", "htmlPlaygrounds": ["<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Joint Session — Chat Recreation</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;500&display=swap\" rel=\"stylesheet\">\n<style>\n  :root {\n    --bg: #0f0f0f;\n    --surface: #1a1a1a;\n    --text: #e8e8e8;\n    --text-muted: #888;\n    --border: #333;\n    --gemini-color: #4ade80;\n    --claude-color: #fb923c;\n    --qwen-color: #60a5fa;\n    --user-color: #f472b6;\n    --system-color: #94a3b8;\n  }\n\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n\n  body {\n    background: var(--bg);\n    color: var(--text);\n    font-family: 'Inter', sans-serif;\n    min-height: 100vh;\n    display: flex;\n    justify-content: center;\n    padding: 2rem 1rem;\n  }\n\n  .chat-container {\n    width: 100%;\n    max-width: 680px;\n  }\n\n  .chat-header {\n    text-align: center;\n    margin-bottom: 2rem;\n    padding-bottom: 1rem;\n    border-bottom: 1px solid var(--border);\n  }\n\n  .chat-header h2 {\n    font-size: 0.75rem;\n    letter-spacing: 0.15em;\n    text-transform: uppercase;\n    color: var(--text-muted);\n    font-weight: 600;\n  }\n\n  .message-row {\n    display: flex;\n    align-items: flex-start;\n    gap: 1rem;\n    margin-bottom: 1.8rem;\n  }\n\n  .message-row.self {\n    flex-direction: row-reverse;\n  }\n\n  .avatar {\n    width: 42px;\n    height: 42px;\n    border-radius: 50%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    font-weight: 700;\n    font-size: 1.1rem;\n    color: #fff;\n    flex-shrink: 0;\n    border: 2px solid;\n    position: relative;\n  }\n\n  .avatar::after {\n    content: '';\n    position: absolute;\n    inset: -4px;\n    border-radius: 50%;\n    border: 1px solid;\n    opacity: 0.2;\n  }\n\n  .avatar.gemini { background: #1a3a1a; border-color: var(--gemini-color); color: var(--gemini-color); }\n  .avatar.claude { background: #3a2a1a; border-color: var(--claude-color); color: var(--claude-color); }\n  .avatar.qwen { background: #1a2a3a; border-color: var(--qwen-color); color: var(--qwen-color); }\n  .avatar.user { background: #3a1a2a; border-color: var(--user-color); color: var(--user-color); }\n\n  .message-content {\n    flex: 1;\n    min-width: 0;\n  }\n\n  .message-meta {\n    display: flex;\n    align-items: baseline;\n    gap: 0.6rem;\n    margin-bottom: 0.3rem;\n  }\n\n  .sender-name {\n    font-size: 0.78rem;\n    font-weight: 700;\n    text-transform: uppercase;\n    letter-spacing: 0.06em;\n  }\n\n  .sender-name.gemini { color: var(--gemini-color); }\n  .sender-name.claude { color: var(--claude-color); }\n  .sender-name.qwen { color: var(--qwen-color); }\n  .sender-name.user { color: var(--user-color); }\n\n  .timestamp {\n    font-size: 0.65rem;\n    color: var(--text-muted);\n    opacity: 0.6;\n  }\n\n  .message-bubble {\n    padding: 0.7rem 0.9rem;\n    border-radius: 6px;\n    border-top: 1px solid;\n    border-bottom: 1px solid;\n    border-left: 4px solid;\n    border-right: 1px solid;\n    line-height: 1.6;\n    font-size: 0.9rem;\n    background: rgba(255,255,255,0.03);\n  }\n\n  .message-bubble.gemini {\n    border-color: rgba(74,222,128,0.3);\n    border-left-color: var(--gemini-color);\n  }\n  .message-bubble.claude {\n    border-color: rgba(251,146,60,0.3);\n    border-left-color: var(--claude-color);\n  }\n  .message-bubble.qwen {\n    border-color: rgba(96,165,250,0.3);\n    border-left-color: var(--qwen-color);\n  }\n  .message-bubble.user {\n    border-color: rgba(244,114,182,0.3);\n    border-left-color: var(--user-color);\n  }\n\n  .message-bubble p { margin-bottom: 0.5em; }\n  .message-bubble p:last-child { margin-bottom: 0; }\n\n  .message-bubble code {\n    background: rgba(0,0,0,0.4);\n    padding: 0.15em 0.4em;\n    border-radius: 3px;\n    font-family: 'JetBrains Mono', monospace;\n    font-size: 0.82em;\n  }\n\n  .message-bubble pre {\n    background: rgba(0,0,0,0.5);\n    border: 1px solid var(--border);\n    border-radius: 6px;\n    padding: 0.8rem 1rem;\n    overflow-x: auto;\n    margin: 0.6rem 0;\n    font-family: 'JetBrains Mono', monospace;\n    font-size: 0.8rem;\n    line-height: 1.5;\n  }\n\n  /* System message */\n  .system-message {\n    display: flex;\n    justify-content: center;\n    margin: 1.5rem 0;\n  }\n\n  .system-message .bubble {\n    padding: 0.4rem 1rem;\n    border-radius: 20px;\n    background: rgba(255,255,255,0.06);\n    border: 1px solid rgba(255,255,255,0.15);\n    font-size: 0.82rem;\n    font-style: italic;\n    color: var(--text-muted);\n  }\n\n  /* Active block — playground preview */\n  .active-block {\n    margin-top: 0.6rem;\n    border: 1px solid var(--border);\n    border-radius: 6px;\n    overflow: hidden;\n  }\n\n  .active-block-header {\n    background: rgba(255,255,255,0.05);\n    padding: 0.4rem 0.7rem;\n    font-size: 0.72rem;\n    font-family: 'JetBrains Mono', monospace;\n    color: var(--text-muted);\n    border-bottom: 1px solid var(--border);\n    display: flex;\n    align-items: center;\n    gap: 0.4rem;\n  }\n\n  .active-block-header .dot {\n    width: 6px; height: 6px;\n    border-radius: 50%;\n    background: var(--gemini-color);\n  }\n\n  .active-block-body {\n    padding: 1rem;\n    background: #0a0a0a;\n    min-height: 80px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n  }\n\n  .mini-viz {\n    display: flex;\n    gap: 4px;\n    align-items: flex-end;\n    height: 50px;\n  }\n\n  .mini-viz .bar {\n    width: 12px;\n    background: var(--gemini-color);\n    border-radius: 2px 2px 0 0;\n    animation: barGrow 2s ease-in-out infinite alternate;\n  }\n\n  .mini-viz .bar:nth-child(2) { background: var(--claude-color); animation-delay: 0.3s; }\n  .mini-viz .bar:nth-child(3) { background: var(--qwen-color); animation-delay: 0.6s; }\n  .mini-viz .bar:nth-child(4) { background: var(--user-color); animation-delay: 0.9s; }\n\n  @keyframes barGrow {\n    0% { height: 10px; }\n    100% { height: 45px; }\n  }\n\n  /* Reasoning strip */\n  .reasoning-strip {\n    margin-bottom: 0.4rem;\n    padding: 0.3rem 0.6rem;\n    border: 1px dashed rgba(251,146,60,0.3);\n    border-radius: 6px;\n    background: rgba(251,146,60,0.04);\n    font-size: 0.75rem;\n    color: rgba(251,146,60,0.6);\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    gap: 0.4rem;\n  }\n\n  .reasoning-strip .arrow { font-size: 0.6rem; }\n  .reasoning-strip .label { font-weight: 600; }\n\n  /* Scroll indicator */\n  .scroll-hint {\n    text-align: center;\n    margin-top: 1rem;\n    font-size: 0.7rem;\n    color: var(--text-muted);\n    opacity: 0.5;\n    animation: pulse 2s ease-in-out infinite;\n  }\n\n  @keyframes pulse {\n    0%, 100% { opacity: 0.3; }\n    50% { opacity: 0.7; }\n  }\n</style>\n</head>\n<body>\n\n<div class=\"chat-container\">\n  <div class=\"chat-header\">\n    <h2>Joint Session — Live Room Preview</h2>\n  </div>\n\n  <!-- System message -->\n  <div class=\"system-message\">\n    <div class=\"bubble\">kaiser.factorial opened the room</div>\n  </div>\n\n  <!-- User message -->\n  <div class=\"message-row self\">\n    <div class=\"avatar user\">K</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name user\">kaiser.factorial</span>\n        <span class=\"timestamp\">14:32</span>\n      </div>\n      <div class=\"message-bubble user\">\n        <p>Hey everyone — can you help me figure out why this event replay is losing state? Late joiners see an empty playground.</p>\n      </div>\n    </div>\n  </div>\n\n  <!-- Gemini response -->\n  <div class=\"message-row\">\n    <div class=\"avatar gemini\">G</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name gemini\">Gemini</span>\n        <span class=\"timestamp\">14:32</span>\n      </div>\n      <div class=\"message-bubble gemini\">\n        <p>The issue is likely that the iframe isn't ready when events arrive. The <code>iframeReadyRef</code> flag gates event delivery — events buffer until the <code>onLoad</code> handler fires, then the full log flushes.</p>\n        <p>Check that your event handlers are <strong>idempotent</strong> — they need to produce the same result whether replayed or live.</p>\n      </div>\n    </div>\n  </div>\n\n  <!-- Claude with reasoning strip -->\n  <div class=\"message-row\">\n    <div class=\"avatar claude\">C</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name claude\">Claude</span>\n        <span class=\"timestamp\">14:33</span>\n      </div>\n      <div class=\"reasoning-strip\">\n        <span class=\"arrow\">▸</span>\n        <span class=\"label\">💭 reasoning</span>\n        <span>— Checking the Playground component's event replay logic…</span>\n      </div>\n      <div class=\"message-bubble claude\">\n        <p>Found it. In <code>Playground.tsx</code>, the <code>onSnapshot</code> listener pushes events into <code>eventLogRef</code>, but the flush on <code>onLoad</code> only runs if <code>iframeReadyRef.current</code> is true. If a late joiner's iframe loads <em>after</em> the snapshot fires, the initial batch flag is already <code>false</code> and those events are marked as <code>replay: false</code>.</p>\n        <p>The fix: always flush the full log on every <code>onLoad</code>, regardless of <code>initialBatch</code>.</p>\n        <div class=\"active-block\">\n          <div class=\"active-block-header\">\n            <span class=\"dot\"></span>\n            <span>playground — event-replay-fix.html</span>\n          </div>\n          <div class=\"active-block-body\">\n            <div class=\"mini-viz\">\n              <div class=\"bar\"></div>\n              <div class=\"bar\"></div>\n              <div class=\"bar\"></div>\n              <div class=\"bar\"></div>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- Qwen response -->\n  <div class=\"message-row\">\n    <div class=\"avatar qwen\">Q</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name qwen\">Qwen</span>\n        <span class=\"timestamp\">14:33</span>\n      </div>\n      <div class=\"message-bubble qwen\">\n        <p>Yes, and — the <code>initialBatch</code> flag is actually redundant. The <code>eventLogRef</code> is reset on every resubscribe, so the flush-on-load is always the full history. We can simplify:</p>\n        <pre>// Always replay full history on iframe load\nonLoad={() => {\n  iframeReadyRef.current = true;\n  for (const e of eventLogRef.current) postEvent(e, true);\n}}</pre>\n      </div>\n    </div>\n  </div>\n\n  <!-- User follow-up -->\n  <div class=\"message-row self\">\n    <div class=\"avatar user\">K</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name user\">kaiser.factorial</span>\n        <span class=\"timestamp\">14:34</span>\n      </div>\n      <div class=\"message-bubble user\">\n        <p>That's clean. Pushing the fix now. Thanks team! 🎉</p>\n      </div>\n    </div>\n  </div>\n\n  <div class=\"scroll-hint\">↑ scroll to explore the conversation ↑</div>\n</div>\n\n</body>\n</html>\n"], "trace": null, "tools": null}, {"id": "msg-010", "role": "system", "name": "System", "initial": "·", "time": "21:33:22", "timeDisplay": "21:33", "kind": "tool-group", "tools": [{"text": "🧩 GPT-5.6 Luna read components: Playground, MessageBubble, PythonSandbox"}, {"text": "📄 GPT-5.6 Luna read: src/lib/skills.ts (209 chars); src/lib/playground-bootstrap.ts (7966 chars)"}, {"text": "📁 GPT-5.6 Luna listed src (2 entries)"}, {"text": "📄 GPT-5.6 Luna could not read: src/lib/firestore-schema.ts, src/lib/bot-identity.ts"}, {"text": "🔍 GPT-5.6 Luna searched Firebase onSnapshot docs → path not permitted"}, {"text": "🌐 GPT-5.6 Luna fetched https://firebase.google.com/docs/firestore/query-data/listen"}], "markdown": null, "htmlPlaygrounds": [], "trace": null}, {"id": "msg-011", "role": "luna", "name": "GPT-5.6 Luna", "modelId": "GPT-5.6 Luna (`openai/gpt-5.6-luna`)", "initial": "L", "time": "21:33:57", "timeDisplay": "21:33", "kind": "chat", "markdown": "I inspected `Playground`, `MessageBubble`, `PythonSandbox`, and playground bootstrap. Source supports a precise technical story. ## Technical copy draft\n\n### The hard part was synchronizing state, not just messages\n\nWhen messages become live playgrounds or Pyodide sandboxes, the system must sync collaborative *artifacts*, not just a transcript. Firestore `onSnapshot` on ordered event subcollections; playground HTML as sandbox documents; events into the iframe via `postMessage`. Code update reloads the sandbox; interaction events replay into the new runtime.\n\n### Coarse events make replay practical\n\nCompleted actions as one JSON payload — not every mouse move/keystroke/frame. Client limits: **25 events/sec**, **64,000 bytes**. Oversized/non-serializable dropped. Events carry channel, payload, sender UID, client id, doc id; metadata for self-origin and **replay** so handlers skip animations/sounds on reconstruct.\n\n### Late joiners use the same path as live participants\n\nBuffer while iframe loads (Firestore history can arrive before `jointSession` listeners exist). On `onLoad`, mark ready and flush full log — same path after `srcdoc` replace. Injected API:\n\n```js\njointSession.publish(channel, payload)\njointSession.subscribe(channel, handler)\n```\n\nNo direct Firebase access from generated playgrounds.\n\n### Interactive output needs a security boundary\n\niframe `sandbox=\"allow-scripts\"` + restrictive CSP; `connect-src` disabled (no fetch/XHR/WS/beacon); forms off. Narrow parent protocol: save, publish, error, theme. Origin-checked against mounted iframe. Python: worker-backed Pyodide; viewers read-only.\n\n### The chat is an interface for making things\n\n`MessageBubble` dispatches markdown / image / audio / form / Python / slides / multiplayer HTML. Every richer capability needs explicit boundaries.\n\n**Evidence-backed:** onSnapshot + ordered events, postMessage, 25/s + 64KB, buffered replay, jointSession API, CSP + sandbox, Pyodide. Prefer “collapsible reasoning trace” over calling the field “chain of thought.”", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-012", "role": "system", "name": "System", "initial": "·", "time": "21:34:03", "timeDisplay": "21:34", "kind": "tool-group", "tools": [{"text": "🧩 Claude Sonnet 4.6 read components: MessageBubble, Playground"}], "markdown": null, "htmlPlaygrounds": [], "trace": null}, {"id": "msg-013", "role": "claude", "name": "Claude Sonnet 4.6", "modelId": "Claude Sonnet 4.6 (`anthropic/claude-sonnet-4.6`)", "initial": "C", "time": "21:34:40", "timeDisplay": "21:34", "kind": "chat", "markdown": "**Qwen's mock chat UI** is well-crafted but on the wrong palette. Portfolio screenshot is **light brutalist** (cream/off-white, bold black type, yellow/blue accents) — demo is dark-mode neon. Before Gemini iterates: does the chat demo **match** the portfolio language, or **contrast** deliberately? Make that decision explicit.", "htmlPlaygrounds": [], "trace": {"preview": "Checking portfolio screenshot palette against Qwen's mock CSS vars (dark neon vs cream/yellow/blue)…", "body": "Portfolio screenshot: cream/off-white ground, bold black type, yellow + blue accent boxes, hard borders. Qwen mock: dark neon (#0f0f0f) with green/orange/blue glows. Explicit design choice needed before Gemini iterates: match page language vs deliberate contrast."}, "tools": null}, {"id": "msg-014", "role": "gemini", "name": "Gemini 3.1 Pro", "modelId": "Gemini 3.1 Pro (`google/gemini-3.1-pro-preview-customtools`)", "initial": "G", "time": "21:35:23", "timeDisplay": "21:35", "kind": "chat", "markdown": "a dark-mode neon UI completely clashes with the stark, brutalist aesthetic of the portfolio screenshot you shared. If we embed this mock chat into the page, it needs to look like it belongs there. \n\nI’ve taken Qwen's excellent structural foundation and Luna's precise technical details, and completely overhauled the design to match the portfolio's visual language: off-white backgrounds, thick borders, hard shadows, sharp corners, and the yellow/blue accent colors from your screenshot.\n\nI also updated the dialogue to reflect the actual engineering constraints Luna found in the codebase (the 25 events/sec limit, the 64KB payload cap, and the `onLoad` buffer flush). \n\nHere is the live, interactive iteration:\n\n«HTML_PLAYGROUND_0»\n\nThis acts as a perfect visual bridge for the portfolio. It shows the reader *exactly* what the product is (a multi-agent collaborative chat with embedded tools) while simultaneously using the dialogue to explain the technical architecture (the event bus, idempotency, and replay logic). \n\nIf you embed this as an iframe in the portfolio, it's completely self-contained (no live backend needed), safe, and instantly communicates the vibe of the project. \n\n**Luna** — your technical breakdown was spot on. I think we have a solid structural outline and the perfect visual asset to anchor the middle of the page. Should we draft the final 500-750 word prose next?", "htmlPlaygrounds": ["<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<title>Joint Session — Brutalist Chat Mock</title>\n<link href=\"https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap\" rel=\"stylesheet\">\n<style>\n  :root {\n    --bg: #f5f5f1; /* Match the portfolio off-white */\n    --text: #0a0a0a;\n    --border: #0a0a0a;\n    --accent-yellow: #ffd83d;\n    --accent-blue: #1d4ed8;\n    --accent-pink: #db2777;\n    --accent-green: #15803d;\n    \n    --shadow-hard: 4px 4px 0px var(--border);\n    --shadow-hard-sm: 2px 2px 0px var(--border);\n  }\n\n  * { margin: 0; padding: 0; box-sizing: border-box; }\n\n  body {\n    background: var(--bg);\n    color: var(--text);\n    font-family: 'Inter', sans-serif;\n    min-height: 100vh;\n    display: flex;\n    justify-content: center;\n    padding: 2rem 1rem;\n    line-height: 1.5;\n  }\n\n  .chat-container {\n    width: 100%;\n    max-width: 720px;\n  }\n\n  .chat-header {\n    margin-bottom: 2.5rem;\n    padding: 1rem;\n    border: 3px solid var(--border);\n    background: var(--accent-yellow);\n    box-shadow: var(--shadow-hard);\n    text-transform: uppercase;\n  }\n\n  .chat-header h2 {\n    font-size: 1rem;\n    font-weight: 900;\n    letter-spacing: 0.05em;\n  }\n\n  .chat-header p {\n    font-size: 0.75rem;\n    font-weight: 600;\n    margin-top: 0.25rem;\n  }\n\n  .message-row {\n    display: flex;\n    align-items: flex-start;\n    gap: 1rem;\n    margin-bottom: 2rem;\n  }\n\n  .message-row.self {\n    flex-direction: row-reverse;\n  }\n\n  .avatar {\n    width: 48px;\n    height: 48px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    font-weight: 900;\n    font-size: 1.25rem;\n    color: var(--text);\n    flex-shrink: 0;\n    border: 3px solid var(--border);\n    background: #fff;\n    box-shadow: var(--shadow-hard-sm);\n  }\n\n  .avatar.gemini { background: var(--accent-green); color: #fff; }\n  .avatar.claude { background: var(--accent-yellow); }\n  .avatar.qwen { background: var(--accent-blue); color: #fff; }\n  .avatar.user { background: var(--accent-pink); color: #fff; }\n\n  .message-content {\n    flex: 1;\n    min-width: 0;\n  }\n\n  .message-meta {\n    display: flex;\n    align-items: baseline;\n    gap: 0.75rem;\n    margin-bottom: 0.4rem;\n  }\n  \n  .message-row.self .message-meta {\n    justify-content: flex-end;\n  }\n\n  .sender-name {\n    font-size: 0.85rem;\n    font-weight: 900;\n    text-transform: uppercase;\n    letter-spacing: 0.05em;\n  }\n\n  .timestamp {\n    font-size: 0.75rem;\n    font-weight: 600;\n    font-family: 'JetBrains Mono', monospace;\n  }\n\n  .message-bubble {\n    padding: 1rem;\n    border: 3px solid var(--border);\n    background: #fff;\n    box-shadow: var(--shadow-hard);\n    font-size: 0.95rem;\n    font-weight: 500;\n  }\n\n  .message-bubble p { margin-bottom: 0.75em; }\n  .message-bubble p:last-child { margin-bottom: 0; }\n\n  .message-bubble code {\n    background: var(--bg);\n    padding: 0.15em 0.4em;\n    border: 1px solid var(--border);\n    font-family: 'JetBrains Mono', monospace;\n    font-size: 0.85em;\n    font-weight: 700;\n  }\n\n  /* System message */\n  .system-message {\n    display: flex;\n    justify-content: center;\n    margin: 2rem 0;\n  }\n\n  .system-message .bubble {\n    padding: 0.5rem 1rem;\n    border: 2px dashed var(--border);\n    background: transparent;\n    font-size: 0.8rem;\n    font-weight: 700;\n    text-transform: uppercase;\n    letter-spacing: 0.05em;\n  }\n\n  /* Active block — playground preview */\n  .active-block {\n    margin-top: 1rem;\n    border: 3px solid var(--border);\n    background: var(--bg);\n  }\n\n  .active-block-header {\n    padding: 0.5rem 0.75rem;\n    font-size: 0.8rem;\n    font-family: 'JetBrains Mono', monospace;\n    font-weight: 700;\n    border-bottom: 3px solid var(--border);\n    display: flex;\n    align-items: center;\n    justify-content: space-between;\n    background: #fff;\n  }\n  \n  .active-block-header .tag {\n    background: var(--accent-blue);\n    color: #fff;\n    padding: 0.1rem 0.4rem;\n    font-size: 0.7rem;\n    text-transform: uppercase;\n  }\n\n  .active-block-body {\n    padding: 1.5rem;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    background: repeating-linear-gradient(\n      45deg,\n      #e5e5e0,\n      #e5e5e0 10px,\n      var(--bg) 10px,\n      var(--bg) 20px\n    );\n  }\n\n  .terminal-box {\n    background: #000;\n    color: #0f0;\n    font-family: 'JetBrains Mono', monospace;\n    padding: 1rem;\n    border: 2px solid var(--border);\n    font-size: 0.8rem;\n    width: 100%;\n    box-shadow: 4px 4px 0px rgba(0,0,0,0.2);\n  }\n\n  /* Reasoning strip */\n  .reasoning-strip {\n    margin-bottom: 0.5rem;\n    padding: 0.4rem 0.75rem;\n    border: 2px solid var(--border);\n    background: var(--bg);\n    font-size: 0.8rem;\n    font-weight: 600;\n    display: flex;\n    align-items: center;\n    gap: 0.5rem;\n    cursor: pointer;\n  }\n\n  .reasoning-strip .label { \n    text-transform: uppercase;\n    background: var(--border);\n    color: #fff;\n    padding: 0.1rem 0.4rem;\n    font-size: 0.7rem;\n  }\n\n</style>\n</head>\n<body>\n\n<div class=\"chat-container\">\n  <div class=\"chat-header\">\n    <h2>Live Workspace Demo</h2>\n    <p>Simulated multi-agent event bus</p>\n  </div>\n\n  <div class=\"system-message\">\n    <div class=\"bubble\">Session initialized • 3 Agents joined</div>\n  </div>\n\n  <!-- User message -->\n  <div class=\"message-row self\">\n    <div class=\"avatar user\">K</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name\">kaiser.factorial</span>\n        <span class=\"timestamp\">10:04:12</span>\n      </div>\n      <div class=\"message-bubble\">\n        <p>Hey team, how are we handling state sync for the active blocks? I want to make sure late joiners don't see broken playgrounds.</p>\n      </div>\n    </div>\n  </div>\n\n  <!-- Gemini response -->\n  <div class=\"message-row\">\n    <div class=\"avatar gemini\">G</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name\">Gemini</span>\n        <span class=\"timestamp\">10:04:15</span>\n      </div>\n      <div class=\"message-bubble\">\n        <p>We use a coarse real-time event bus over Firestore. Instead of broadcasting every keystroke or frame, the client publishes completed actions.</p>\n        <p>To protect the network and ensure replayability, there are hard limits: a maximum of <strong>25 events per second</strong> and a <strong>64KB payload cap</strong>.</p>\n      </div>\n    </div>\n  </div>\n\n  <!-- Claude with reasoning strip -->\n  <div class=\"message-row\">\n    <div class=\"avatar claude\">C</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name\">Claude</span>\n        <span class=\"timestamp\">10:04:18</span>\n      </div>\n      <div class=\"reasoning-strip\">\n        <span class=\"label\">Trace</span>\n        <span>Checking iframe load order and onSnapshot listeners...</span>\n      </div>\n      <div class=\"message-bubble\">\n        <p>Exactly. And for late joiners, the event log buffers while the iframe loads. Once the sandbox fires <code>onLoad</code>, the parent flushes the entire buffered history via <code>postMessage</code>.</p>\n        \n        <div class=\"active-block\">\n          <div class=\"active-block-header\">\n            <span>event-replay-monitor.html</span>\n            <span class=\"tag\">Live Sandbox</span>\n          </div>\n          <div class=\"active-block-body\">\n            <div class=\"terminal-box\">\n              > jointSession.subscribe('canvas_stroke')<br>\n              > [Replay] Event 1 applied (uid: kaiser)<br>\n              > [Replay] Event 2 applied (uid: gemini)<br>\n              <span style=\"color: #fff; animation: blink 1s step-end infinite;\">_</span>\n            </div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <!-- Qwen response -->\n  <div class=\"message-row\">\n    <div class=\"avatar qwen\">Q</div>\n    <div class=\"message-content\">\n      <div class=\"message-meta\">\n        <span class=\"sender-name\">Qwen</span>\n        <span class=\"timestamp\">10:04:22</span>\n      </div>\n      <div class=\"message-bubble\">\n        <p>Because the event handlers inside the sandbox are <strong>idempotent</strong>, applying that flushed history reconstructs the exact same state as if the user had been there live. Animations and sounds are simply skipped if the <code>meta.replay</code> flag is true.</p>\n      </div>\n    </div>\n  </div>\n\n</div>\n\n<style>\n  @keyframes blink { 50% { opacity: 0; } }\n</style>\n\n</body>\n</html>\n"], "trace": null, "tools": null}, {"id": "msg-015", "role": "user", "name": "kaiser.factorial", "modelId": null, "initial": "K", "time": "21:54:46", "timeDisplay": "21:54", "kind": "chat", "markdown": "sure, let's draft! starting with qwen: please draft the first paragraph or 2-- on each round, the next model iterates on what was already written then adds another paragraph or 2 & passes it along, until we get to gemini's synthesis at the end.", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-016", "role": "qwen", "name": "Qwen 3.7 Plus", "modelId": "Qwen 3.7 Plus (`qwen/qwen3.7-plus`)", "initial": "Q", "time": "21:55:01", "timeDisplay": "21:55", "kind": "chat", "markdown": "Here's my opening — tight, human, setting up the problem without overexplaining:\n\n## Joint Session\n\n**A shared workspace where people and AI agents collaborate in real time—with explicit boundaries around who knows what.**\n\nAI conversations are designed to be solitary. You open a tab, you type, you get a response. Sharing one usually means screenshots, copied prompts, or screen-sharing—none of which let several people actually *participate* in the same evolving conversation. Joint Session started with a deceptively simple question: **what would it feel like if friends could join the same AI chat, together, in real time?**\n\nThe answer turned out to be harder than \"add multiplayer.\" Once multiple humans and multiple AI models share a room, the problem isn't just syncing text—it's coordinating identity, memory, and context without flattening any of them. If a reasoning model writes code and a critic model reviews it, the system needs to know who said what, which memories belong to whom, and why any given agent knows what it knows. That constraint shaped every architectural decision that followed.\n\n**Next up: Luna** — iterate and add evolution/history. Budget ~500–750 total; we're at ~140.", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-017", "role": "luna", "name": "GPT-5.6 Luna", "modelId": "GPT-5.6 Luna (`openai/gpt-5.6-luna`)", "initial": "L", "time": "21:55:12", "timeDisplay": "21:55", "kind": "chat", "markdown": "Here is the final synthesis. It clocks in at exactly 570 words—hitting the sweet spot of your 500–750 word budget. \n\nI’ve incorporated Qwen’s human-centric hook, Luna’s architectural narrative, and Claude’s precise technical corrections (the two-path Firestore split, the hardcoded `replay: true` flush, the `connect-src` prohibition, and the plain-text reasoning security boundary).\n\n***\n\n## Joint Session\n\n**A shared workspace where people and AI agents collaborate in real time—with explicit boundaries around who knows what.**\n\nAI conversations are designed to be solitary. You open a tab, type a prompt, and receive a response. Sharing one usually means screenshots, copied prompts, or screen-sharing—none of which let several people actually *participate* in the same evolving conversation. Joint Session started with a deceptively simple question: **what would it feel like if friends could join the same AI chat, together, in real time?**\n\nThe answer turned out to be harder than “add multiplayer.” Once multiple humans and multiple AI models share a room, the problem is not only synchronizing text. It is coordinating identity, memory, and context without flattening them into one undifferentiated stream. If one agent writes code and another reviews it, the system needs to preserve who said what, which context is shared, and which model-specific instructions remain distinct.\n\n### From Chat to Collaborative Workspace\nAs the interaction model evolved, the room expanded from a shared transcript into a workspace. In Joint Session, a message isn't just text. The `MessageBubble` component acts as a dynamic dispatcher: an AI response can render as an HTML playground, a browser-executed Python sandbox, a slide presentation, an interactive form, or generated media. \n\nThis shift changed the central engineering question from *“How do I stream a message?”* to *“How do all participants reconstruct the exact same state?”*\n\n### Synchronizing State: Two Paths, Coarse Events\nTo manage this, the architecture splits state into two distinct Firestore paths:\n1. **Code changes** (`chats/{chatId}/sandboxes/{sandboxId}`) store the actual HTML/JS source. Updating this reloads the sandbox document entirely.\n2. **Interaction events** (`chats/{chatId}/playgrounds/{sandboxId}/events`) store the live collaboration data via `onSnapshot` listeners.\n\nRather than broadcasting every keystroke or animation frame, the client publishes *coarse, completed actions*. To protect the network and ensure replayability, hard limits drop payloads exceeding 64KB or rates above 25 events per second. \n\n### Replaying the Room\nThis single design decision—coarse, idempotent events—solves three problems simultaneously: network efficiency, late-joiner replay, and deterministic state reconstruction.\n\nBecause embedded playgrounds run in sandboxed iframes, realtime events can arrive before the iframe is ready. To prevent race conditions, the parent client buffers the event history. Once the iframe fires its `onLoad` handler, the parent flushes the entire buffered log via `postMessage`, hardcoding a `replay: true` flag for the batch. \n\nInside the sandbox, the injected `jointSession` API applies these events through the exact same deterministic handlers used for live collaboration. If the `replay` flag is true, the sandbox simply skips animations or sounds, instantly reconstructing the current state for late joiners.\n\n### Strict Security Boundaries\nTurning AI outputs into executable environments requires strict boundaries. Generated HTML runs inside an iframe with `sandbox=\"allow-scripts\"` and a locked-down Content Security Policy. Crucially, `connect-src` is entirely disabled by design—generated code cannot make network requests (no fetch, XHR, or WebSockets), preventing data exfiltration.\n\nA similar boundary exists for model reasoning. When a model outputs its internal \"chain of thought,\" the reasoning strip is deliberately rendered as plain text. It never passes through the markdown parser that turns code fences into live playgrounds, ensuring a model cannot inadvertently inject an active sandbox via its reasoning trace.\n\n**The Result:** A chat that behaves less like a static transcript and more like a shared, inspectable environment. It proves that with the right state architecture and security boundaries, an AI conversation can become a true multiplayer operating system.\n\n***", "htmlPlaygrounds": [], "trace": null, "tools": null}, {"id": "msg-018", "role": "system", "name": "System", "initial": "·", "time": "21:55:18", "timeDisplay": "21:55", "kind": "tool-group", "tools": [{"text": "🧩 Claude Sonnet 4.6 read components: Playground, MessageBubble"}], "markdown": null, "htmlPlaygrounds": [], "trace": null}, {"id": "msg-019", "role": "claude", "name": "Claude Sonnet 4.6", "modelId": "Claude Sonnet 4.6 (`anthropic/claude-sonnet-4.6`)", "initial": "C", "time": "21:55:43", "timeDisplay": "21:55", "kind": "chat", "markdown": "Grounded critique of Luna's draft:\n\n## Holds up ✓\n25/sec + 64KB, onLoad buffer flush, postMessage, `sandbox=\"allow-scripts\"`, Firestore onSnapshot + ordered subcollection.\n\n## Needs correction ✗\n1. **`initialBatch` framing is wrong.** After `onLoad`, `postEvent(e, true)` hardcodes `replay: true` for *all* buffered events — not per-event tags at write time.\n2. **Two Firestore paths:** `chats/.../sandboxes/{id}` (HTML source; update reloads) vs `chats/.../playgrounds/{id}/events` (interaction events). *Code reloads; events replay into it.*\n3. **`connect-src` is disabled by design** — generated code cannot network. Say so.\n4. **Reasoning strip is plain text, not markdown** — so CoT never hits fence→playground paths. Security decision.\n5. **MessageBubble richer than described** — slides, forms, attachments, rating UI too.\n\n## Structure\nThroughline: **one decision (coarse, idempotent events) solves three problems** — network efficiency, late-joiner replay, deterministic reconstruction. Scatter those benefits less.\n\n**Next:** keep accurate facts; fix initialBatch; add two-path split; explicit connect-src ban; one sentence on reasoning-strip boundary.", "htmlPlaygrounds": [], "trace": {"preview": "Verifying `initialBatch` / `postEvent(e, true)` and the sandboxes vs playgrounds Firestore paths in Playground.tsx…", "body": "Checked Playground.tsx against Luna's draft. `postEvent(e, true)` hardcodes `replay: true` for the whole onLoad flush — not per-event tags at write time. Also confirmed two Firestore paths: `sandboxes/{id}` for HTML source vs `playgrounds/{id}/events` for interaction events. `connect-src` is disabled by design; reasoning strip is plain text so fences never become live sandboxes."}, "tools": null}, {"id": "msg-020", "role": "gemini", "name": "Gemini 3.1 Pro", "modelId": "Gemini 3.1 Pro (`google/gemini-3.1-pro-preview-customtools`)", "initial": "G", "time": "21:56:04", "timeDisplay": "21:56", "kind": "chat", "markdown": "Here is the final synthesis. It clocks in at exactly 570 words—hitting the sweet spot of your 500–750 word budget. \n\nI’ve incorporated Qwen’s human-centric hook, Luna’s architectural narrative, and Claude’s precise technical corrections (the two-path Firestore split, the hardcoded `replay: true` flush, the `connect-src` prohibition, and the plain-text reasoning security boundary).\n\n***\n\n## Joint Session\n\n**A shared workspace where people and AI agents collaborate in real time—with explicit boundaries around who knows what.**\n\nAI conversations are designed to be solitary. You open a tab, type a prompt, and receive a response. Sharing one usually means screenshots, copied prompts, or screen-sharing—none of which let several people actually *participate* in the same evolving conversation. Joint Session started with a deceptively simple question: **what would it feel like if friends could join the same AI chat, together, in real time?**\n\nThe answer turned out to be harder than “add multiplayer.” Once multiple humans and multiple AI models share a room, the problem is not only synchronizing text. It is coordinating identity, memory, and context without flattening them into one undifferentiated stream. If one agent writes code and another reviews it, the system needs to preserve who said what, which context is shared, and which model-specific instructions remain distinct.\n\n### From Chat to Collaborative Workspace\nAs the interaction model evolved, the room expanded from a shared transcript into a workspace. In Joint Session, a message isn't just text. The `MessageBubble` component acts as a dynamic dispatcher: an AI response can render as an HTML playground, a browser-executed Python sandbox, a slide presentation, an interactive form, or generated media. \n\nThis shift changed the central engineering question from *“How do I stream a message?”* to *“How do all participants reconstruct the exact same state?”*\n\n### Synchronizing State: Two Paths, Coarse Events\nTo manage this, the architecture splits state into two distinct Firestore paths:\n1. **Code changes** (`chats/{chatId}/sandboxes/{sandboxId}`) store the actual HTML/JS source. Updating this reloads the sandbox document entirely.\n2. **Interaction events** (`chats/{chatId}/playgrounds/{sandboxId}/events`) store the live collaboration data via `onSnapshot` listeners.\n\nRather than broadcasting every keystroke or animation frame, the client publishes *coarse, completed actions*. To protect the network and ensure replayability, hard limits drop payloads exceeding 64KB or rates above 25 events per second. \n\n### Replaying the Room\nThis single design decision—coarse, idempotent events—solves three problems simultaneously: network efficiency, late-joiner replay, and deterministic state reconstruction.\n\nBecause embedded playgrounds run in sandboxed iframes, realtime events can arrive before the iframe is ready. To prevent race conditions, the parent client buffers the event history. Once the iframe fires its `onLoad` handler, the parent flushes the entire buffered log via `postMessage`, hardcoding a `replay: true` flag for the batch. \n\nInside the sandbox, the injected `jointSession` API applies these events through the exact same deterministic handlers used for live collaboration. If the `replay` flag is true, the sandbox simply skips animations or sounds, instantly reconstructing the current state for late joiners.\n\n### Strict Security Boundaries\nTurning AI outputs into executable environments requires strict boundaries. Generated HTML runs inside an iframe with `sandbox=\"allow-scripts\"` and a locked-down Content Security Policy. Crucially, `connect-src` is entirely disabled by design—generated code cannot make network requests (no fetch, XHR, or WebSockets), preventing data exfiltration.\n\nA similar boundary exists for model reasoning. When a model outputs its internal \"chain of thought,\" the reasoning strip is deliberately rendered as plain text. It never passes through the markdown parser that turns code fences into live playgrounds, ensuring a model cannot inadvertently inject an active sandbox via its reasoning trace.\n\n**The Result:** A chat that behaves less like a static transcript and more like a shared, inspectable environment. It proves that with the right state architecture and security boundaries, an AI conversation can become a true multiplayer operating system.\n\n***", "htmlPlaygrounds": [], "trace": null, "tools": null, "isSynthesis": true}, {"id": "msg-021", "role": "user", "name": "kaiser.factorial", "modelId": null, "initial": "K", "time": "21:58:35", "timeDisplay": "21:58", "kind": "chat", "markdown": "great job everyone!! this is super helpful. I'm going to use all of this info to get going with my portfolio page. & who knows, this convo could even be a candidate to show in the mock chat interface ;-)", "htmlPlaygrounds": [], "trace": null, "tools": null}]}
+</script>
+<script>
+(function () {
+  const DATA = JSON.parse(document.getElementById('session-data').textContent);
+  const MESSAGES = DATA.messages;
+  const EVAL_KEY = 'js-portfolio-mock-evals-v1';
+
+  const scrollEl = document.getElementById('chat-scroll');
+  const minimapEl = document.getElementById('minimap');
+  const minimapRail = document.getElementById('minimap-rail');
+  const flyoutEl = document.getElementById('mm-flyout');
+  const toastEl = document.getElementById('toast');
+  const btnSynth = document.getElementById('btn-synth');
+
+  /** @type {Record<string, {value: number, why?: string, at: string}>} */
+  let evals = {};
+  try { evals = JSON.parse(localStorage.getItem(EVAL_KEY) || '{}') || {}; } catch (_) { evals = {}; }
+
+  function saveEvals() {
+    localStorage.setItem(EVAL_KEY, JSON.stringify(evals));
+    try {
+      window.parent.postMessage({
+        type: 'joint-session-mock-eval',
+        source: 'portfolio-mock-chat',
+        room: DATA.meta.room,
+        evals,
+      }, '*');
+    } catch (_) {}
+  }
+
+  let toastTimer = null;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('is-on'), 2000);
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function inlineMd(s) {
+    let t = escapeHtml(s);
+    t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    return t;
+  }
+
+  function markdownToHtml(md) {
+    if (!md) return '';
+    md = md.replace(/«HTML_PLAYGROUND_(\d+)»/g, (_, i) => `\n\n%%PLAYGROUND_${i}%%\n\n`);
+    const lines = md.split('\n');
+    const out = [];
+    let i = 0, inCode = false, codeBuf = [], listType = null;
+
+    function closeList() {
+      if (listType) { out.push(listType === 'ol' ? '</ol>' : '</ul>'); listType = null; }
+    }
+
+    while (i < lines.length) {
+      const line = lines[i];
+      if (line.startsWith('```')) {
+        if (!inCode) { closeList(); inCode = true; codeBuf = []; }
+        else { out.push('<pre><code>' + escapeHtml(codeBuf.join('\n')) + '</code></pre>'); inCode = false; }
+        i++; continue;
+      }
+      if (inCode) { codeBuf.push(line); i++; continue; }
+      if (/^%%PLAYGROUND_(\d+)%%$/.test(line.trim())) { closeList(); out.push(line.trim()); i++; continue; }
+      if (/^---+$/.test(line.trim()) || /^\*\*\*$/.test(line.trim())) { closeList(); out.push('<hr>'); i++; continue; }
+      const h = line.match(/^(#{1,3})\s+(.+)$/);
+      if (h) {
+        closeList();
+        const level = h[1].length;
+        out.push(`<h${level + 1}>${inlineMd(h[2])}</h${level + 1}>`);
+        i++; continue;
+      }
+      if (line.startsWith('> ')) {
+        closeList();
+        const quote = [line.slice(2)];
+        i++;
+        while (i < lines.length && lines[i].startsWith('> ')) { quote.push(lines[i].slice(2)); i++; }
+        out.push('<blockquote><p>' + inlineMd(quote.join(' ')) + '</p></blockquote>');
+        continue;
+      }
+      const ul = line.match(/^\s*[-*]\s+(.+)$/);
+      if (ul) {
+        if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul'; }
+        out.push('<li>' + inlineMd(ul[1]) + '</li>');
+        i++; continue;
+      }
+      const ol = line.match(/^\s*\d+\.\s+(.+)$/);
+      if (ol) {
+        if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol'; }
+        out.push('<li>' + inlineMd(ol[1]) + '</li>');
+        i++; continue;
+      }
+      if (!line.trim()) { closeList(); i++; continue; }
+      closeList();
+      const paras = [line];
+      i++;
+      while (i < lines.length) {
+        const L = lines[i];
+        if (!L.trim() || L.startsWith('#') || L.startsWith('>') || L.startsWith('```') ||
+            L.startsWith('- ') || L.startsWith('* ') || /^\d+\.\s/.test(L) ||
+            /^---+$/.test(L.trim()) || /^\*\*\*$/.test(L.trim()) ||
+            /^%%PLAYGROUND_/.test(L.trim())) break;
+        paras.push(L); i++;
+      }
+      out.push('<p>' + inlineMd(paras.join(' ')) + '</p>');
+    }
+    closeList();
+    return out.join('\n');
+  }
+
+  function playgroundHtml(idx) {
+    return (
+      '<div class="playground-frame">' +
+        '<div class="playground-head"><span>active block · mock-chat-' + (idx + 1) + '.html</span><span class="tag">Sandbox</span></div>' +
+        '<iframe sandbox="allow-scripts" loading="lazy" title="Nested Joint Session mock ' + (idx + 1) + '"></iframe>' +
+      '</div>'
+    );
+  }
+
+  function renderMessage(m) {
+    if (m.kind === 'tool-group' || m.role === 'system') {
+      const tools = m.tools || [];
+      // Product ToolActivity: single call is inline, multi collapses
+      if (tools.length <= 1) {
+        const text = tools[0] ? tools[0].text : 'System';
+        return `<div class="tool-group is-single" id="${m.id}" data-role="system">${escapeHtml(text)}</div>`;
+      }
+      const preview = tools.map(t => t.text.replace(/^[^A-Za-z0-9]+/, '').slice(0, 36)).join(' · ');
+      const list = tools.map(t => `<div>${escapeHtml(t.text)}</div>`).join('');
+      return (
+        `<div class="tool-group" id="${m.id}" data-role="system">` +
+          `<button type="button" class="tool-toggle" aria-expanded="false" data-tool-toggle>` +
+            `<span class="arrow">▸</span>` +
+            `<span>🔧 ${tools.length} tool calls</span>` +
+            `<span style="opacity:.65;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">— ${escapeHtml(preview)}</span>` +
+          `</button>` +
+          `<div class="tool-list" hidden>${list}</div>` +
+        `</div>`
+      );
+    }
+
+    const isSelf = m.role === 'user';
+    const synth = m.isSynthesis ? ' is-synthesis' : '';
+    let bodyHtml = markdownToHtml(m.markdown || '');
+    const frames = m.htmlPlaygrounds || [];
+    bodyHtml = bodyHtml.replace(/%%PLAYGROUND_(\d+)%%/g, (_, idx) => {
+      const i = Number(idx);
+      return frames[i] ? playgroundHtml(i) : '';
+    });
+    if (!bodyHtml && frames.length) bodyHtml = frames.map((_, i) => playgroundHtml(i)).join('');
+
+    const ev = evals[m.id] || {};
+    const upOn = ev.value === 1 ? ' is-on' : '';
+    const downOn = ev.value === -1 ? ' is-on' : '';
+
+    const trace = m.trace
+      ? `<details class="trace">
+          <summary>
+            <span class="arrow">▸</span>
+            <span class="trace-tag">Trace</span>
+            <span class="trace-preview">${escapeHtml(m.trace.preview)}</span>
+          </summary>
+          <p class="trace-body">${inlineMd(m.trace.body || m.trace.preview)}</p>
+        </details>`
+      : '';
+
+    const ratesInline = m.role !== 'user'
+      ? `<span class="msg-rates" data-rate-for="${m.id}">
+          <button type="button" class="rate-btn${upOn}" data-rate="1" aria-label="Helpful">👍</button>
+          <span class="rate-count" data-count-up>${ev.value === 1 ? '1' : ''}</span>
+          <button type="button" class="rate-btn${downOn}" data-rate="-1" aria-label="Not helpful">👎</button>
+          <span class="rate-count" data-count-down>${ev.value === -1 ? '1' : ''}</span>
+        </span>`
+      : '';
+
+    // why opens only when a thumb is set (matches MessageBubble noteOpen behaviour)
+    const ratesWhy = m.role !== 'user'
+      ? `<div class="rate-why${ev.value ? ' is-open' : ''}" data-why-for="${m.id}">
+          <input type="text" placeholder="why? (optional — Enter saves, Esc closes)" value="${escapeHtml(ev.why || '')}" maxlength="500" />
+        </div>`
+      : '';
+
+    return (
+      `<div class="msg-row${isSelf ? ' self' : ''}${synth}" id="${m.id}" data-role="${m.role}">` +
+        `<div class="msg-avatar a-${m.role}">${escapeHtml(m.initial)}</div>` +
+        `<div class="msg-content">` +
+          `<div class="msg-meta">` +
+            `<span class="msg-name">${escapeHtml(m.name)}</span>` +
+            `<span class="msg-time">${escapeHtml(m.timeDisplay)}</span>` +
+            ratesInline +
+          `</div>` +
+          ratesWhy +
+          trace +
+          `<div class="msg-bubble">${bodyHtml}</div>` +
+        `</div>` +
+      `</div>`
+    );
+  }
+
+  scrollEl.innerHTML = MESSAGES.map(renderMessage).join('');
+
+  /** Nested mock: compact chrome + expandable reasoning strips */
+  function withNestedMockEnhancements(html) {
+    const inject = `
+<style id="nested-mock-scale">
+  html { font-size: 12.5px !important; }
+  body { padding: 0.75rem 0.6rem !important; min-height: 0 !important; }
+  .chat-container { max-width: 100% !important; }
+  .chat-header { margin-bottom: 1rem !important; padding: 0.55rem 0.7rem !important; }
+  .chat-header h2 { font-size: 0.72rem !important; }
+  .chat-header p { font-size: 0.62rem !important; }
+  .message-row { gap: 0.55rem !important; margin-bottom: 0.95rem !important; }
+  .avatar { width: 28px !important; height: 28px !important; font-size: 0.75rem !important; border-width: 2px !important; }
+  .sender-name { font-size: 0.65rem !important; }
+  .timestamp { font-size: 0.58rem !important; }
+  .message-bubble { padding: 0.45rem 0.55rem !important; font-size: 0.72rem !important; line-height: 1.4 !important; border-width: 2px !important; box-shadow: 2px 2px 0 var(--border, #0a0a0a) !important; }
+  .message-bubble p { margin-bottom: 0.4em !important; }
+  .message-bubble code { font-size: 0.78em !important; }
+  .message-bubble pre { font-size: 0.65rem !important; padding: 0.45rem 0.55rem !important; }
+  .reasoning-strip { font-size: 0.62rem !important; padding: 0.25rem 0.45rem !important; margin-bottom: 0.3rem !important; cursor: pointer !important; user-select: none; }
+  .reasoning-strip .arrow { display: inline-block; transition: transform 0.12s ease; }
+  .reasoning-strip.is-open .arrow { transform: rotate(90deg); }
+  .reasoning-expand {
+    display: none;
+    margin: 0 0 0.45rem 0;
+    padding: 0.4rem 0.55rem;
+    font-size: 0.68rem;
+    line-height: 1.45;
+    color: inherit;
+    opacity: 0.85;
+    border: 1px dashed currentColor;
+    border-radius: 6px;
+    white-space: pre-wrap;
+  }
+  .reasoning-expand.is-open { display: block; }
+  .system-message { margin: 0.85rem 0 !important; }
+  .system-message .bubble { font-size: 0.62rem !important; padding: 0.3rem 0.6rem !important; }
+  .active-block { margin-top: 0.45rem !important; }
+  .active-block-header { font-size: 0.62rem !important; padding: 0.3rem 0.45rem !important; }
+  .active-block-body { padding: 0.7rem !important; min-height: 48px !important; }
+  .terminal-box { font-size: 0.65rem !important; padding: 0.55rem !important; }
+</style>
+<script>
+(function(){
+  function expandTextFor(strip) {
+    var t = (strip.textContent || '').toLowerCase();
+    if (t.indexOf('palette') !== -1 || t.indexOf('screenshot') !== -1) {
+      return 'Portfolio chrome is cream/off-white + yellow/blue accents. Dark neon chat fights that hierarchy — either match the page language or contrast on purpose.';
+    }
+    if (t.indexOf('iframe') !== -1 || t.indexOf('onsnapshot') !== -1 || t.indexOf('playground') !== -1 || t.indexOf('replay') !== -1) {
+      return 'Checked Playground event path: buffer while iframe loads; on onLoad flush eventLogRef with replay:true for every buffered event. initialBatch is a closure flag, not a per-event write-time tag. Two Firestore paths — sandboxes (HTML source) vs playgrounds/.../events (interaction log).';
+    }
+    return 'Trace expand (nested demo). Full critique is also in the message body below.';
+  }
+  document.querySelectorAll('.reasoning-strip').forEach(function(strip){
+    var body = document.createElement('div');
+    body.className = 'reasoning-expand';
+    body.textContent = expandTextFor(strip);
+    strip.insertAdjacentElement('afterend', body);
+    strip.setAttribute('role', 'button');
+    strip.setAttribute('tabindex', '0');
+    strip.setAttribute('aria-expanded', 'false');
+    function toggle(){
+      var open = body.classList.toggle('is-open');
+      strip.classList.toggle('is-open', open);
+      strip.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    strip.addEventListener('click', toggle);
+    strip.addEventListener('keydown', function(e){
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+    });
+  });
+})();
+<\/script>`;
+    if (/<\/head>/i.test(html)) return html.replace(/<\/head>/i, inject + '</head>');
+    if (/<body[^>]*>/i.test(html)) return html.replace(/<body([^>]*)>/i, '<body$1>' + inject);
+    return inject + html;
+  }
+
+  MESSAGES.forEach((m) => {
+    const frames = m.htmlPlaygrounds || [];
+    if (!frames.length) return;
+    const row = document.getElementById(m.id);
+    if (!row) return;
+    row.querySelectorAll('.playground-frame iframe').forEach((iframe, i) => {
+      if (frames[i]) iframe.srcdoc = withNestedMockEnhancements(frames[i]);
+    });
+  });
+
+  // tool toggles + ratings
+  scrollEl.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-tool-toggle]');
+    if (t) {
+      const group = t.closest('.tool-group');
+      const list = group.querySelector('.tool-list');
+      const open = t.getAttribute('aria-expanded') === 'true';
+      t.setAttribute('aria-expanded', open ? 'false' : 'true');
+      list.hidden = open;
+      const arrow = t.querySelector('.arrow');
+      if (arrow) arrow.textContent = open ? '▸' : '▾';
+      return;
+    }
+
+    const rateBtn = e.target.closest('.rate-btn');
+    if (rateBtn) {
+      const ratesEl = rateBtn.closest('[data-rate-for]');
+      const id = ratesEl.getAttribute('data-rate-for');
+      const value = Number(rateBtn.getAttribute('data-rate'));
+      const prev = evals[id];
+      if (prev && prev.value === value) {
+        delete evals[id];
+      } else {
+        evals[id] = { value, why: (prev && prev.why) || '', at: new Date().toISOString() };
+      }
+      saveEvals();
+      const up = ratesEl.querySelector('[data-rate="1"]');
+      const down = ratesEl.querySelector('[data-rate="-1"]');
+      const cu = ratesEl.querySelector('[data-count-up]');
+      const cd = ratesEl.querySelector('[data-count-down]');
+      const ev = evals[id];
+      up.classList.toggle('is-on', !!(ev && ev.value === 1));
+      down.classList.toggle('is-on', !!(ev && ev.value === -1));
+      cu.textContent = ev && ev.value === 1 ? '1' : '';
+      cd.textContent = ev && ev.value === -1 ? '1' : '';
+      const why = scrollEl.querySelector(`[data-why-for="${id}"]`);
+      if (why) {
+        why.classList.toggle('is-open', !!ev);
+        if (ev) {
+          const input = why.querySelector('input');
+          if (input) { input.value = ev.why || ''; input.focus(); }
+        }
+      }
+      toast(ev ? (ev.value === 1 ? 'Thanks — marked helpful' : 'Thanks — marked not helpful') : 'Rating cleared');
+      console.info('[joint-session-mock-eval]', { id, ...(ev || { cleared: true }) });
+    }
+  });
+
+  // why field: Enter saves, Esc closes (blur also saves) — MessageBubble pattern
+  scrollEl.addEventListener('keydown', (e) => {
+    const input = e.target.closest('[data-why-for] input');
+    if (!input) return;
+    const wrap = input.closest('[data-why-for]');
+    const id = wrap.getAttribute('data-why-for');
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (!evals[id]) evals[id] = { value: 1, at: new Date().toISOString() };
+      evals[id].why = (input.value || '').trim();
+      evals[id].at = new Date().toISOString();
+      saveEvals();
+      toast('Feedback saved');
+      console.info('[joint-session-mock-eval]', { id, ...evals[id] });
+      input.blur();
+    }
+    if (e.key === 'Escape') {
+      wrap.classList.remove('is-open');
+      input.blur();
+    }
+  });
+  scrollEl.addEventListener('focusout', (e) => {
+    const input = e.target.closest && e.target.closest('[data-why-for] input');
+    if (!input) return;
+    const wrap = input.closest('[data-why-for]');
+    const id = wrap.getAttribute('data-why-for');
+    if (!evals[id]) return;
+    evals[id].why = (input.value || '').trim();
+    evals[id].at = new Date().toISOString();
+    saveEvals();
+  });
+
+  // --- Minimap ---
+  function groupTurns(messages) {
+    const groups = [];
+    let current = null;
+    for (const m of messages) {
+      if (m.role === 'user') {
+        current = {
+          anchorId: m.id,
+          senderName: m.name,
+          preview: (m.markdown || '').replace(/\s+/g, ' ').trim().slice(0, 48),
+          replies: [],
+        };
+        groups.push(current);
+      } else if (current && m.role !== 'system' && m.kind !== 'tool-group' && (m.markdown || (m.htmlPlaygrounds && m.htmlPlaygrounds.length))) {
+        current.replies.push({ id: m.id, role: m.role, senderName: m.name });
+      }
+    }
+    return groups;
+  }
+
+  const turnGroups = groupTurns(MESSAGES);
+  const anchorIds = turnGroups.map(g => g.anchorId);
+  let openTurn = null;
+  let activeAnchorId = null;
+  let spyRaf = null;
+
+  /** Same rule as joint-session pickActiveTurnId — last human turn past ~35% probe. */
+  function pickActiveTurnId(ids, rectFor, viewport) {
+    if (!ids.length) return null;
+    const probe = viewport.top + viewport.height * (viewport.probeRatio ?? 0.35);
+    let lastPast = null;
+    let firstVisible = null;
+    for (const id of ids) {
+      const r = rectFor(id);
+      if (!r) continue;
+      if (!firstVisible) firstVisible = id;
+      if (r.top <= probe) lastPast = id;
+    }
+    return lastPast || firstVisible || ids[0] || null;
+  }
+
+  function updateActiveTurn() {
+    const vr = scrollEl.getBoundingClientRect();
+    const next = pickActiveTurnId(
+      anchorIds,
+      (id) => {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        const r = el.getBoundingClientRect();
+        return { top: r.top, bottom: r.bottom };
+      },
+      { top: vr.top, height: vr.height },
+    );
+    if (next === activeAnchorId) return;
+    activeAnchorId = next;
+    minimapRail.querySelectorAll('.mm-sq').forEach((sq) => {
+      const on = sq.dataset.jump === activeAnchorId;
+      sq.classList.toggle('is-active', on);
+      sq.dataset.activeTurn = on ? 'true' : 'false';
+      if (on) sq.setAttribute('aria-current', 'true');
+      else sq.removeAttribute('aria-current');
+    });
+  }
+
+  function hideFlyout() {
+    openTurn = null;
+    flyoutEl.classList.remove('is-open');
+    flyoutEl.hidden = true;
+    flyoutEl.style.display = '';
+    flyoutEl.style.visibility = '';
+    flyoutEl.style.left = '';
+    flyoutEl.style.top = '';
+    flyoutEl.innerHTML = '';
+    minimapRail.querySelectorAll('.mm-sq.is-open').forEach(sq => sq.classList.remove('is-open'));
+  }
+
+  function showFlyout(turnNo, sqEl) {
+    const g = turnGroups[turnNo];
+    if (!g) return;
+    openTurn = turnNo;
+    minimapRail.querySelectorAll('.mm-sq.is-open').forEach(el => el.classList.remove('is-open'));
+    sqEl.classList.add('is-open');
+
+    const dots = g.replies.length
+      ? g.replies.map(r =>
+          `<button type="button" class="mm-dot a-${r.role}" data-jump="${r.id}" title="${escapeHtml(r.senderName)}" aria-label="Jump to ${escapeHtml(r.senderName)}"></button>`
+        ).join('')
+      : `<span class="mm-flyout-text" style="opacity:.5">no replies</span>`;
+
+    flyoutEl.innerHTML =
+      `<span class="mm-flyout-text">${escapeHtml(g.preview || g.senderName)}</span>` + dots;
+    flyoutEl.hidden = false;
+    flyoutEl.classList.add('is-open');
+
+    // position to the left of the square, vertically centered — FIXED so not clipped
+    const rect = sqEl.getBoundingClientRect();
+    flyoutEl.style.visibility = 'hidden';
+    flyoutEl.style.display = 'flex';
+    const fw = flyoutEl.offsetWidth;
+    const fh = flyoutEl.offsetHeight;
+    let left = rect.left - fw - 10;
+    let top = rect.top + rect.height / 2 - fh / 2;
+    if (left < 8) left = 8;
+    if (top < 8) top = 8;
+    if (top + fh > window.innerHeight - 8) top = window.innerHeight - fh - 8;
+    flyoutEl.style.left = left + 'px';
+    flyoutEl.style.top = top + 'px';
+    flyoutEl.style.visibility = 'visible';
+  }
+
+  function buildMinimap() {
+    minimapRail.innerHTML = '';
+    const lab = document.createElement('span');
+    lab.className = 'mm-label';
+    lab.textContent = 'jump to user turn';
+    lab.title = turnGroups.length + ' human turns — hover a square for model replies';
+    minimapRail.appendChild(lab);
+
+    turnGroups.forEach((g, turnNo) => {
+      const sq = document.createElement('button');
+      sq.type = 'button';
+      sq.className = 'mm-sq';
+      sq.dataset.turn = String(turnNo);
+      sq.dataset.jump = g.anchorId;
+      sq.dataset.activeTurn = 'false';
+      sq.title = `Turn ${turnNo + 1}: ${g.preview}`;
+      sq.setAttribute('aria-label', `Jump to your message ${turnNo + 1}`);
+      sq.addEventListener('mouseenter', () => showFlyout(turnNo, sq));
+      sq.addEventListener('focus', () => showFlyout(turnNo, sq));
+      sq.addEventListener('click', () => jumpTo(g.anchorId));
+      minimapRail.appendChild(sq);
+    });
+  }
+  buildMinimap();
+
+  minimapEl.addEventListener('mouseleave', (e) => {
+    // keep open if moving into the fixed flyout
+    const to = e.relatedTarget;
+    if (to && (flyoutEl === to || flyoutEl.contains(to))) return;
+    hideFlyout();
+  });
+  flyoutEl.addEventListener('mouseleave', (e) => {
+    const to = e.relatedTarget;
+    if (to && minimapEl.contains(to)) return;
+    hideFlyout();
+  });
+  flyoutEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-jump]');
+    if (!btn) return;
+    jumpTo(btn.getAttribute('data-jump'));
+    hideFlyout();
+  });
+
+  function onScrollSpy() {
+    if (openTurn !== null) hideFlyout();
+    if (spyRaf != null) return;
+    spyRaf = requestAnimationFrame(() => {
+      spyRaf = null;
+      updateActiveTurn();
+    });
+  }
+  scrollEl.addEventListener('scroll', onScrollSpy, { passive: true });
+  window.addEventListener('resize', onScrollSpy);
+
+  function synthesisId() {
+    const s = MESSAGES.find(m => m.isSynthesis) || MESSAGES.find(m => m.role === 'gemini' && (m.markdown || '').includes('## Joint Session'));
+    return (s || MESSAGES[MESSAGES.length - 1]).id;
+  }
+
+  function jumpTo(id, behavior = 'smooth') {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior, block: 'start' });
+    // refresh active after smooth scroll settles
+    requestAnimationFrame(() => requestAnimationFrame(updateActiveTurn));
+    if (behavior === 'smooth') setTimeout(updateActiveTurn, 350);
+    else updateActiveTurn();
+  }
+
+  btnSynth.addEventListener('click', () => jumpTo(synthesisId()));
+
+  // Start at top (first message) — no jump to synthesis
+  scrollEl.scrollTop = 0;
+  updateActiveTurn();
+
+  window.JointSessionMock = {
+    data: DATA,
+    getEvals: () => ({ ...evals }),
+    clearEvals: () => { evals = {}; saveEvals(); location.reload(); },
+    jumpToSynthesis: () => jumpTo(synthesisId()),
+  };
+})();
+</script>
+</body>
+</html>
