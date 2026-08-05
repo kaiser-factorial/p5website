@@ -1,141 +1,173 @@
 // global_transition.js
-// Vanilla HTML5 Canvas port of the Checker transition to fix p5.js global/instance conflicts.
+// A bounded canvas transition that stays inert between navigations.
 
 (function() {
-    let transitionActive = true;
-    let isOutbound = false;
-    let transitionProgress = 1.6;
-    let targetLink = "";
-    
-    let COLS = 25;
-    let ROWS = 25;
-    let palette = ['#FFD600', '#D23B72', '#4195DE', '#fcfcfc'];
-    
-    let canvas, ctx;
-    let frameCount = 0;
-    
-    // P5 math recreations natively
-    function map(v, mn1, mx1, mn2, mx2) {
-        return (v - mn1) / (mx1 - mn1) * (mx2 - mn2) + mn2;
-    }
-    
-    function dist(x1, y1, x2, y2) {
-        return Math.hypot(x2 - x1, y2 - y1);
+    const COLS = 25;
+    const ROWS = 25;
+    const PALETTE = ['#FFD600', '#D23B72', '#4195DE', '#fcfcfc'];
+    const ENTER_DURATION = 360;
+    const EXIT_DURATION = 280;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let canvas;
+    let ctx;
+    let frameId = null;
+    let transition = null;
+    let targetLink = '';
+
+    function map(value, min1, max1, min2, max2) {
+        return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
     }
 
     function init() {
-        if (document.getElementById('global-transition-canvas')) return;
-        
-        canvas = document.createElement('canvas');
-        canvas.id = 'global-transition-canvas';
-        canvas.style.position = 'fixed';
-        canvas.style.top = '0';
-        canvas.style.left = '0';
-        canvas.style.zIndex = '2147483647';
-        canvas.style.pointerEvents = 'none';
-        document.body.appendChild(canvas);
-        
+        canvas = document.getElementById('global-transition-canvas');
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvas.id = 'global-transition-canvas';
+            canvas.style.position = 'fixed';
+            canvas.style.inset = '0';
+            canvas.style.zIndex = '-9999';
+            canvas.style.pointerEvents = 'none';
+            document.body.appendChild(canvas);
+        }
+
         ctx = canvas.getContext('2d');
-        
+        resize();
         window.addEventListener('resize', resize);
-        resize(); // Match initial size
         setupNavListeners();
-        
-        requestAnimationFrame(draw);
+
+        if (!reduceMotion) startTransition('enter');
     }
-    
+
     function resize() {
+        if (!canvas) return;
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
     }
 
-    function draw() {
-        frameCount++;
-        
-        if (!transitionActive) {
-            canvas.style.zIndex = '-9999';
-            canvas.style.pointerEvents = 'none';
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Idle cleanly
-            requestAnimationFrame(draw);
-            return;
-        } else {
-            canvas.style.zIndex = '2147483647'; // Pin top securely
-            canvas.style.pointerEvents = isOutbound ? 'auto' : 'none'; // Lock clicks out
-        }
-        
+    function showCanvas(outbound) {
+        canvas.style.zIndex = '2147483647';
+        canvas.style.pointerEvents = outbound ? 'auto' : 'none';
+    }
+
+    function hideCanvas() {
+        if (!canvas || !ctx) return;
+        canvas.style.zIndex = '-9999';
+        canvas.style.pointerEvents = 'none';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        let cellW = canvas.width / COLS;
-        let cellH = canvas.height / ROWS;
-        let animatedLimit = transitionProgress * COLS; 
-        
-        let modRow = Math.floor(map(Math.sin(frameCount * 0.1), -1, 1, 2, 8));
-        let modCol = Math.floor(map(Math.cos(frameCount * 0.08), -1, 1, 2, 8));
-        
-        for (let r = 0; r < ROWS; r++) {
-            for (let c = 0; c < COLS; c++) {
-                let distFromCenter = dist(c, r, COLS/2, ROWS/2);
-                if (distFromCenter < animatedLimit * 1.5) {
-                    let rowResidue = r % modRow;
-                    let colResidue = c % modCol;
-                    let colorIdx = (rowResidue + colResidue) % palette.length;
-                    
-                    ctx.fillStyle = palette[colorIdx];
-                    ctx.fillRect(c * cellW, r * cellH, cellW + 1.5, cellH + 1.5);
-                }
+    }
+
+    function stopAnimation() {
+        if (frameId !== null) cancelAnimationFrame(frameId);
+        frameId = null;
+        transition = null;
+    }
+
+    function restorePageContent() {
+        const content = document.querySelector('.content') || document.querySelector('main');
+        if (!content || !content.style) return;
+        content.style.opacity = '';
+        content.style.transition = '';
+    }
+
+    function draw(progress, now) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const cellWidth = canvas.width / COLS;
+        const cellHeight = canvas.height / ROWS;
+        const animatedLimit = progress * COLS;
+        const modRow = Math.floor(map(Math.sin(now * 0.006), -1, 1, 2, 8));
+        const modCol = Math.floor(map(Math.cos(now * 0.0048), -1, 1, 2, 8));
+
+        for (let row = 0; row < ROWS; row += 1) {
+            for (let column = 0; column < COLS; column += 1) {
+                const distance = Math.hypot(column - COLS / 2, row - ROWS / 2);
+                if (distance >= animatedLimit * 1.5) continue;
+
+                const color = (row % modRow + column % modCol) % PALETTE.length;
+                ctx.fillStyle = PALETTE[color];
+                ctx.fillRect(column * cellWidth, row * cellHeight, cellWidth + 1.5, cellHeight + 1.5);
             }
         }
-        
-        // Handling transition animation logic
-        if (isOutbound) {
-            // Expand, then fire redirect immediately at apex — no hold
-            transitionProgress += 0.04;
-            if (transitionProgress >= 1.0 && targetLink) {
-                window.location.href = targetLink;
-                targetLink = "";
-            }
-        } else {
-            // Un-expansion mapping
-            if (transitionProgress > 0) {
-                transitionProgress -= 0.05; 
-            } else {
-                transitionProgress = 0;
-                transitionActive = false;
-            }
+    }
+
+    function startTransition(direction, href = '') {
+        if (reduceMotion && direction === 'enter') {
+            hideCanvas();
+            return;
         }
-        
-        requestAnimationFrame(draw);
+
+        stopAnimation();
+        targetLink = href;
+        transition = {
+            direction,
+            startedAt: null,
+            duration: direction === 'exit' ? EXIT_DURATION : ENTER_DURATION
+        };
+        showCanvas(direction === 'exit');
+        frameId = requestAnimationFrame(animate);
+    }
+
+    function animate(now) {
+        if (!transition) return;
+        if (transition.startedAt === null) transition.startedAt = now;
+
+        const elapsed = now - transition.startedAt;
+        const fraction = Math.min(elapsed / transition.duration, 1);
+        const progress = transition.direction === 'exit' ? fraction : 1 - fraction;
+        draw(progress, now);
+
+        if (fraction < 1) {
+            frameId = requestAnimationFrame(animate);
+            return;
+        }
+
+        const direction = transition.direction;
+        const destination = targetLink;
+        stopAnimation();
+
+        if (direction === 'exit' && destination) {
+            window.location.assign(destination);
+            return;
+        }
+
+        hideCanvas();
     }
 
     function setupNavListeners() {
-        let navLinks = document.querySelectorAll('a');
-        navLinks.forEach(link => {
-            let href = link.getAttribute('href');
-            // Intercept local anchors exclusively
-            if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto') || link.target === '_blank') return;
-            
-            link.addEventListener('click', function(event) {
+        document.querySelectorAll('a').forEach((link) => {
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || /^(https?:|mailto:|tel:|javascript:)/i.test(href) || link.target === '_blank') return;
+
+            link.addEventListener('click', (event) => {
+                if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || transition?.direction === 'exit') return;
                 event.preventDefault();
-                targetLink = href;
-                
-                if(transitionActive && isOutbound) return;
-                
-                // Dim page quickly upon leaving
-                let content = document.querySelector('.content') || document.querySelector('main');
+
+                const content = document.querySelector('.content') || document.querySelector('main');
                 if (content && content.style) {
-                    content.style.transition = 'opacity 0.3s';
-                    content.style.opacity = '0'; 
+                    content.style.transition = 'opacity 0.2s ease';
+                    content.style.opacity = '0';
                 }
-                
-                isOutbound = true;
-                transitionActive = true;
-                transitionProgress = 0;
+
+                startTransition('exit', href);
             });
         });
     }
 
+    window.addEventListener('pagehide', () => {
+        stopAnimation();
+        hideCanvas();
+    });
+
+    window.addEventListener('pageshow', (event) => {
+        if (!event.persisted) return;
+        stopAnimation();
+        hideCanvas();
+        restorePageContent();
+    });
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', init, { once: true });
     } else {
         init();
     }
