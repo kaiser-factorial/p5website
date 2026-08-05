@@ -1638,7 +1638,9 @@ body.site-home .home-title {
     user-select: none;
 }
 
-body.site-home .home-title > span {
+body.site-home .home-title__line { display: block; }
+
+body.site-home .home-title__letter {
     display: inline-block;
     transition: transform .15s cubic-bezier(.175, .885, .32, 1.25), color .25s ease;
     will-change: transform;

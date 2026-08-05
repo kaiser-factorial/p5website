@@ -149,14 +149,21 @@
   if (homeTitle && !reduceMotion) {
     const titleText = homeTitle.textContent.trim();
     homeTitle.setAttribute('aria-label', titleText);
-    homeTitle.textContent = '';
+    const titleLines = [...homeTitle.querySelectorAll('.home-title__line')];
+    const lines = titleLines.length ? titleLines : [homeTitle];
 
-    const letters = [...titleText].map((character) => {
-      const letter = document.createElement('span');
-      letter.setAttribute('aria-hidden', 'true');
-      letter.textContent = character === ' ' ? '\u00a0' : character;
-      homeTitle.appendChild(letter);
-      return letter;
+    const letters = lines.flatMap((line) => {
+      const lineText = line.textContent;
+      line.textContent = '';
+
+      return [...lineText].map((character) => {
+        const letter = document.createElement('span');
+        letter.className = 'home-title__letter';
+        letter.setAttribute('aria-hidden', 'true');
+        letter.textContent = character === ' ' ? '\u00a0' : character;
+        line.appendChild(letter);
+        return letter;
+      });
     });
 
     const resetLetters = () => {
