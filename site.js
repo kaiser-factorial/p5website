@@ -29,7 +29,7 @@
       ]
     },
     {
-      label: 'Data & interaction',
+      label: 'Data analysis & interaction',
       href: `${href('datascience.html')}#data-interaction`,
       items: [
         { label: 'Scatter Lab', href: href('case-studies/pca-workbench.html') },
@@ -204,39 +204,36 @@
   if (practiceSelector && desktopEvidence && mobileEvidence) {
     const practiceTopics = [...practiceSelector.querySelectorAll('[data-practice]')];
     const practiceEvidence = {
-      systems: {
-        label: 'Systems',
-        skills: ['Python & service design', 'SQLite / FTS retrieval', 'Auth & realtime state'],
+      ai: {
+        label: 'AI & research engineering',
+        skills: ['Applied AI systems', 'Representation engineering', 'Model behavior & evaluation'],
         projects: [
-          { label: 'Unified Memory Hub', href: href('case-studies/memory-hub.html') },
+          { label: 'NemoH Routing Research', href: href('case-studies/nemoh-routing.html') },
+          { label: 'Unified Memory Hub', href: href('case-studies/memory-hub.html') }
+        ]
+      },
+      systems: {
+        label: 'Systems development',
+        skills: ['Full-stack applications', 'Local-first infrastructure', 'Shared state & developer tools'],
+        projects: [
           { label: 'Joint Session', href: href('case-studies/joint-ai-chat.html') },
           { label: 'Ledger + Bulwork', href: href('case-studies/ledger-bulwork.html') }
         ]
       },
-      research: {
-        label: 'Research',
-        skills: ['Representation engineering', 'Mechanistic interpretability', 'Routing & activation analysis'],
+      analysis: {
+        label: 'Statistics & data analysis',
+        skills: ['PCA & clustering', 'Statistical modeling', 'Interactive visualization'],
         projects: [
-          { label: 'NemoH Routing Research', href: href('case-studies/nemoh-routing.html') }
-        ]
-      },
-      interfaces: {
-        label: 'Interfaces',
-        skills: ['React interface design', 'Physical computing', 'Interactive visualization'],
-        projects: [
-          { label: 'Jacket Link', href: href('case-studies/jacket-link.html') },
-          { label: 'WearabLLM', href: href('case-studies/wearabllm.html') },
-          { label: 'Ledger + Bulwork', href: href('case-studies/ledger-bulwork.html') },
+          { label: 'Scatter Lab', href: href('case-studies/pca-workbench.html') },
           { label: 'Vat Lexicon', href: href('bot-lexicon-portal.html') }
         ]
       },
-      analysis: {
-        label: 'Data analysis',
-        skills: ['PCA & clustering', 'Statistical modeling', 'Experimental design'],
+      physical: {
+        label: 'Physical computing',
+        skills: ['Embedded systems', 'Wearable interaction', 'Firmware & Bluetooth'],
         projects: [
-          { label: 'Scatter Lab', href: href('case-studies/pca-workbench.html') },
-          { label: 'Rate My Professor Analysis', href: href('capstone.html') },
-          { label: 'Movie Ratings Hypothesis Testing', href: href('project1.html') }
+          { label: 'Jacket Link', href: href('case-studies/jacket-link.html') },
+          { label: 'WearabLLM', href: href('case-studies/wearabllm.html') }
         ]
       }
     };
