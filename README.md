@@ -14,10 +14,25 @@ I am not liable for any misfortune that may come from your usage of this website
 
 ## How to Run
 
-1. **Local Development Server**: 
-   - Use VS Code task "Serve Website" or
-   - Run `python3 -m http.server 8000` in terminal
-   - Open `http://localhost:8000` in your browser
+Run the workspace launcher from the Portfolio directory:
 
-2. **Direct File Access**: 
-   - Simply open `index.html` in your web browser
+```sh
+dev start portfolio --detach --json --yes
+```
+
+Open the URL reported when the server is ready. Direct file access may not
+exercise all navigation and interactive behavior.
+
+## Route policy
+
+- The canonical academic report archives live at
+  `reports/rate-my-professor.html` and `reports/movie-ratings.html`, with their
+  exported image folders alongside them. The historic root report URLs remain
+  as short redirect aliases for existing links.
+- `ising_model.html` and `grid_bg.html` are intentionally retained as standalone
+  experimental demos.
+- Retired transition mocks are removed from deployment. The old comments route
+  and duplicate `CatchFall/index.html` game entry point redirect to their
+  canonical replacements.
+- The linked Pixel Chase original course writeup is intentionally retained as
+  a source archive alongside the adapted build journal.

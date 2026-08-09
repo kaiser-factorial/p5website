@@ -146,6 +146,33 @@
   const homeTitle = document.querySelector('.home-title');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  const getFocusableElements = (container) => [...container.querySelectorAll(
+    'a[href], area[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), iframe:not([tabindex="-1"]), [tabindex]:not([tabindex="-1"])'
+  )].filter((element) => !element.hidden && element.getClientRects().length);
+
+  const trapModalFocus = (event, dialog) => {
+    if (event.key !== 'Tab') return;
+
+    const focusableElements = getFocusableElements(dialog);
+    if (!focusableElements.length) {
+      event.preventDefault();
+      dialog.focus();
+      return;
+    }
+
+    const firstFocusable = focusableElements[0];
+    const lastFocusable = focusableElements[focusableElements.length - 1];
+    const activeElement = document.activeElement;
+
+    if (event.shiftKey && activeElement === firstFocusable) {
+      event.preventDefault();
+      lastFocusable.focus();
+    } else if (!event.shiftKey && activeElement === lastFocusable) {
+      event.preventDefault();
+      firstFocusable.focus();
+    }
+  };
+
   if (homeTitle && !reduceMotion) {
     const titleText = homeTitle.textContent.trim();
     homeTitle.setAttribute('aria-label', titleText);
@@ -205,7 +232,7 @@
     const practiceTopics = [...practiceSelector.querySelectorAll('[data-practice]')];
     const practiceEvidence = {
       ai: {
-        label: 'AI & research engineering',
+        label: 'AI systems & research',
         skills: ['Applied AI systems', 'Representation engineering', 'Model behavior & evaluation'],
         projects: [
           { label: 'NemoH Routing Research', href: href('case-studies/nemoh-routing.html') },
@@ -354,6 +381,7 @@
     document.body.append(mediaModal);
 
     const closeButton = mediaModal.querySelector('.media-modal__close');
+    const mediaDialog = mediaModal.querySelector('.media-modal__dialog');
     const modalImage = mediaModal.querySelector('.media-modal__image');
     const modalCaption = mediaModal.querySelector('.media-modal__caption');
     let opener = null;
@@ -397,9 +425,7 @@
       if (event.target === mediaModal) closeMediaModal();
     });
     mediaModal.addEventListener('keydown', (event) => {
-      if (event.key !== 'Tab') return;
-      event.preventDefault();
-      closeButton.focus();
+      trapModalFocus(event, mediaDialog);
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') closeMediaModal();
@@ -422,6 +448,7 @@
     document.body.append(diagramModal);
 
     const closeDiagramButton = diagramModal.querySelector('.media-modal__close');
+    const diagramDialog = diagramModal.querySelector('.diagram-modal__dialog');
     const diagramFrame = diagramModal.querySelector('.diagram-modal__frame');
     const diagramCaption = diagramModal.querySelector('.diagram-modal__caption');
     let diagramOpener = null;
@@ -456,9 +483,7 @@
       if (event.target === diagramModal) closeDiagramModal();
     });
     diagramModal.addEventListener('keydown', (event) => {
-      if (event.key !== 'Tab') return;
-      event.preventDefault();
-      closeDiagramButton.focus();
+      trapModalFocus(event, diagramDialog);
     });
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') closeDiagramModal();

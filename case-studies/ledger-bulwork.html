@@ -6,15 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="The Ledger + BULWORK MODE: Integrated project state hub, AI focus adjudicator, and Manifest V3 Chrome extension.">
+    <link rel="canonical" href="https://kaiser-factorial.github.io/portfolio/case-studies/ledger-bulwork.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Corina Kaiser">
+    <meta property="og:title" content="The Ledger + BULWORK MODE — Corina Kaiser">
+    <meta property="og:description" content="An integrated project state hub, AI focus adjudicator, and Manifest V3 Chrome extension.">
+    <meta property="og:url" content="https://kaiser-factorial.github.io/portfolio/case-studies/ledger-bulwork.html">
+    <meta property="og:image" content="https://kaiser-factorial.github.io/portfolio/assets/social/ledger-bulwork.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="The Ledger and BULWORK MODE graphic for Corina Kaiser's portfolio.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Ledger + BULWORK MODE — Corina Kaiser">
+    <meta name="twitter:description" content="An integrated project state hub, AI focus adjudicator, and Manifest V3 Chrome extension.">
+    <meta name="twitter:image" content="https://kaiser-factorial.github.io/portfolio/assets/social/ledger-bulwork.png">
+    <meta name="twitter:image:alt" content="The Ledger and BULWORK MODE graphic for Corina Kaiser's portfolio.">
     <title>The Ledger + BULWORK MODE — Corina Kaiser</title>
-    <link rel="stylesheet" href="../style.css?v=20260808-card-actions">
+    <link rel="stylesheet" href="../style.css?v=20260809-portfolio-audit">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
         rel="stylesheet">
-    <script defer src="../site.js?v=20260808-card-actions"></script>
+    <script defer src="../site.js?v=20260809-portfolio-audit"></script>
 </head>
 
 <body class="site-page" data-page="work" data-root="..">
-    <nav class="site-nav" data-site-nav></nav>
+    <nav class="site-nav" data-site-nav aria-label="Primary navigation">
+        <div class="site-nav__fallback">
+            <a href="../index.html">Home</a>
+            <a href="../datascience.html">Selected work</a>
+            <a href="../about.html">About</a>
+            <a href="../page1contact.html">Contact</a>
+            <a href="../resume/Corina-Kaiser-Resume-May-2026.pdf" target="_blank" rel="noopener noreferrer">Resume <span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/kaiser-factorial" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+        </div>
+    </nav>
     <main class="site-shell">
         <header class="case-hero">
             <div>
@@ -25,8 +49,7 @@
                 <div class="button-row"><a class="button-link" href="../datascience.html">Back to work <span
                             aria-hidden="true">→</span></a></div>
             </div>
-            <aside class="case-status"><span>PUBLIC CASE STUDY</span><strong>Architecture overview — visual walkthrough
-                    pending</strong></aside>
+            <aside class="case-status"><span>PUBLIC CASE STUDY</span><strong>Architecture overview</strong></aside>
         </header>
         <section class="case-grid">
             <div class="case-copy">
@@ -48,8 +71,8 @@
                 <p>The primary surface used during day-to-day work is the <strong>BULWORK Chrome Extension</strong> (Manifest V3). Serving as the frontline enforcement layer, the extension contains zero API keys or LLM prompt logic; instead, it delegates all intelligence to the local daemon (<code>localhost:7373</code>).</p>
                 <p>The extension organizes web traffic into a three-tiered domain architecture:</p>
                 <p><strong>Tier 1 (Hard Block):</strong> High-distraction domains (e.g. Reddit, TikTok, Netflix) are intercepted at the network level using Chrome’s <code>declarativeNetRequest</code> API. Navigations are instantly redirected to a local block page without incurring network latency or API costs.</p>
-                <p><strong>Tier 2 (AI Adjudicated):**</strong> Ambiguous sites (news, YouTube, Twitter) trigger a background IPC request to the local daemon. Content scripts monitor SPA navigation events—evaluating individual YouTube videos rather than blocking the domain wholesale. If a site is deemed off-task, a soft overlay (“Back to BULWORK MODE”) appears with a <em>“Just 1 more minute”</em> grace button that pauses the work clock with a subtle vignette cue.</p>
-                <p><strong>Tier 3 (Whitelist):**</strong> Developer documentation, GitHub, StackOverflow, and localhost endpoints pass through completely untouched.</p>
+                <p><strong>Tier 2 (AI Adjudicated):</strong> Ambiguous sites (news, YouTube, Twitter) trigger a background IPC request to the local daemon. Content scripts monitor SPA navigation events—evaluating individual YouTube videos rather than blocking the domain wholesale. If a site is deemed off-task, a soft overlay (“Back to BULWORK MODE”) appears with a <em>“Just 1 more minute”</em> grace button that pauses the work clock with a subtle vignette cue.</p>
+                <p><strong>Tier 3 (Whitelist):</strong> Developer documentation, GitHub, StackOverflow, and localhost endpoints pass through completely untouched.</p>
                 <p>Beyond domain blocking, the extension includes a <strong>Pomodoro timer engine</strong> with real-time toolbar badge indicators (red for work blocks, green for breaks), day-plan block queues with automated stop triggers (advancing when a git push or Ledger touch is detected), and a <strong>Floating AI Chat Pill</strong>. When visiting AI tools like Claude.ai, ChatGPT, or Gemini, a bottom-right pill allows inserting a soft-nudge focus header directly into the prompt composer with a single click (<code>“↳ prepend focus”</code>).</p>
 
                 <h2>System synthesis: The focused work loop</h2>
@@ -83,7 +106,7 @@
         <div class="site-footer__inner"><span>Corina Kaiser · The Ledger + BULWORK MODE</span><span><a
                     href="mailto:kaiser.factorial@gmail.com">Discuss the system</a></span></div>
     </footer>
-    <script src="../global_transition.js"></script>
+    <script src="../global_transition.js?v=20260809-portfolio-audit"></script>
 </body>
 
 </html>

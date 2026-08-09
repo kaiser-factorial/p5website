@@ -1100,6 +1100,34 @@ body.site-page .site-nav__inner {
     gap: 1.2rem;
 }
 
+/* Rendered only when the shared navigation script is unavailable. */
+body.site-page .site-nav__fallback {
+    width: min(1180px, calc(100% - 2.5rem));
+    min-height: 4.1rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: .35rem .8rem;
+    padding: .45rem 0;
+}
+
+body.site-page .site-nav__fallback a {
+    color: var(--ink);
+    font-size: .84rem;
+    font-weight: 700;
+    letter-spacing: .01em;
+    text-decoration: none;
+}
+
+body.site-page .site-nav__fallback a:hover,
+body.site-page .site-nav__fallback a:focus-visible {
+    color: var(--blue);
+    outline: 3px solid var(--blue);
+    outline-offset: 3px;
+}
+
 body.site-page .site-brand {
     align-self: center;
     color: var(--ink);
@@ -1228,6 +1256,15 @@ body.site-page .site-work-menu__toggle {
 
 body.site-page .site-work-menu__toggle:hover,
 body.site-page .site-work-menu__toggle:focus-visible { color: var(--blue); }
+
+body.site-page .site-menu-button:focus-visible,
+body.site-page .site-work-menu__toggle:focus-visible {
+    outline: 3px solid var(--blue);
+    outline-offset: 3px;
+}
+
+body.site-home .site-menu-button:focus-visible,
+body.site-home .site-work-menu__toggle:focus-visible { outline-color: var(--yellow); }
 
 body.site-page .site-work-menu__chevron {
     width: .52rem;
@@ -2259,6 +2296,13 @@ body.has-diagram-modal { overflow: hidden; }
 
 @media (max-width: 760px) {
     body.site-page .site-nav__inner { width: min(100% - 1.5rem, 1180px); min-height: 3.9rem; }
+    body.site-page .site-nav__fallback {
+        width: min(100% - 1.5rem, 1180px);
+        min-height: 3.9rem;
+        justify-content: center;
+        gap: .3rem .7rem;
+        padding: .5rem 0;
+    }
     body.site-page .site-menu-button { display: inline-flex; align-items: center; }
     body.site-page .site-menu {
         display: none;
@@ -2794,7 +2838,8 @@ body.photo-page.site-page .site-nav {
 }
 
 body.photo-page.site-page .site-brand,
-body.photo-page.site-page .site-menu a { color: #f0f0f0; }
+body.photo-page.site-page .site-menu a,
+body.photo-page.site-page .site-nav__fallback a { color: #f0f0f0; }
 
 body.photo-page.site-page .site-menu > .site-menu__link,
 body.photo-page.site-page .site-work-menu {

@@ -92,7 +92,7 @@
     }
 
     function startTransition(direction, href = '') {
-        if (reduceMotion && direction === 'enter') {
+        if (reduceMotion) {
             hideCanvas();
             return;
         }
@@ -140,7 +140,7 @@
             if (!href || href.startsWith('#') || /^(https?:|mailto:|tel:|javascript:)/i.test(href) || link.target === '_blank') return;
 
             link.addEventListener('click', (event) => {
-                if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || transition?.direction === 'exit') return;
+                if (reduceMotion || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || transition?.direction === 'exit') return;
                 event.preventDefault();
 
                 const content = document.querySelector('.content') || document.querySelector('main');

@@ -5,12 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Pixel Chase full build journal: turning a p5.js game into an accelerometer-controlled Circuit Playground wearable, with enclosure and textile iterations.">
     <title>Pixel Chase — Full Build Journal · Corina Kaiser</title>
-    <link rel="stylesheet" href="../../style.css?v=20260808-card-actions">
+    <link rel="stylesheet" href="../../style.css?v=20260809-portfolio-audit">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-    <script defer src="../../site.js?v=20260808-card-actions"></script>
+    <script defer src="../../site.js?v=20260809-portfolio-audit"></script>
 </head>
 <body class="site-page" data-page="work" data-root="../..">
-    <nav class="site-nav" data-site-nav></nav>
+    <nav class="site-nav" data-site-nav aria-label="Primary navigation">
+        <div class="site-nav__fallback">
+            <a href="../../index.html">Home</a>
+            <a href="../../datascience.html">Selected work</a>
+            <a href="../../about.html">About</a>
+            <a href="../../page1contact.html">Contact</a>
+            <a href="../../resume/Corina-Kaiser-Resume-May-2026.pdf" target="_blank" rel="noopener noreferrer">Resume <span aria-hidden="true">↗</span></a>
+            <a href="https://github.com/kaiser-factorial" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+        </div>
+    </nav>
     <main class="site-shell">
         <header class="case-hero">
             <div>
@@ -34,7 +43,7 @@
                 <h2>Map wrist tilt to a circle</h2>
                 <p>The Circuit Playground reads X/Y acceleration values. I convert those readings into an angle, then use that angle to select one of the ring’s ten LED sectors. That translation was the core interaction problem: it had to be steady enough to feel intentional but responsive enough to feel like play.</p>
                 <figure class="case-media case-media--tilt-map">
-                    <img src="../../assets/physical-computing/pixel-chase-tilt-map.png" alt="Diagram mapping a Circuit Playground's X and Y accelerometer values around ten LED sectors.">
+                    <img src="../../assets/physical-computing/pixel-chase-tilt-map.png" alt="Diagram mapping a Circuit Playground's X and Y accelerometer values around ten LED sectors." width="768" height="768" decoding="async" loading="lazy">
                     <figcaption>Accelerometer values become an orientation around the ten-pixel ring.</figcaption>
                 </figure>
                 <div class="case-system-map" aria-label="Pixel Chase interaction path">
@@ -51,21 +60,21 @@
                 <h2>Let the electronics set the form</h2>
                 <p>The controller needed to carry both the Circuit Playground and a LiPo battery, which made battery volume and cable routing central design constraints. I began with hand-drawn enclosure studies and paper models, then used Blender and three successive 3D-printed iterations to work toward a wrist-sized form.</p>
                 <figure class="case-media case-media--sketch">
-                    <img src="../../assets/physical-computing/pixel-chase-enclosure-sketch.jpg" alt="Hand-drawn enclosure studies for a Circuit Playground and battery, including top and side views of a wrist-worn controller.">
+                    <img src="../../assets/physical-computing/pixel-chase-enclosure-sketch.jpg" alt="Hand-drawn enclosure studies for a Circuit Playground and battery, including top and side views of a wrist-worn controller." width="1999" height="1510" decoding="async" loading="lazy">
                     <figcaption>Early studies located the board, battery, enclosure walls, and wrist attachment before printing.</figcaption>
                 </figure>
 
                 <h2>The enclosure became a collaboration</h2>
                 <p>I worked with peer Anantak Singh on the final enclosure architecture. Anantak redesigned and modeled separate chambers for the Circuit Playground and LiPo, a sliding battery bay, and side bars for the watch-like strap. Across the print iterations, that arrangement made the components fit more reliably and gave the textile system a stable attachment point.</p>
                 <figure class="case-media">
-                    <img src="../../assets/physical-computing/pixel-chase-enclosure-iterations.jpg" alt="Three Pixel Chase enclosure iterations, including an early paper prototype and later white 3D-printed pieces.">
+                    <img src="../../assets/physical-computing/pixel-chase-enclosure-iterations.jpg" alt="Three Pixel Chase enclosure iterations, including an early paper prototype and later white 3D-printed pieces." width="1999" height="646" decoding="async" loading="lazy">
                     <figcaption>Paper and 3D-printed iterations narrowed the enclosure into the final wrist-worn form.</figcaption>
                 </figure>
 
                 <h2>The strap is part of the interface</h2>
                 <p>Bulky buckles and D-rings distracted from the compact controller, so I moved to a one-piece denim strap with a hook-and-loop closure. The single strap wraps beneath the enclosure, which keeps a fabric layer between the wearer and the electronics. Gold topstitching echoes the board’s connection pads, while white thread and closure material pick up the enclosure’s color.</p>
                 <figure class="case-media case-media--sketch">
-                    <img src="../../assets/physical-computing/pixel-chase-strap-sketch.jpg" alt="Hand-drawn Pixel Chase strap concept on lined paper, showing a denim sleeve, elastic and hook closure, enclosure position, and stitching notes.">
+                    <img src="../../assets/physical-computing/pixel-chase-strap-sketch.jpg" alt="Hand-drawn Pixel Chase strap concept on lined paper, showing a denim sleeve, elastic and hook closure, enclosure position, and stitching notes." width="1846" height="1999" decoding="async" loading="lazy">
                     <figcaption>The strap study specifies the denim sleeve, elastic closure, hook, and stitching choices that shaped the final wraparound fit.</figcaption>
                 </figure>
 
@@ -79,7 +88,7 @@
 
             <aside>
                 <figure class="case-media case-media--pixel">
-                    <img src="../../assets/physical-computing/pixel-chase-wrist-controller.png" alt="Pixel Chase wearable controller lit on a wrist, with a Circuit Playground board, exposed cable, 3D-printed enclosure, and denim strap.">
+                    <img src="../../assets/physical-computing/pixel-chase-wrist-controller.png" srcset="../../assets/physical-computing/pixel-chase-wrist-controller-640.webp 640w, ../../assets/physical-computing/pixel-chase-wrist-controller-960.webp 960w, ../../assets/physical-computing/pixel-chase-wrist-controller.png 1475w" sizes="(max-width: 820px) calc(100vw - 2.5rem), 34vw" alt="Pixel Chase wearable controller lit on a wrist, with a Circuit Playground board, exposed cable, 3D-printed enclosure, and denim strap." width="1475" height="1066" decoding="async" loading="eager">
                     <figcaption>The finished wearable controller in use.</figcaption>
                 </figure>
                 <ul class="case-facts">
@@ -89,13 +98,13 @@
                     <li><strong>Course</strong><span>DM-GY 9103 Wearables · Spring 2026</span></li>
                 </ul>
                 <figure class="case-media case-media--pixel">
-                    <img src="../../assets/physical-computing/pixel-chase-controller.png" alt="Pixel Chase controller showing the Circuit Playground Bluefruit in a white 3D-printed enclosure with denim wrist strap and active LEDs.">
+                    <img src="../../assets/physical-computing/pixel-chase-controller.png" alt="Pixel Chase controller showing the Circuit Playground Bluefruit in a white 3D-printed enclosure with denim wrist strap and active LEDs." width="1999" height="1500" decoding="async" loading="lazy">
                     <figcaption>Front view of the board, enclosure, and custom strap.</figcaption>
                 </figure>
             </aside>
         </section>
     </main>
     <footer class="site-footer"><div class="site-footer__inner"><span>Corina Kaiser · Pixel Chase</span><span><a href="../../datascience.html">Selected work</a></span></div></footer>
-    <script src="../../global_transition.js"></script>
+    <script src="../../global_transition.js?v=20260809-portfolio-audit"></script>
 </body>
 </html>
