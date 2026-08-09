@@ -5,12 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
-        content="Selected AI systems, research, physical computing, data analysis and interaction, and creative work by Corina Kaiser.">
+        content="Selected AI systems, research, data analysis and interaction, physical computing, and creative work by Corina Kaiser.">
     <title>Selected Work — Corina Kaiser</title>
-    <link rel="stylesheet" href="style.css?v=20260804-scatter-responsive">
+    <link rel="stylesheet" href="style.css?v=20260808-card-actions">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
         rel="stylesheet">
-    <script defer src="site.js?v=20260805-practice-taxonomy"></script>
+    <script defer src="site.js?v=20260808-card-actions"></script>
 </head>
 
 <body class="datascience-page site-page" data-page="work">
@@ -18,7 +18,7 @@
     <main class="site-shell">
         <header>
             <p class="eyebrow">Selected work</p>
-            <h1 class="page-heading">AI systems, physical computing, data analysis &amp; interaction, and creative work</h1>
+            <h1 class="page-heading">AI systems, data analysis &amp; interaction, physical computing, and creative work</h1>
             <p class="page-lede">I work across agent infrastructure, live-sync applications, interactive data tools,
                 model behavior, physical computing, and creative computation.</p>
         </header>
@@ -41,8 +41,11 @@
                             <li>semantic retrieval</li>
                             <li>developer tools</li>
                         </ul>
-                        <a class="work-card__link" href="case-studies/memory-hub.html">Read technical briefing <span
-                                aria-hidden="true">→</span></a>
+                        <div class="work-card__footer">
+                            <a class="work-card__link" href="case-studies/memory-hub.html">Read technical briefing <span
+                                    aria-hidden="true">→</span></a>
+                            <a class="work-card__github" href="https://github.com/kaiser-factorial/memory-hub" target="_blank" rel="noopener noreferrer" aria-label="View Unified Memory Hub on GitHub" title="View Unified Memory Hub on GitHub"><img src="assets/github-logo.png" alt=""></a>
+                        </div>
                     </div>
                 </article>
                 <article class="work-card">
@@ -75,8 +78,11 @@
                             <li>browser extension</li>
                             <li>safe failure modes</li>
                         </ul>
-                        <a class="work-card__link" href="case-studies/ledger-bulwork.html">Read technical briefing <span
-                                aria-hidden="true">→</span></a>
+                        <div class="work-card__footer">
+                            <a class="work-card__link" href="case-studies/ledger-bulwork.html">Read technical briefing <span
+                                    aria-hidden="true">→</span></a>
+                            <a class="work-card__github" href="https://github.com/kaiser-factorial/bulwork" target="_blank" rel="noopener noreferrer" aria-label="View Bulwork on GitHub" title="View Bulwork on GitHub"><img src="assets/github-logo.png" alt=""></a>
+                        </div>
                     </div>
                 </article>
                 <article class="work-card">
@@ -94,6 +100,85 @@
                         </ul>
                         <a class="work-card__link" href="case-studies/nemoh-routing.html">Read technical briefing <span
                                 aria-hidden="true">→</span></a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="work-section" id="data-interaction" aria-labelledby="interaction-title">
+            <h2 class="section-heading" id="interaction-title">Data analysis &amp; interaction</h2>
+            <p class="section-intro">Interactive data systems and analytical work: tools for visual exploration,
+                reproducible analysis, and making assumptions and results inspectable.</p>
+            <div class="work-grid">
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--scatter"><img
+                            src="assets/scatter-lab/iris-cluster-rotation.gif"
+                            alt="A rotating 3D Scatter Lab PCA plot with blue, pink, and yellow Iris clusters.">
+                    </div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Browser-only research workbench</span>
+                        <h3>Scatter Lab</h3>
+                        <p>A local-first workbench for turning tabular research data into interactive 2D and 3D views—without uploading a dataset or operating an analysis backend.</p>
+                        <ul class="tag-list">
+                            <li>Next.js + React</li>
+                            <li>TypeScript</li>
+                            <li>Plotly WebGL</li>
+                            <li>IndexedDB</li>
+                        </ul>
+                        <div class="work-card__footer">
+                            <div class="work-card__links">
+                                <a class="work-card__link" href="case-studies/pca-workbench.html">Read case study <span aria-hidden="true">→</span></a>
+                                <a class="work-card__link" href="https://scatter-lab.vercel.app/" target="_blank"
+                                    rel="noopener noreferrer">Open Scatter Lab <span aria-hidden="true">↗</span></a>
+                            </div>
+                            <a class="work-card__github" href="https://github.com/kaiser-factorial/scatter-lab" target="_blank" rel="noopener noreferrer" aria-label="View Scatter Lab on GitHub" title="View Scatter Lab on GitHub"><img src="assets/github-logo.png" alt=""></a>
+                        </div>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--photo work-card__visual--vat"><img
+                            src="assets/vat-lexicon/mapreduce-in-motion.png"
+                            alt="Vat Lexicon visualizer running a MapReduce pipeline with input, map, shuffle, and reduce stages.">
+                    </div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Linguistic visualization</span>
+                        <h3>Vat Lexicon</h3>
+                        <p>An interactive MapReduce visualization for vocabulary, distribution, similarity, and
+                            morphological exploration in a synthetic social world.</p>
+                        <ul class="tag-list">
+                            <li>JavaScript</li>
+                            <li>p5.js</li>
+                            <li>MapReduce</li>
+                        </ul>
+                        <div class="work-card__footer">
+                            <a class="work-card__link" href="bot-lexicon-portal.html">Read project context <span
+                                    aria-hidden="true">→</span></a>
+                            <a class="work-card__github" href="https://github.com/kaiser-factorial/bot-lexicon" target="_blank" rel="noopener noreferrer" aria-label="View Vat Lexicon on GitHub" title="View Vat Lexicon on GitHub"><img src="assets/github-logo.png" alt=""></a>
+                        </div>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--photo work-card__visual--chart"><img
+                            src="assets/data-analysis/rate-my-professor-model-comparison.png"
+                            alt="Two actual-versus-predicted rating scatter plots comparing models for Rate My Professor data, each with a red dashed reference line.">
+                    </div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Coursework * statistical analysis &amp; modeling</span>
+                        <h3>Rate My Professor Analysis</h3>
+                        <p>This report analyses nearly 90,000 student evaluations across the RateMyProfessor website. It investigates relationships among student-assigned ratings, qualitative tags, discipline, and other available evaluation variables. The analysis uses Weighted Least Squares, logistic regression, PCA, and permutation testing to answer questions regarding patterns surrounding student feedback and instructor performance. Completed during <em>Internship in Data Science</em> (DS-GA 1001) at NYU in Fall 2025.</p>
+                        <a class="work-card__link" href="Capstone%20HTML.html" target="_blank" rel="noopener noreferrer">View full report <span aria-hidden="true">↗</span></a>
+                    </div>
+                </article>
+                <article class="work-card">
+                    <div class="work-card__visual work-card__visual--photo work-card__visual--chart"><img
+                            src="assets/data-analysis/movie-ratings-preference-histograms.png"
+                            alt="Six overlaid rating-distribution charts comparing people who prefer watching films alone or socially, for Shrek 2, Captain America: Civil War, The Avengers, Spider-Man, The Transporter, and North.">
+                    </div>
+                    <div class="work-card__body">
+                        <span class="work-card__meta">Coursework * statistical analysis</span>
+                        <h3>Movie Ratings Hypothesis Testing</h3>
+                        <p>Statistical analysis of movie preferences across 1,097 participants and 400 films, examining relationships among ratings, behavioral measures, and demographic factors. The analysis uses hypothesis testing and distributional exploration to investigate potential relationships between cinematic ratings and factors such as sensation-seeking traits and social viewing habits while using a significance threshold of α = 0.005. Completed during <em>Internship in Data Science</em> (DS-GA 1001) at NYU in Fall 2025.</p>
+                        <a class="work-card__link" href="Kaiser_DS-GA1001_Project1.html" target="_blank" rel="noopener noreferrer">View full report <span aria-hidden="true">↗</span></a>
                     </div>
                 </article>
             </div>
@@ -136,14 +221,17 @@
                             <li>audio</li>
                             <li>hardware + cloud</li>
                         </ul>
-                        <a class="work-card__link" href="case-studies/wearabllm.html">Read technical briefing <span
-                                aria-hidden="true">→</span></a>
+                        <div class="work-card__footer">
+                            <a class="work-card__link" href="case-studies/wearabllm.html">Read technical briefing <span
+                                    aria-hidden="true">→</span></a>
+                            <a class="work-card__github" href="https://github.com/kaiser-factorial/WearabLLM" target="_blank" rel="noopener noreferrer" aria-label="View WearabLLM on GitHub" title="View WearabLLM on GitHub"><img src="assets/github-logo.png" alt=""></a>
+                        </div>
                     </div>
                 </article>
                 <article class="work-card">
                     <div class="work-card__visual work-card__visual--photo work-card__visual--pixel"><img
-                            src="assets/physical-computing/pixel-chase-controller.png"
-                            alt="Pixel Chase wearable controller with a Circuit Playground, illuminated LEDs, 3D-printed enclosure, and denim wrist strap.">
+                            src="assets/physical-computing/pixel-chase-wrist-controller.png"
+                            alt="Pixel Chase wearable controller lit on a wrist, with a Circuit Playground board, exposed cable, 3D-printed enclosure, and denim strap.">
                     </div>
                     <div class="work-card__body">
                         <span class="work-card__meta">Coursework · creative controller</span>
@@ -156,82 +244,6 @@
                             <li>3D printing</li>
                         </ul>
                         <a class="work-card__link" href="case-studies/pixel-chase.html">Read project briefing <span
-                                aria-hidden="true">→</span></a>
-                    </div>
-                </article>
-            </div>
-        </section>
-
-        <section class="work-section" id="data-interaction" aria-labelledby="interaction-title">
-            <h2 class="section-heading" id="interaction-title">Data analysis &amp; interaction</h2>
-            <p class="section-intro">Interactive data systems and analytical work: tools for visual exploration,
-                reproducible analysis, and making assumptions and results inspectable.</p>
-            <div class="work-grid">
-                <article class="work-card">
-                    <div class="work-card__visual work-card__visual--scatter"><img
-                            src="assets/scatter-lab/iris-cluster-rotation.gif"
-                            alt="A rotating 3D Scatter Lab PCA plot with blue, pink, and yellow Iris clusters.">
-                    </div>
-                    <div class="work-card__body">
-                        <span class="work-card__meta">Browser-only research workbench</span>
-                        <h3>Scatter Lab</h3>
-                        <p>A local-first workbench for turning tabular research data into interactive 2D and 3D views—without uploading a dataset or operating an analysis backend.</p>
-                        <ul class="tag-list">
-                            <li>Next.js + React</li>
-                            <li>TypeScript</li>
-                            <li>Plotly WebGL</li>
-                            <li>IndexedDB</li>
-                        </ul>
-                        <div class="work-card__links">
-                            <a class="work-card__link" href="case-studies/pca-workbench.html">Read case study <span aria-hidden="true">→</span></a>
-                            <a class="work-card__link" href="https://scatter-lab.vercel.app/" target="_blank"
-                                rel="noopener noreferrer">Open Scatter Lab <span aria-hidden="true">↗</span></a>
-                            <a class="work-card__link" href="https://github.com/kaiser-factorial/scatter-lab" target="_blank"
-                                rel="noopener noreferrer">View source <span aria-hidden="true">↗</span></a>
-                        </div>
-                    </div>
-                </article>
-                <article class="work-card">
-                    <div class="work-card__visual work-card__visual--photo work-card__visual--vat"><img
-                            src="assets/vat-lexicon/mapreduce-in-motion.png"
-                            alt="Vat Lexicon visualizer running a MapReduce pipeline with input, map, shuffle, and reduce stages.">
-                    </div>
-                    <div class="work-card__body">
-                        <span class="work-card__meta">Linguistic visualization</span>
-                        <h3>Vat Lexicon</h3>
-                        <p>An interactive MapReduce visualization for vocabulary, distribution, similarity, and
-                            morphological exploration in a synthetic social world.</p>
-                        <ul class="tag-list">
-                            <li>JavaScript</li>
-                            <li>p5.js</li>
-                            <li>MapReduce</li>
-                        </ul>
-                        <a class="work-card__link" href="bot-lexicon-portal.html">Read project context <span
-                                aria-hidden="true">→</span></a>
-                    </div>
-                </article>
-                <article class="work-card">
-                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">RMP</span>
-                    </div>
-                    <div class="work-card__body">
-                        <span class="work-card__meta">Coursework · statistical analysis</span>
-                        <h3>Rate My Professor Analysis</h3>
-                        <p>An analysis of nearly 90,000 student evaluations, using weighted least squares, logistic
-                            regression, PCA, and permutation testing to investigate patterns in ratings, qualitative
-                            tags, and academic discipline.</p>
-                        <a class="work-card__link" href="capstone.html">View project summary <span
-                                aria-hidden="true">→</span></a>
-                    </div>
-                </article>
-                <article class="work-card">
-                    <div class="work-card__visual work-card__visual--other"><span class="work-card__mark">FILM</span>
-                    </div>
-                    <div class="work-card__body">
-                        <span class="work-card__meta">Coursework · hypothesis testing</span>
-                        <h3>Movie Ratings Hypothesis Testing</h3>
-                        <p>An exploratory hypothesis-testing project on movie preferences, behavioral measures, and
-                            demographic factors.</p>
-                        <a class="work-card__link" href="project1.html">Read summary <span
                                 aria-hidden="true">→</span></a>
                     </div>
                 </article>
@@ -258,8 +270,11 @@
                             <li>data visualization</li>
                             <li>front-end systems</li>
                         </ul>
-                        <a class="work-card__link" href="https://poetry-graph.vercel.app/workspace.html" target="_blank"
-                            rel="noopener noreferrer">Open live workspace <span aria-hidden="true">↗</span></a>
+                        <div class="work-card__footer">
+                            <a class="work-card__link" href="https://poetry-graph.vercel.app/workspace.html" target="_blank"
+                                rel="noopener noreferrer">Open live workspace <span aria-hidden="true">↗</span></a>
+                            <a class="work-card__github" href="https://github.com/kaiser-factorial/poetry-graph" target="_blank" rel="noopener noreferrer" aria-label="View Poetry Graph on GitHub" title="View Poetry Graph on GitHub"><img src="assets/github-logo.png" alt=""></a>
+                        </div>
                     </div>
                 </article>
                 <article class="work-card">
@@ -272,8 +287,7 @@
                         <h3>Catch-Fall</h3>
                         <p>A browser game built with p5.js and optional camera controls. Keyboard play works without
                             granting device access.</p>
-                        <a class="work-card__link" href="p5js.html">Play / read notes <span
-                                aria-hidden="true">→</span></a>
+                        <a class="work-card__link" href="p5js.html">Play <span aria-hidden="true">↗</span></a>
                     </div>
                 </article>
                 <article class="work-card">
@@ -285,8 +299,7 @@
                         <span class="work-card__meta">Film photography</span>
                         <h3>Photography</h3>
                         <p>35mm, 120mm, and 110mm film photography focused on multiple exposures and light leaks.</p>
-                        <a class="work-card__link" href="photography.html">View photography <span
-                                aria-hidden="true">→</span></a>
+                        <a class="work-card__link" href="photography.html">View photography <span aria-hidden="true">↗</span></a>
                     </div>
                 </article>
             </div>

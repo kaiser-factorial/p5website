@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pixel Chase full build journal: turning a p5.js game into an accelerometer-controlled Circuit Playground wearable, with enclosure and textile iterations.">
+    <title>Pixel Chase — Full Build Journal · Corina Kaiser</title>
+    <link rel="stylesheet" href="../../style.css?v=20260808-card-actions">
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    <script defer src="../../site.js?v=20260808-card-actions"></script>
+</head>
+<body class="site-page" data-page="work" data-root="../..">
+    <nav class="site-nav" data-site-nav></nav>
+    <main class="site-shell">
+        <header class="case-hero">
+            <div>
+                <p class="eyebrow">Coursework · full build journal</p>
+                <h1 class="page-heading">Pixel Chase — full build journal</h1>
+                <p class="page-lede">How I translated a keyboard game into a wrist-worn, accelerometer-controlled LED controller—then worked through game logic, enclosure fit, battery space, and textile closure to make it an object someone could actually wear.</p>
+                <div class="button-row">
+                    <a class="button-link" href="../pixel-chase.html">Back to project overview <span aria-hidden="true">→</span></a>
+                    <a class="button-link button-link--quiet" href="original-course-writeup.html" target="_blank" rel="noopener noreferrer">View original course writeup <span aria-hidden="true">↗</span></a>
+                </div>
+            </div>
+            <aside class="case-status"><span>Source</span><strong>Adapted Spring 2026 course report</strong></aside>
+        </header>
+
+        <section class="case-grid">
+            <div class="case-copy">
+                <h2>Start with a tiny chase game</h2>
+                <p>Pixel Chase began as a p5.js browser prototype: a player moves around a circular field, catches a green target, and avoids a red chaser. The original version used keyboard controls; the wearable version needed the same state and pacing to make sense through a quick wrist gesture and a ten-pixel LED ring.</p>
+                <p>The result is deliberately small. A blue player pixel follows the orientation of the wearer’s wrist, the game rewards a catch, penalizes a collision, and an idle rainbow mode makes the controller read as wearable LED jewelry when the game is not running.</p>
+
+                <h2>Map wrist tilt to a circle</h2>
+                <p>The Circuit Playground reads X/Y acceleration values. I convert those readings into an angle, then use that angle to select one of the ring’s ten LED sectors. That translation was the core interaction problem: it had to be steady enough to feel intentional but responsive enough to feel like play.</p>
+                <figure class="case-media case-media--tilt-map">
+                    <img src="../../assets/physical-computing/pixel-chase-tilt-map.png" alt="Diagram mapping a Circuit Playground's X and Y accelerometer values around ten LED sectors.">
+                    <figcaption>Accelerometer values become an orientation around the ten-pixel ring.</figcaption>
+                </figure>
+                <div class="case-system-map" aria-label="Pixel Chase interaction path">
+                    <span>Wrist tilt: X/Y accelerometer readings</span>
+                    <span>Orientation mapping: one of ten LED sectors</span>
+                    <span>Game state: catch, avoid, respawn, score, and level</span>
+                    <span>Feedback: color, tones, two modes, and sound-reactive idle light</span>
+                </div>
+
+                <h2>Make the small game legible</h2>
+                <p>I rebuilt the p5 prototype in Arduino/C++ and added space-aware respawning so a new target could not appear directly on the player. Modular wraparound lets movement travel continuously around the LED ring, while a red chaser, sound cues, level progression, and separate timed and survival modes give the game a clear rhythm without asking the wearer to look at a screen.</p>
+                <p>The <a href="https://editor.p5js.org/crk9967/full/ttYWwSqDg" target="_blank" rel="noopener noreferrer">original p5.js sketch</a> remains a useful record of the first interaction model; the wearable version required a different input language, not just a port of the code.</p>
+
+                <h2>Let the electronics set the form</h2>
+                <p>The controller needed to carry both the Circuit Playground and a LiPo battery, which made battery volume and cable routing central design constraints. I began with hand-drawn enclosure studies and paper models, then used Blender and three successive 3D-printed iterations to work toward a wrist-sized form.</p>
+                <figure class="case-media case-media--sketch">
+                    <img src="../../assets/physical-computing/pixel-chase-enclosure-sketch.jpg" alt="Hand-drawn enclosure studies for a Circuit Playground and battery, including top and side views of a wrist-worn controller.">
+                    <figcaption>Early studies located the board, battery, enclosure walls, and wrist attachment before printing.</figcaption>
+                </figure>
+
+                <h2>The enclosure became a collaboration</h2>
+                <p>I worked with peer Anantak Singh on the final enclosure architecture. Anantak redesigned and modeled separate chambers for the Circuit Playground and LiPo, a sliding battery bay, and side bars for the watch-like strap. Across the print iterations, that arrangement made the components fit more reliably and gave the textile system a stable attachment point.</p>
+                <figure class="case-media">
+                    <img src="../../assets/physical-computing/pixel-chase-enclosure-iterations.jpg" alt="Three Pixel Chase enclosure iterations, including an early paper prototype and later white 3D-printed pieces.">
+                    <figcaption>Paper and 3D-printed iterations narrowed the enclosure into the final wrist-worn form.</figcaption>
+                </figure>
+
+                <h2>The strap is part of the interface</h2>
+                <p>Bulky buckles and D-rings distracted from the compact controller, so I moved to a one-piece denim strap with a hook-and-loop closure. The single strap wraps beneath the enclosure, which keeps a fabric layer between the wearer and the electronics. Gold topstitching echoes the board’s connection pads, while white thread and closure material pick up the enclosure’s color.</p>
+                <figure class="case-media case-media--sketch">
+                    <img src="../../assets/physical-computing/pixel-chase-strap-sketch.jpg" alt="Hand-drawn Pixel Chase strap concept on lined paper, showing a denim sleeve, elastic and hook closure, enclosure position, and stitching notes.">
+                    <figcaption>The strap study specifies the denim sleeve, elastic closure, hook, and stitching choices that shaped the final wraparound fit.</figcaption>
+                </figure>
+
+                <h2>What I would explore next</h2>
+                <p>A more compact, verified battery configuration would reduce bulk and simplify the enclosure. I would also explore a conductive hook-and-loop closure as a deliberate power switch, and use the Circuit Playground Bluefruit’s Bluetooth capability to preserve scores beyond a single session. Those are future directions, not features of the completed prototype.</p>
+
+                <h2>Credits and prototype boundary</h2>
+                <p>This page adapts my Spring 2026 NYU Tandon Wearables course report for Professor Kathleen McDermott. The enclosure contribution is credited above to Anantak Singh. Early references included a <a href="https://www.thingiverse.com/thing:2585702" target="_blank" rel="noopener noreferrer">Thingiverse enclosure model</a> and a <a href="https://www.youtube.com/watch?v=YCWR5GgyL6k" target="_blank" rel="noopener noreferrer">TechSwiss hook-and-loop watch-band tutorial</a>.</p>
+                <p>Pixel Chase is a course prototype, not a consumer safety-tested wearable. Any future build would need an appropriate, verified power configuration and enclosure before being worn or used beyond supervised prototyping.</p>
+            </div>
+
+            <aside>
+                <figure class="case-media case-media--pixel">
+                    <img src="../../assets/physical-computing/pixel-chase-wrist-controller.png" alt="Pixel Chase wearable controller lit on a wrist, with a Circuit Playground board, exposed cable, 3D-printed enclosure, and denim strap.">
+                    <figcaption>The finished wearable controller in use.</figcaption>
+                </figure>
+                <ul class="case-facts">
+                    <li><strong>Interaction</strong><span>Wrist tilt controls position around a ten-pixel game field</span></li>
+                    <li><strong>Feedback</strong><span>NeoPixels, tones, scoring, modes, and sound-reactive idle display</span></li>
+                    <li><strong>Stack</strong><span>Arduino/C++, Circuit Playground, p5.js, Blender, 3D printing, textile work</span></li>
+                    <li><strong>Course</strong><span>DM-GY 9103 Wearables · Spring 2026</span></li>
+                </ul>
+                <figure class="case-media case-media--pixel">
+                    <img src="../../assets/physical-computing/pixel-chase-controller.png" alt="Pixel Chase controller showing the Circuit Playground Bluefruit in a white 3D-printed enclosure with denim wrist strap and active LEDs.">
+                    <figcaption>Front view of the board, enclosure, and custom strap.</figcaption>
+                </figure>
+            </aside>
+        </section>
+    </main>
+    <footer class="site-footer"><div class="site-footer__inner"><span>Corina Kaiser · Pixel Chase</span><span><a href="../../datascience.html">Selected work</a></span></div></footer>
+    <script src="../../global_transition.js"></script>
+</body>
+</html>

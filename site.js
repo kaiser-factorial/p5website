@@ -20,15 +20,6 @@
         ]
       },
     {
-      label: 'Physical computing & wearables',
-      href: `${href('datascience.html')}#physical-computing`,
-      items: [
-        { label: 'Jacket Link', href: href('case-studies/jacket-link.html') },
-        { label: 'WearabLLM', href: href('case-studies/wearabllm.html') },
-        { label: 'Pixel Chase', href: href('case-studies/pixel-chase.html') }
-      ]
-    },
-    {
       label: 'Data analysis & interaction',
       href: `${href('datascience.html')}#data-interaction`,
       items: [
@@ -36,6 +27,15 @@
         { label: 'Vat Lexicon', href: href('bot-lexicon-portal.html') },
         { label: 'Rate My Professor Analysis', href: href('capstone.html') },
         { label: 'Movie Ratings Hypothesis Testing', href: href('project1.html') }
+      ]
+    },
+    {
+      label: 'Physical computing & wearables',
+      href: `${href('datascience.html')}#physical-computing`,
+      items: [
+        { label: 'Jacket Link', href: href('case-studies/jacket-link.html') },
+        { label: 'WearabLLM', href: href('case-studies/wearabllm.html') },
+        { label: 'Pixel Chase', href: href('case-studies/pixel-chase.html') }
       ]
     },
     {
