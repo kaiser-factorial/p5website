@@ -1351,10 +1351,17 @@ body.site-page .page-lede {
 body.site-page .selected-work-nav {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin: 1.35rem 0;
+    width: min(100%, 960px);
+    margin: 1.35rem auto;
     border: 2px solid var(--ink);
     background: #fffefa;
     box-shadow: 4px 4px 0 var(--ink);
+}
+
+body.site-page .selected-work-header > .page-heading {
+    margin-right: auto;
+    margin-left: auto;
+    text-align: center;
 }
 
 body.site-page .selected-work-nav a {
@@ -1362,6 +1369,7 @@ body.site-page .selected-work-nav a {
     min-width: 0;
     min-height: 2.8rem;
     align-items: center;
+    justify-content: center;
     padding: .55rem .72rem;
     color: var(--ink);
     border-right: 1px solid var(--ink);
@@ -1369,6 +1377,7 @@ body.site-page .selected-work-nav a {
     font-weight: 700;
     letter-spacing: .06em;
     line-height: 1.2;
+    text-align: center;
     text-decoration: none;
     text-transform: uppercase;
     transition: background .15s ease, color .15s ease;
@@ -1451,6 +1460,10 @@ body.site-page .work-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
+}
+
+@media (min-width: 961px) {
+    body.site-page .work-grid--three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 body.site-page .work-card {
