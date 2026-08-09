@@ -7,7 +7,7 @@
     <meta name="description"
         content="Selected AI systems, research, data analysis and interaction, physical computing, and creative work by Corina Kaiser.">
     <title>Selected Work — Corina Kaiser</title>
-    <link rel="stylesheet" href="style.css?v=20260808-card-actions">
+    <link rel="stylesheet" href="style.css?v=20260808-card-live-icons">
     <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;700&display=swap"
         rel="stylesheet">
     <script defer src="site.js?v=20260808-card-actions"></script>
@@ -16,17 +16,20 @@
 <body class="datascience-page site-page" data-page="work">
     <nav class="site-nav" data-site-nav></nav>
     <main class="site-shell">
-        <header>
-            <p class="eyebrow">Selected work</p>
-            <h1 class="page-heading">AI systems, data analysis &amp; interaction, physical computing, and creative work</h1>
+        <header class="selected-work-header">
+            <h1 class="page-heading">Selected Work</h1>
+            <nav class="selected-work-nav" aria-label="Selected work sections">
+                <a href="#ai-systems">AI systems</a>
+                <a href="#data-interaction">Data analysis &amp; interaction</a>
+                <a href="#physical-computing">Physical computing</a>
+                <a href="#creative-work">Creative work</a>
+            </nav>
             <p class="page-lede">I work across agent infrastructure, live-sync applications, interactive data tools,
                 model behavior, physical computing, and creative computation.</p>
         </header>
 
         <section class="work-section" id="ai-systems" aria-labelledby="systems-title">
             <h2 class="section-heading" id="systems-title">AI systems &amp; research</h2>
-            <p class="section-intro">Projects related to applied AI & ML, agent systems, research engineering, and
-                full-stack application building.</p>
             <div class="work-grid">
                 <article class="work-card">
                     <div class="work-card__visual work-card__visual--memory"><span class="work-card__mark">MEM</span>
@@ -49,7 +52,9 @@
                     </div>
                 </article>
                 <article class="work-card">
-                    <div class="work-card__visual work-card__visual--joint"><span class="work-card__mark">JOIN</span>
+                    <div class="work-card__visual work-card__visual--photo work-card__visual--joint"><img
+                            src="assets/joint-session/joint-session-chat-preview.png"
+                            alt="Joint Session multi-model conversation showing a human collaborator and AI responses discussing a portfolio case-study format.">
                     </div>
                     <div class="work-card__body">
                         <span class="work-card__meta">Real-time full stack</span>
@@ -61,8 +66,13 @@
                             <li>Firebase</li>
                             <li>agent memory</li>
                         </ul>
-                        <a class="work-card__link" href="case-studies/joint-ai-chat.html">Read technical briefing <span
-                                aria-hidden="true">→</span></a>
+                        <div class="work-card__footer">
+                            <a class="work-card__link" href="case-studies/joint-ai-chat.html">Read technical briefing <span
+                                    aria-hidden="true">→</span></a>
+                            <a class="work-card__live" href="https://joint-ai-chat.web.app/" target="_blank"
+                                rel="noopener noreferrer" aria-label="Open Joint Session" title="Open Joint Session"><img
+                                    src="assets/joint-session/joint-session-icon.png" alt=""></a>
+                        </div>
                     </div>
                 </article>
                 <article class="work-card">
@@ -107,8 +117,6 @@
 
         <section class="work-section" id="data-interaction" aria-labelledby="interaction-title">
             <h2 class="section-heading" id="interaction-title">Data analysis &amp; interaction</h2>
-            <p class="section-intro">Interactive data systems and analytical work: tools for visual exploration,
-                reproducible analysis, and making assumptions and results inspectable.</p>
             <div class="work-grid">
                 <article class="work-card">
                     <div class="work-card__visual work-card__visual--scatter"><img
@@ -128,9 +136,10 @@
                         <div class="work-card__footer">
                             <div class="work-card__links">
                                 <a class="work-card__link" href="case-studies/pca-workbench.html">Read case study <span aria-hidden="true">→</span></a>
-                                <a class="work-card__link" href="https://scatter-lab.vercel.app/" target="_blank"
-                                    rel="noopener noreferrer">Open Scatter Lab <span aria-hidden="true">↗</span></a>
                             </div>
+                            <a class="work-card__live" href="https://scatter-lab.vercel.app/" target="_blank"
+                                rel="noopener noreferrer" aria-label="Open Scatter Lab" title="Open Scatter Lab"><img
+                                    src="assets/scatter-lab/scatter-lab-icon.svg" alt=""></a>
                             <a class="work-card__github" href="https://github.com/kaiser-factorial/scatter-lab" target="_blank" rel="noopener noreferrer" aria-label="View Scatter Lab on GitHub" title="View Scatter Lab on GitHub"><img src="assets/github-logo.png" alt=""></a>
                         </div>
                     </div>
@@ -158,9 +167,9 @@
                     </div>
                 </article>
                 <article class="work-card">
-                    <div class="work-card__visual work-card__visual--photo work-card__visual--chart"><img
-                            src="assets/data-analysis/rate-my-professor-model-comparison.png"
-                            alt="Two actual-versus-predicted rating scatter plots comparing models for Rate My Professor data, each with a red dashed reference line.">
+                    <div class="work-card__visual work-card__visual--photo work-card__visual--chart work-card__visual--rmp"><img
+                            src="assets/data-analysis/rate-my-professor-model-1.png"
+                            alt="Actual-versus-predicted rating scatter plot for Rate My Professor Model 1, with a red dashed reference line and R-squared value of 0.8320.">
                     </div>
                     <div class="work-card__body">
                         <span class="work-card__meta">Coursework * statistical analysis &amp; modeling</span>
@@ -186,8 +195,6 @@
 
         <section class="work-section" id="physical-computing" aria-labelledby="physical-title">
             <h2 class="section-heading" id="physical-title">Physical computing &amp; wearable systems</h2>
-            <p class="section-intro">Hardware and software built as one interaction surface: sensing, embedded behavior,
-                feedback, mobile or cloud integration, and the physical form that makes the system usable.</p>
             <div class="work-grid">
                 <article class="work-card">
                     <div class="work-card__visual work-card__visual--photo work-card__visual--jacket"><img
@@ -252,8 +259,6 @@
 
         <section class="work-section" id="creative-work" aria-labelledby="creative-title">
             <h2 class="section-heading" id="creative-title">Creative &amp; artistic work</h2>
-            <p class="section-intro">Creative projects in which language, play, image-making, and computation lead the
-                work.</p>
             <div class="work-grid">
                 <article class="work-card">
                     <div class="work-card__visual work-card__visual--photo work-card__visual--poetry"><img
