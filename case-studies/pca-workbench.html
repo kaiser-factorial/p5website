@@ -52,6 +52,58 @@
             </div>
             <aside><figure class="case-media case-media--scatter"><img src="../assets/scatter-lab/iris-cluster-rotation.gif" alt="A rotating 3D Scatter Lab PCA plot with blue, pink, and yellow Iris clusters." width="720" height="330" decoding="async" loading="eager"><figcaption>Cluster exploration in a local, browser-rendered 3D view.</figcaption></figure><ul class="case-facts"><li><strong>Stack</strong><span>Next.js · React · TypeScript · Plotly WebGL · IndexedDB</span></li><li><strong>Data boundary</strong><span>Browser compute; optional assistant receives aggregates only; Supabase backend for assistant feedback</span></li><li><strong>Core workflows</strong><span>Visual encoding · PCA · clustering · comparison · export · optional AI copilot</span></li></ul></aside>
         </section>
+        <section class="case-diagrams" aria-labelledby="scatter-lab-diagrams-title">
+            <div class="case-diagrams__intro">
+                <p class="eyebrow">System diagrams</p>
+                <h2 class="section-heading" id="scatter-lab-diagrams-title">How Scatter Lab works</h2>
+                <p>Three views drawn in the app's own Bauhaus visual language: the client-side data pipeline, the
+                    assistant's tool loop and trust boundary, and what that assistant can do in practice.</p>
+            </div>
+            <div class="case-diagrams__grid">
+            <figure class="case-diagram case-diagram--pipeline">
+                <div class="case-diagram__preview">
+                    <iframe src="../assets/scatter-lab/scatter-lab-pipeline-diagram.html#preview"
+                        title="Preview of the Scatter Lab data pipeline diagram" loading="lazy"
+                        aria-hidden="true" tabindex="-1"></iframe>
+                    <button class="case-diagram__open" type="button"
+                        data-diagram-src="../assets/scatter-lab/scatter-lab-pipeline-diagram.html"
+                        aria-label="Open the data pipeline diagram in full screen">
+                        <span>Expand diagram <b aria-hidden="true">↗</b></span>
+                    </button>
+                </div>
+                <figcaption>Every panel reads and writes one columnar table: PCA scores and cluster labels append as
+                    ordinary columns, so a fresh result is immediately plottable, clusterable, and exportable.</figcaption>
+            </figure>
+            <figure class="case-diagram case-diagram--assistant">
+                <div class="case-diagram__preview">
+                    <iframe src="../assets/scatter-lab/scatter-lab-assistant-diagram.html#preview"
+                        title="Preview of the Scatter Lab assistant architecture diagram" loading="lazy"
+                        aria-hidden="true" tabindex="-1"></iframe>
+                    <button class="case-diagram__open" type="button"
+                        data-diagram-src="../assets/scatter-lab/scatter-lab-assistant-diagram.html"
+                        aria-label="Open the assistant architecture diagram in full screen">
+                        <span>Expand diagram <b aria-hidden="true">↗</b></span>
+                    </button>
+                </div>
+                <figcaption>The copilot is a tool loop with the live app inside it — and exactly two narrowed wires
+                    cross the browser boundary: metadata-only model calls, and write-only feedback.</figcaption>
+            </figure>
+            <figure class="case-diagram case-diagram--capabilities">
+                <div class="case-diagram__preview">
+                    <iframe src="../assets/scatter-lab/scatter-lab-capabilities-diagram.html#preview"
+                        title="Preview of the Scatter Lab assistant capabilities diagram" loading="lazy"
+                        aria-hidden="true" tabindex="-1"></iframe>
+                    <button class="case-diagram__open" type="button"
+                        data-diagram-src="../assets/scatter-lab/scatter-lab-capabilities-diagram.html"
+                        aria-label="Open the assistant capabilities diagram in full screen">
+                        <span>Expand diagram <b aria-hidden="true">↗</b></span>
+                    </button>
+                </div>
+                <figcaption>Each capability family opens with something a researcher would actually say; the closing
+                    card carries the privacy and control guarantees the whole design rests on.</figcaption>
+            </figure>
+            </div>
+        </section>
     </main>
     <footer class="site-footer"><div class="site-footer__inner"><span>Corina Kaiser · Scatter Lab</span><span><a href="https://github.com/kaiser-factorial/scatter-lab" target="_blank" rel="noopener noreferrer">View source ↗</a></span></div></footer>
     <script src="../global_transition.js?v=20260809-portfolio-audit"></script>

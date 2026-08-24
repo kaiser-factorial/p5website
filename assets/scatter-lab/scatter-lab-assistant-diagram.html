@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scatter Lab — How the Assistant Works</title>
+<script>if (window.location.hash === '#preview') document.documentElement.dataset.presentation = 'preview';</script>
+<style>
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  * { box-sizing: border-box; }
+  .diagram-svg-frame { max-width: 1280px; margin: 0 auto; padding: 1.25rem; overflow-x: auto; }
+  .diagram-svg-frame svg { display: block; width: 100%; min-width: 1000px; height: auto; }
+  :root[data-presentation="preview"] .diagram-svg-frame { padding: 0.5rem; }
+  :root[data-presentation="preview"] .diagram-svg-frame svg { min-width: 0; }
+</style>
+</head>
+<body>
+<div class="diagram-svg-frame">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1720 880" font-family="'Courier Prime','Courier New',monospace">
+  <title>Scatter Lab — the assistant</title>
+  <defs>
+    <filter id="hs2" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="5" dy="5" stdDeviation="0" flood-color="#111111" flood-opacity="1"/>
+    </filter>
+    <marker id="bB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#111111"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill:#111111; }
+    .wt { fill:#ffffff; }
+    .lane { font-size:13px; font-weight:700; letter-spacing:2px; }
+    .bt   { font-size:14px; font-weight:700; }
+    .bt12 { font-size:12px; font-weight:700; }
+    .b12  { font-size:12px; }
+    .b11  { font-size:11px; }
+    .c10  { font-size:10.5px; }
+    .n11  { font-size:11px; fill:#555555; }
+    .n10  { font-size:10.5px; fill:#555555; }
+    .box  { fill:#ffffff; stroke:#111111; stroke-width:2.5; }
+    .card { fill:#ffffff; stroke:#111111; stroke-width:2; }
+    .flow { stroke:#111111; stroke-width:2.5; fill:none; }
+    .loopw{ stroke:#111111; stroke-width:3.5; fill:none; }
+    .dash { stroke-dasharray:7 5; }
+  </style>
+
+  <rect x="0" y="0" width="1720" height="880" fill="#ffffff"/>
+
+  <!-- title row -->
+  <rect x="32" y="10" width="20" height="20" fill="#0045AD" stroke="#111111" stroke-width="2"/>
+  <circle cx="74" cy="20" r="11" fill="#EB1A26" stroke="#111111" stroke-width="2"/>
+  <path d="M100,30 L111,8 L122,30 Z" fill="#FFD600" stroke="#111111" stroke-width="2"/>
+  <text x="142" y="27" font-size="20" font-weight="700" letter-spacing="2">SCATTER LAB — THE ASSISTANT</text>
+  <text x="1696" y="26" text-anchor="end" class="n11">system diagram 02/03 · 01 = the pipeline · 03 = what it can do</text>
+
+  <!-- browser boundary -->
+  <rect x="24" y="56" width="1400" height="772" fill="none" stroke="#111111" stroke-width="2.5" stroke-dasharray="12 7"/>
+  <rect x="48" y="42" width="700" height="30" fill="#111111"/>
+  <text x="398" y="62" text-anchor="middle" class="wt" font-size="12" font-weight="700" letter-spacing="1">IN THE BROWSER — THE ASSISTANT IS THE ONE OPT-IN EXCEPTION TO "NOTHING LEAVES"</text>
+
+  <!-- external zone header -->
+  <text x="1464" y="112" class="lane">EXTERNAL · OPT-IN</text>
+  <line x1="1464" y1="122" x2="1696" y2="122" stroke="#111111" stroke-width="2"/>
+
+  <!-- ═══ CONNECT: pick-one cards ═══ -->
+  <g id="node-connect">
+    <rect x="48" y="140" width="470" height="170" class="box" filter="url(#hs2)"/>
+    <text x="62" y="166" class="bt">CONNECT — BRING YOUR OWN MODEL</text>
+    <rect x="62" y="184" width="120" height="80" class="card"/>
+    <text x="72" y="208" class="bt12">OPENROUTER</text>
+    <text x="72" y="228" class="c10">one-click</text>
+    <text x="72" y="244" class="c10">OAuth PKCE</text>
+    <text x="190" y="228" class="n11">or</text>
+    <rect x="212" y="184" width="120" height="80" class="card"/>
+    <text x="222" y="208" class="bt12">ANY KEY</text>
+    <text x="222" y="228" class="c10">paste key +</text>
+    <text x="222" y="244" class="c10">base URL</text>
+    <text x="340" y="228" class="n11">or</text>
+    <rect x="362" y="184" width="120" height="80" class="card"/>
+    <text x="372" y="208" class="bt12">OLLAMA</text>
+    <text x="372" y="228" class="c10">local runtime</text>
+    <text x="372" y="244" class="c10">→ offline</text>
+    <text x="62" y="296" class="n11">key → localStorage only · picker lists tool-capable models</text>
+  </g>
+
+  <!-- ═══ PANEL ═══ -->
+  <g id="node-panel">
+    <rect x="48" y="360" width="280" height="170" class="box" filter="url(#hs2)"/>
+    <text x="62" y="386" class="bt">PANEL</text>
+    <text x="128" y="386" class="n10">AssistantPanel.tsx</text>
+    <text x="62" y="412" class="b12">chat in · markdown out</text>
+    <text x="62" y="432" class="b12">dock right · bottom · float</text>
+    <text x="62" y="456" class="n11">streams while it thinks ·</text>
+    <text x="62" y="474" class="n11">tool chips per call ·</text>
+    <text x="62" y="492" class="n11">rate replies 👍/👎 → feedback</text>
+  </g>
+
+  <!-- ═══ WORKBENCH ═══ -->
+  <g id="node-workbench2">
+    <rect x="48" y="560" width="280" height="110" class="box" filter="url(#hs2)"/>
+    <text x="62" y="586" class="bt">THE WORKBENCH</text>
+    <text x="62" y="612" class="b12">plot · table · sidebar</text>
+    <text x="62" y="634" class="n11">the whole of diagram 01 —</text>
+    <text x="62" y="652" class="n11">every change visible live</text>
+  </g>
+
+  <!-- ═══ KEY (bottom-left, blue border, matching 01) ═══ -->
+  <g id="node-key2">
+    <rect x="48" y="684" width="280" height="130" fill="#ffffff" stroke="#0045AD" stroke-width="3.5"/>
+    <text x="62" y="708" font-size="13" font-weight="700" letter-spacing="2">KEY</text>
+    <line x1="62" y1="728" x2="96" y2="728" class="loopw" marker-end="url(#bB)"/>
+    <text x="108" y="732" class="c10">the turn loop</text>
+    <line x1="66" y1="752" x2="92" y2="752" class="flow" marker-start="url(#bB)" marker-end="url(#bB)"/>
+    <text x="108" y="756" class="c10">two-way</text>
+    <line x1="62" y1="776" x2="96" y2="776" class="flow dash"/>
+    <text x="108" y="780" class="c10">browser boundary · optional</text>
+    <rect x="62" y="792" width="16" height="12" fill="#FFD600" stroke="#111111" stroke-width="1.5"/>
+    <text x="108" y="802" class="c10">privacy contract</text>
+  </g>
+
+  <!-- ═══ THE LOOP · nodes ═══ -->
+  <g id="node-prompt">
+    <rect x="560" y="140" width="300" height="120" class="box" filter="url(#hs2)"/>
+    <rect x="574" y="154" width="16" height="16" fill="#0045AD" stroke="#111111" stroke-width="2"/>
+    <text x="582" y="166.5" text-anchor="middle" class="wt" font-size="11" font-weight="700">2</text>
+    <text x="600" y="169" class="bt">SYSTEM PROMPT</text>
+    <text x="574" y="196" class="b12">rebuilt every lap from live</text>
+    <text x="574" y="216" class="b12">column profiles · axes ·</text>
+    <text x="574" y="236" class="b12">cluster settings · pca runs</text>
+  </g>
+
+  <g id="node-execute">
+    <rect x="560" y="420" width="300" height="190" fill="#FFD600" stroke="#111111" stroke-width="2.5" filter="url(#hs2)"/>
+    <rect x="574" y="434" width="16" height="16" fill="#EB1A26" stroke="#111111" stroke-width="2"/>
+    <text x="582" y="446.5" text-anchor="middle" class="wt" font-size="11" font-weight="700">4</text>
+    <text x="600" y="449" class="bt">EXECUTE — AppBridge</text>
+    <text x="574" y="476" class="b12">bridgeRef.current re-read</text>
+    <text x="574" y="496" class="b12">per call — fresh closures</text>
+    <text x="574" y="516" class="b12">after every React commit</text>
+    <text x="574" y="540" class="b12">paint-aware yield (2×rAF)</text>
+    <text x="574" y="566" class="n11">args validated · errors are</text>
+    <text x="574" y="584" class="n11">instructive, not opaque</text>
+  </g>
+
+  <!-- ═══ TOOLS + KNOWLEDGE ═══ -->
+  <g id="node-tools">
+    <rect x="1176" y="380" width="216" height="344" class="box" filter="url(#hs2)"/>
+    <text x="1190" y="406" class="bt">TOOLS ×25</text>
+    <text x="1190" y="430" class="bt12">READ</text>
+    <text x="1190" y="448" class="c10">get_app_state</text>
+    <text x="1190" y="470" class="bt12">ACT</text>
+    <text x="1190" y="488" class="c10">set_plot · control_view</text>
+    <text x="1190" y="504" class="c10">highlight_ui · pins</text>
+    <text x="1190" y="520" class="c10">switch_dataset · visibility</text>
+    <text x="1190" y="536" class="c10">transfer_column · save_ws</text>
+    <text x="1190" y="552" class="c10">load_demo_data</text>
+    <text x="1190" y="574" class="bt12">ANALYZE</text>
+    <text x="1190" y="592" class="c10">run_pca · run_clustering</text>
+    <text x="1190" y="608" class="c10">correlate · compare_groups</text>
+    <text x="1190" y="624" class="c10">suggest_k/eps · breakdown</text>
+    <text x="1190" y="646" class="bt12">EXPORT</text>
+    <text x="1190" y="664" class="c10">png·gif·html·csv·heatmap</text>
+    <text x="1190" y="686" class="bt12">TEACH</text>
+    <text x="1190" y="704" class="c10">get_tutorial · methods_ref</text>
+  </g>
+
+  <g id="node-knowledge">
+    <rect x="940" y="600" width="220" height="100" class="box" filter="url(#hs2)"/>
+    <text x="954" y="624" class="bt12">SHIPPED KNOWLEDGE</text>
+    <text x="954" y="644" class="b11">tutorial + 16 methods chunks</text>
+    <text x="954" y="662" class="n11">every claim cites its source</text>
+    <text x="954" y="680" class="n10">lexical search · vetted corpus</text>
+  </g>
+
+  <!-- ═══ AFTER EACH TURN ═══ -->
+  <text x="360" y="692" font-size="11" font-weight="700" letter-spacing="2">AFTER EACH TURN</text>
+  <g id="node-undo">
+    <rect x="360" y="700" width="250" height="100" class="box" filter="url(#hs2)"/>
+    <text x="374" y="726" class="bt">UNDO — mutating turns</text>
+    <text x="374" y="748" class="b11">snapshot before · 1-click revert</text>
+    <text x="374" y="766" class="n11">excludes workspace saves</text>
+  </g>
+  <g id="node-feedback">
+    <rect x="640" y="700" width="280" height="100" class="box" filter="url(#hs2)"/>
+    <text x="654" y="726" class="bt">FEEDBACK — feedback.ts</text>
+    <text x="654" y="748" class="b11">👍/👎 + reason rows · IndexedDB</text>
+    <text x="654" y="766" class="n11">web-lock flush · client_key</text>
+  </g>
+
+  <!-- ═══ EXTERNAL ═══ -->
+  <g id="node-modelapi">
+    <rect x="1464" y="140" width="232" height="210" class="box" filter="url(#hs2)"/>
+    <text x="1478" y="166" class="bt">MODEL API</text>
+    <text x="1478" y="194" class="b12">speaks chat.completions</text>
+    <text x="1478" y="214" class="b12">sees: metadata + tool calls</text>
+    <text x="1478" y="234" class="b12">returns: text + tool_calls</text>
+    <text x="1478" y="262" class="n11">whichever endpoint + model</text>
+    <text x="1478" y="280" class="n11">CONNECT picked · default:</text>
+    <text x="1478" y="298" class="n11">Claude Sonnet via OpenRouter</text>
+  </g>
+
+  <g id="node-supabase">
+    <rect x="1464" y="700" width="232" height="100" class="box" filter="url(#hs2)"/>
+    <text x="1478" y="726" class="bt">SUPABASE — eval sink</text>
+    <text x="1478" y="748" class="b11">assistant_feedback table</text>
+    <text x="1478" y="768" class="n11">the only data scatter lab</text>
+    <text x="1478" y="786" class="n11">ever retains — insert-only</text>
+  </g>
+
+  <!-- ═══ WIRES ═══ -->
+  <!-- connect → panel (settings live there) -->
+  <path d="M240,310 V352" class="flow dash" marker-end="url(#bB)"/>
+  <text x="252" y="336" class="n10">settings UI in panel</text>
+
+  <!-- 1 · user message: panel → prompt -->
+  <path d="M328,420 H540 V208 H552" class="loopw" marker-end="url(#bB)"/>
+  <rect x="350" y="412" width="16" height="16" fill="#EB1A26" stroke="#111111" stroke-width="2"/>
+  <text x="358" y="424.5" text-anchor="middle" class="wt" font-size="11" font-weight="700">1</text>
+  <text x="376" y="438" class="n10">user message + history</text>
+
+  <!-- 3 · request out: prompt → model api (crosses the boundary) -->
+  <path d="M860,200 H1456" class="loopw" marker-end="url(#bB)"/>
+  <rect x="1040" y="189" width="340" height="22" fill="#FFD600" stroke="#111111" stroke-width="2"/>
+  <text x="1210" y="204" text-anchor="middle" font-size="11" font-weight="700">COLUMN NAMES + AGGREGATE STATS — NEVER RAW ROWS</text>
+  <rect x="880" y="192" width="16" height="16" fill="#FFD600" stroke="#111111" stroke-width="2"/>
+  <text x="888" y="204.5" text-anchor="middle" font-size="11" font-weight="700">3</text>
+
+  <!-- model api → execute -->
+  <path d="M1464,310 H940 V470 H868" class="loopw" marker-end="url(#bB)"/>
+  <text x="960" y="302" class="n10">text deltas + tool_calls</text>
+
+  <!-- closing lap: execute → prompt -->
+  <path d="M660,420 V268" class="loopw" marker-end="url(#bB)"/>
+  <text x="674" y="336" class="n10">↺ tool results feed</text>
+  <text x="674" y="352" class="n10">the next lap · ≤16</text>
+
+  <!-- 5 · exit: execute → panel (final reply) -->
+  <path d="M560,470 H336" class="loopw" marker-end="url(#bB)"/>
+  <rect x="500" y="462" width="16" height="16" fill="#0045AD" stroke="#111111" stroke-width="2"/>
+  <text x="508" y="474.5" text-anchor="middle" class="wt" font-size="11" font-weight="700">5</text>
+  <text x="348" y="490" class="n10">no tools left → final reply</text>
+
+  <!-- execute ⇄ workbench -->
+  <line x1="336" y1="585" x2="552" y2="585" class="flow" marker-start="url(#bB)" marker-end="url(#bB)"/>
+  <text x="390" y="577" class="n10">drives · reads state</text>
+
+  <!-- execute ⇄ tools -->
+  <line x1="868" y1="540" x2="1168" y2="540" class="flow" marker-start="url(#bB)" marker-end="url(#bB)"/>
+  <text x="990" y="532" class="n10">dispatch ⇄ result strings</text>
+
+  <!-- teach tools → knowledge -->
+  <path d="M1176,690 H1168" class="flow" marker-end="url(#bB)"/>
+
+  <!-- feedback → supabase (one-way, crosses the boundary) -->
+  <path d="M920,750 H1456" class="flow" marker-end="url(#bB)"/>
+  <text x="946" y="742" class="n10">one-way by design — insert-only RLS</text>
+
+  <!-- footer -->
+  <text x="32" y="860" class="n10">source: frontend/src — assistant.ts · AssistantPanel.tsx · methods.ts · openrouterAuth.ts · feedback.ts · page.tsx (AppBridge)</text>
+  <text x="1696" y="860" text-anchor="end" class="n10">scatter-lab.vercel.app</text>
+</svg>
+</div>
+</body>
+</html>
