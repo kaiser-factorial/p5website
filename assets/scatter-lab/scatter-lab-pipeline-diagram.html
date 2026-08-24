@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scatter Lab — The Data Pipeline</title>
+<script>if (window.location.hash === '#preview') document.documentElement.dataset.presentation = 'preview';</script>
+<style>
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  * { box-sizing: border-box; }
+  .diagram-svg-frame { max-width: 1280px; margin: 0 auto; padding: 1.25rem; overflow-x: auto; }
+  .diagram-svg-frame svg { display: block; width: 100%; min-width: 1000px; height: auto; }
+  :root[data-presentation="preview"] .diagram-svg-frame { padding: 0.5rem; }
+  :root[data-presentation="preview"] .diagram-svg-frame svg { min-width: 0; }
+</style>
+</head>
+<body>
+<div class="diagram-svg-frame">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1720 880" font-family="'Courier Prime','Courier New',monospace">
+  <title>Scatter Lab — data pipeline</title>
+  <defs>
+    <filter id="hs" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="5" dy="5" stdDeviation="0" flood-color="#111111" flood-opacity="1"/>
+    </filter>
+    <marker id="aB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#111111"/>
+    </marker>
+    <marker id="aR" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#EB1A26"/>
+    </marker>
+  </defs>
+  <style>
+    text { fill:#111111; }
+    .wt { fill:#ffffff; }
+    .lane { font-size:13px; font-weight:700; letter-spacing:2px; }
+    .bt   { font-size:14px; font-weight:700; }
+    .bt12 { font-size:12px; font-weight:700; }
+    .bt18 { font-size:18px; font-weight:700; }
+    .b12  { font-size:12px; }
+    .c10  { font-size:10.5px; }
+    .n11  { font-size:11px; fill:#555555; }
+    .n10  { font-size:10.5px; fill:#555555; }
+    .red12{ font-size:12px; font-weight:700; fill:#EB1A26; }
+    .red10{ font-size:10.5px; font-weight:700; fill:#EB1A26; }
+    .box  { fill:#ffffff; stroke:#111111; stroke-width:2.5; }
+    .flow { stroke:#111111; stroke-width:2.5; fill:none; }
+    .dash { stroke-dasharray:7 5; }
+  </style>
+
+  <rect x="0" y="0" width="1720" height="880" fill="#ffffff"/>
+
+  <!-- title row -->
+  <rect x="32" y="10" width="20" height="20" fill="#0045AD" stroke="#111111" stroke-width="2"/>
+  <circle cx="74" cy="20" r="11" fill="#EB1A26" stroke="#111111" stroke-width="2"/>
+  <path d="M100,30 L111,8 L122,30 Z" fill="#FFD600" stroke="#111111" stroke-width="2"/>
+  <text x="142" y="27" font-size="20" font-weight="700" letter-spacing="2">SCATTER LAB — DATA PIPELINE</text>
+  <text x="1696" y="26" text-anchor="end" class="n11">system diagram 01/03 · 02–03 = the assistant</text>
+
+  <!-- browser boundary -->
+  <rect x="24" y="56" width="1680" height="772" fill="none" stroke="#111111" stroke-width="2.5" stroke-dasharray="12 7"/>
+  <rect x="48" y="42" width="700" height="30" fill="#111111"/>
+  <text x="398" y="62" text-anchor="middle" class="wt" font-size="12" font-weight="700" letter-spacing="1">A STATIC SITE — ALL COMPUTE IN THE BROWSER · YOUR DATASET NEVER LEAVES THE MACHINE</text>
+
+  <!-- lane headers -->
+  <text x="48"   y="112" class="lane">IMPORT</text>
+  <text x="298"  y="112" class="lane">INGEST</text>
+  <text x="568"  y="112" class="lane">THE TABLE</text>
+  <text x="858"  y="112" class="lane">WORKBENCH · RENDER</text>
+  <text x="1148" y="112" class="lane">INSIDE THE WORKBENCH</text>
+  <text x="1696" y="112" text-anchor="end" class="n11">the sidebar · steps 2–6</text>
+  <line x1="48"   y1="122" x2="258"  y2="122" stroke="#111111" stroke-width="2"/>
+  <line x1="298"  y1="122" x2="528"  y2="122" stroke="#111111" stroke-width="2"/>
+  <line x1="568"  y1="122" x2="818"  y2="122" stroke="#111111" stroke-width="2"/>
+  <line x1="858"  y1="122" x2="1108" y2="122" stroke="#111111" stroke-width="2"/>
+  <line x1="1148" y1="122" x2="1696" y2="122" stroke="#111111" stroke-width="2"/>
+
+  <!-- ═══ IMPORT ═══ -->
+  <g id="node-filedrop">
+    <rect x="48" y="140" width="210" height="96" class="box" filter="url(#hs)"/>
+    <rect x="62" y="154" width="20" height="20" fill="#EB1A26" stroke="#111111" stroke-width="2"/>
+    <text x="72" y="169" text-anchor="middle" class="wt" font-size="12" font-weight="700">1</text>
+    <text x="92" y="169" class="bt">FILE DROP</text>
+    <text x="62" y="196" class="b12">.csv · .xlsx · .parquet</text>
+    <text x="62" y="215" class="n11">sidebar step 1 — Data</text>
+  </g>
+
+  <g id="node-workspacefile">
+    <rect x="48" y="264" width="210" height="90" class="box" filter="url(#hs)"/>
+    <text x="62" y="288" class="bt">WORKSPACE FILE</text>
+    <text x="62" y="311" class="b12">.scatterlab.json</text>
+    <text x="62" y="330" class="n11">full snapshot incl. tables</text>
+  </g>
+
+  <g id="note-demo">
+    <line x1="50" y1="386" x2="50" y2="452" stroke="#111111" stroke-width="2"/>
+    <text x="62" y="400" class="n10">n.b. — the public Iris</text>
+    <text x="62" y="416" class="n10">demo (150 flowers) ships</text>
+    <text x="62" y="432" class="n10">through this same path</text>
+    <text x="62" y="448" class="n10">(file drop, no loadings)</text>
+  </g>
+
+  <!-- ═══ INGEST ═══ -->
+  <g id="node-parse">
+    <rect x="298" y="140" width="230" height="170" class="box" filter="url(#hs)"/>
+    <text x="312" y="166" class="bt">PARSE — parse.ts</text>
+    <text x="312" y="192" class="b12">PapaParse → .csv</text>
+    <text x="312" y="212" class="b12">SheetJS   → .xlsx</text>
+    <text x="312" y="232" class="b12">hyparquet → .parquet</text>
+    <text x="312" y="258" class="n11">parsers lazy-loaded on demand</text>
+    <text x="312" y="276" class="n11">typed cells · BigInt → number</text>
+  </g>
+
+  <g id="node-normalize">
+    <rect x="298" y="338" width="230" height="112" class="box" filter="url(#hs)"/>
+    <text x="312" y="364" class="bt">NORMALIZE — table.ts</text>
+    <text x="312" y="390" class="b12">'' · NaN · ±Inf → null</text>
+    <text x="312" y="409" class="b12">bool → 0|1 · Date → ISO</text>
+    <text x="312" y="428" class="b12">rows → 1 array per column</text>
+  </g>
+
+  <g id="node-projection">
+    <rect x="298" y="486" width="230" height="126" fill="#ffffff" stroke="#111111" stroke-width="2.5" stroke-dasharray="8 5"/>
+    <rect x="440" y="474" width="68" height="20" fill="#FFD600" stroke="#111111" stroke-width="2"/>
+    <text x="474" y="488" text-anchor="middle" font-size="10" font-weight="700">OPTIONAL</text>
+    <text x="312" y="512" class="bt">PCA PROJECTION</text>
+    <text x="312" y="530" class="n10">engine.ts</text>
+    <text x="312" y="554" class="b12">impute → z-score → X·L</text>
+    <text x="312" y="573" class="b12">adds PC1–3 from loadings</text>
+    <text x="312" y="597" class="n11">skipped without a file</text>
+  </g>
+
+  <!-- ═══ THE TABLE ═══ -->
+  <g id="node-hub">
+    <rect x="568" y="140" width="250" height="250" fill="#FFD600" stroke="#111111" stroke-width="2.5" filter="url(#hs)"/>
+    <text x="590" y="172" class="bt18">DataTable</text>
+    <text x="590" y="192" font-size="11">the shared columnar object</text>
+    <text x="590" y="220" class="b12">{ columns: string[]</text>
+    <text x="590" y="240" class="b12">  data: { col → cells[] }</text>
+    <text x="590" y="260" class="b12">  nRows: number }</text>
+    <g stroke="#111111" stroke-width="1.5">
+      <rect x="590" y="278" width="14" height="12" fill="#ffffff"/><rect x="590" y="293" width="14" height="12" fill="#ffffff"/><rect x="590" y="308" width="14" height="12" fill="#ffffff"/><rect x="590" y="323" width="14" height="12" fill="#ffffff"/>
+      <rect x="612" y="278" width="14" height="12" fill="#ffffff"/><rect x="612" y="293" width="14" height="12" fill="#ffffff"/><rect x="612" y="308" width="14" height="12" fill="#ffffff"/><rect x="612" y="323" width="14" height="12" fill="#ffffff"/>
+      <rect x="634" y="278" width="14" height="12" fill="#ffffff"/><rect x="634" y="293" width="14" height="12" fill="#ffffff"/><rect x="634" y="308" width="14" height="12" fill="#ffffff"/><rect x="634" y="323" width="14" height="12" fill="#ffffff"/>
+      <rect x="656" y="278" width="14" height="12" fill="#ffffff"/><rect x="656" y="293" width="14" height="12" fill="#ffffff"/><rect x="656" y="308" width="14" height="12" fill="#ffffff"/><rect x="656" y="323" width="14" height="12" fill="#ffffff"/>
+      <rect x="678" y="278" width="14" height="12" fill="#EB1A26"/><rect x="678" y="293" width="14" height="12" fill="#EB1A26"/><rect x="678" y="308" width="14" height="12" fill="#EB1A26"/><rect x="678" y="323" width="14" height="12" fill="#EB1A26"/>
+    </g>
+    <text x="590" y="356" font-size="11">new columns append in place —</text>
+    <text x="590" y="374" font-size="11">scores become plottable vars</text>
+  </g>
+
+  <g id="node-state">
+    <rect x="568" y="420" width="250" height="140" class="box" filter="url(#hs)"/>
+    <text x="582" y="446" class="bt">SESSION STATE — page.tsx</text>
+    <text x="582" y="472" class="b12">datasets[] · one active</text>
+    <text x="582" y="492" class="b12">axes auto-pick (PCs first)</text>
+    <text x="582" y="512" class="b12">color·shape·camera·transfer</text>
+    <text x="582" y="536" class="n11">views ≤4 (3 pins + live) · notes</text>
+  </g>
+
+  <g id="node-persist">
+    <rect x="568" y="590" width="250" height="112" class="box" filter="url(#hs)"/>
+    <text x="582" y="616" class="bt">PERSIST — workspaces.ts</text>
+    <text x="582" y="642" class="b12">IndexedDB 'scatter-lab'</text>
+    <text x="582" y="662" class="b12">tables deduped by identity</text>
+    <text x="582" y="682" class="b12">export ⇄ import .json file</text>
+  </g>
+
+  <!-- ═══ WORKBENCH · RENDER ═══ -->
+  <g id="node-workbench">
+    <rect x="858" y="140" width="250" height="140" class="box" filter="url(#hs)"/>
+    <text x="872" y="166" class="bt">THE WORKBENCH</text>
+    <text x="872" y="184" class="n11">steps 2–6 — detailed at right</text>
+    <text x="872" y="210" class="b12">assign → analyze → cluster →</text>
+    <text x="872" y="230" class="b12">view → export</text>
+    <text x="872" y="258" class="red12">+PC · +Cluster → the table</text>
+  </g>
+
+  <g id="node-plot">
+    <rect x="858" y="330" width="250" height="270" class="box" filter="url(#hs)"/>
+    <text x="872" y="356" class="bt">PLOT — Plotly WebGL</text>
+    <rect x="878" y="370" width="200" height="120" fill="#ffffff" stroke="#111111" stroke-width="1.5"/>
+    <g stroke="#dddddd" stroke-width="1">
+      <line x1="928" y1="370" x2="928" y2="490"/><line x1="978" y1="370" x2="978" y2="490"/><line x1="1028" y1="370" x2="1028" y2="490"/>
+      <line x1="878" y1="400" x2="1078" y2="400"/><line x1="878" y1="430" x2="1078" y2="430"/><line x1="878" y1="460" x2="1078" y2="460"/>
+    </g>
+    <g fill="#0045AD" stroke="#111111" stroke-width="1.25">
+      <rect x="891" y="451" width="8" height="8"/><rect x="904" y="459" width="8" height="8"/><rect x="898" y="438" width="8" height="8"/><rect x="914" y="446" width="8" height="8"/><rect x="908" y="468" width="8" height="8"/>
+    </g>
+    <g fill="#EB1A26" stroke="#111111" stroke-width="1.25">
+      <circle cx="975" cy="392" r="4.5"/><circle cx="987" cy="386" r="4.5"/><circle cx="981" cy="404" r="4.5"/><circle cx="997" cy="398" r="4.5"/><circle cx="969" cy="400" r="4.5"/>
+    </g>
+    <g fill="#FFD600" stroke="#111111" stroke-width="1.25">
+      <path d="M1035,464 L1040,455 L1045,464 Z"/><path d="M1047,472 L1052,463 L1057,472 Z"/><path d="M1041,448 L1046,439 L1051,448 Z"/><path d="M1055,456 L1060,447 L1065,456 Z"/><path d="M1029,476 L1034,467 L1039,476 Z"/>
+    </g>
+    <text x="1074" y="486" text-anchor="end" font-size="9" fill="#555555">PC1</text>
+    <text x="882" y="382" font-size="9" fill="#555555">PC2</text>
+    <text x="872" y="516" class="b12">position x·y·z</text>
+    <text x="872" y="536" class="b12">color: palette|viridis</text>
+    <text x="872" y="556" class="b12">shape: ≤6 symbols</text>
+    <text x="872" y="578" class="n11">mute/hide via legend</text>
+  </g>
+
+  <g id="node-key">
+    <rect x="48" y="690" width="210" height="110" fill="#ffffff" stroke="#0045AD" stroke-width="3.5"/>
+    <text x="62" y="714" font-size="13" font-weight="700" letter-spacing="2">KEY</text>
+    <line x1="62" y1="734" x2="96" y2="734" class="flow" marker-end="url(#aB)"/>
+    <text x="108" y="738" font-size="10.5">data flow</text>
+    <line x1="96" y1="758" x2="70" y2="758" stroke="#EB1A26" stroke-width="2.5" marker-end="url(#aR)"/>
+    <text x="108" y="762" font-size="10.5">derived cols write back</text>
+    <line x1="62" y1="782" x2="96" y2="782" class="flow dash"/>
+    <text x="108" y="786" font-size="10.5">optional / sideload</text>
+  </g>
+
+  <!-- ═══ INSIDE THE WORKBENCH · detail panel ═══ -->
+  <g id="node-detail">
+    <rect x="1148" y="140" width="548" height="520" class="box" filter="url(#hs)"/>
+    <rect x="1154" y="146" width="536" height="508" fill="none" stroke="#111111" stroke-width="1"/>
+
+    <rect x="1168" y="160" width="20" height="20" fill="#0045AD" stroke="#111111" stroke-width="2"/>
+    <text x="1178" y="175" text-anchor="middle" class="wt" font-size="12" font-weight="700">2</text>
+    <text x="1198" y="175" class="bt12">VARIABLES</text>
+    <text x="1198" y="195" class="c10">every column profiled — kind · range · NA · mini-histogram</text>
+    <text x="1198" y="211" class="c10">one-click assign to X · Y · Z · colour · shape</text>
+
+    <rect x="1168" y="232" width="20" height="20" fill="#FFD600" stroke="#111111" stroke-width="2"/>
+    <text x="1178" y="247" text-anchor="middle" font-size="12" font-weight="700">3</text>
+    <text x="1198" y="247" class="bt12">PCA</text>
+    <text x="1238" y="247" class="n10">pca.ts</text>
+    <text x="1198" y="267" class="c10">impute → corr matrix → Jacobi eigensolver → scores · scree</text>
+    <text x="1198" y="283" class="red10">+PC1_‹label›… +COMP_‹label› — appended to the table</text>
+
+    <rect x="1168" y="304" width="20" height="20" fill="#EB1A26" stroke="#111111" stroke-width="2"/>
+    <text x="1178" y="319" text-anchor="middle" class="wt" font-size="12" font-weight="700">4</text>
+    <text x="1198" y="319" class="bt12">CLUSTER</text>
+    <text x="1270" y="319" class="n10">cluster.ts</text>
+    <text x="1198" y="339" class="c10">on the plotted axes — z-score? → DBSCAN | k-means++ (seeded)</text>
+    <text x="1198" y="355" class="c10">silhouette-by-k · k-distance · % heatmap</text>
+    <text x="1460" y="355" class="red10">+Cluster → table</text>
+
+    <rect x="1168" y="376" width="20" height="20" fill="#0045AD" stroke="#111111" stroke-width="2"/>
+    <text x="1178" y="391" text-anchor="middle" class="wt" font-size="12" font-weight="700">5</text>
+    <text x="1198" y="391" class="bt12">VIEW</text>
+    <text x="1198" y="411" class="c10">2D/3D · camera · auto-rotate · axis labels · zoom window</text>
+    <text x="1198" y="427" class="c10">pin the live view — ≤3 pins tile into a compare grid</text>
+
+    <rect x="1168" y="448" width="20" height="20" fill="#FFD600" stroke="#111111" stroke-width="2"/>
+    <text x="1178" y="463" text-anchor="middle" font-size="12" font-weight="700">6</text>
+    <text x="1198" y="463" class="bt12">EXPORT</text>
+    <text x="1198" y="483" class="c10">save the active view — or the derived dataset as csv</text>
+    <rect x="1198" y="494" width="64" height="22" fill="#ffffff" stroke="#111111" stroke-width="1.5"/>
+    <text x="1206" y="509" font-size="10">.png 2×</text>
+    <rect x="1270" y="494" width="48" height="22" fill="#ffffff" stroke="#111111" stroke-width="1.5"/>
+    <text x="1278" y="509" font-size="10">.gif</text>
+    <rect x="1326" y="494" width="56" height="22" fill="#ffffff" stroke="#111111" stroke-width="1.5"/>
+    <text x="1334" y="509" font-size="10">.html</text>
+    <rect x="1390" y="494" width="48" height="22" fill="#ffffff" stroke="#111111" stroke-width="1.5"/>
+    <text x="1398" y="509" font-size="10">.csv</text>
+    <rect x="1446" y="494" width="72" height="22" fill="#ffffff" stroke="#111111" stroke-width="1.5"/>
+    <text x="1454" y="509" font-size="10">heatmap</text>
+    <text x="1532" y="509" class="n10">html works offline</text>
+
+    <line x1="1168" y1="540" x2="1676" y2="540" stroke="#111111" stroke-width="1"/>
+    <text x="1168" y="566" class="n11">the write-backs (red) are why a fresh PC score or cluster</text>
+    <text x="1168" y="584" class="n11">label can immediately be plotted, coloured by, re-clustered,</text>
+    <text x="1168" y="602" class="n11">or fed into a second-order PCA — one table, no copies</text>
+    <text x="1168" y="630" class="n10">variables panel = data profile + plot control in one surface;</text>
+    <text x="1168" y="646" class="n10">clustering's feature selection is the plotted axes themselves</text>
+  </g>
+
+  <!-- ═══ THE ASSISTANT · opt-in mention ═══ -->
+  <g id="node-assistant">
+    <rect x="1148" y="700" width="548" height="72" fill="#ffffff" stroke="#111111" stroke-width="2.5" stroke-dasharray="8 5"/>
+    <text x="1162" y="726" class="bt">THE ASSISTANT — OPT-IN COPILOT</text>
+    <text x="1162" y="748" class="n11">drives all of this through tool calls · sees metadata only — diagrams 02–03</text>
+  </g>
+  <line x1="1422" y1="664" x2="1422" y2="696" class="flow dash" marker-start="url(#aB)" marker-end="url(#aB)"/>
+
+  <!-- ═══ ARROWS ═══ -->
+  <!-- file drop → parse -->
+  <path d="M258,188 H290" class="flow" marker-end="url(#aB)"/>
+  <!-- workspace file → persist (sideload, clean bottom corridor) -->
+  <path d="M258,320 H278 V810 H693 V710" class="flow dash" marker-end="url(#aB)"/>
+  <text x="300" y="802" class="n10">workspace import → IndexedDB + state</text>
+  <!-- parse → normalize -->
+  <path d="M413,310 V330" class="flow" marker-end="url(#aB)"/>
+  <!-- normalize → hub (the default path) -->
+  <path d="M528,394 H540 V250 H560" class="flow" marker-end="url(#aB)"/>
+  <!-- normalize → projection (dashed detour) → hub -->
+  <path d="M413,450 V478" class="flow dash" marker-end="url(#aB)"/>
+  <text x="425" y="470" class="n10">components file</text>
+  <path d="M528,549 H552 V330 H560" class="flow dash" marker-end="url(#aB)"/>
+  <!-- hub ↔ state ↔ persist -->
+  <line x1="693" y1="394" x2="693" y2="416" class="flow" marker-start="url(#aB)" marker-end="url(#aB)"/>
+  <text x="703" y="410" class="n10">lives in</text>
+  <line x1="693" y1="564" x2="693" y2="586" class="flow" marker-start="url(#aB)" marker-end="url(#aB)"/>
+  <text x="703" y="580" class="n10">save/load</text>
+  <!-- table → workbench (reads) · workbench → table (writes back, red) -->
+  <path d="M818,210 H850" class="flow" marker-end="url(#aB)"/>
+  <path d="M850,246 H826" stroke="#EB1A26" stroke-width="2.5" fill="none" marker-end="url(#aR)"/>
+  <!-- workbench → plot -->
+  <path d="M983,284 V322" class="flow" marker-end="url(#aB)"/>
+  <!-- workbench → detail panel -->
+  <path d="M1108,210 H1140" class="flow dash" marker-end="url(#aB)"/>
+
+  <!-- footer -->
+  <text x="32" y="860" class="n10">source: frontend/src — parse.ts · table.ts · engine.ts · pca.ts · cluster.ts · workspaces.ts · page.tsx</text>
+  <text x="1696" y="860" text-anchor="end" class="n10">scatter-lab.vercel.app</text>
+</svg>
+</div>
+</body>
+</html>
